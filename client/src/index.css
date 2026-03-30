@@ -1,0 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Your custom styles MUST come AFTER */
+@layer base {
+  :root {
+    --color-primary: #454d64;
+  }
+}
