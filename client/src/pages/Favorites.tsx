@@ -1,99 +1,166 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { PropertyCard } from '../components/property/PropertyCard';
-import { Button } from '../components/ui/Button';
-import { Loader } from '../components/ui/Loader';
-import { useProperties } from '../hooks/useProperties';
-import { useAuth } from '../hooks/useAuth';
+// src/pages/Favorites.tsx
+import React, { useState, useEffect } from 'react';
+import PropertyCard from '../components/property/PropertyCard';
+import { useAuth } from '../context/AuthContext';
+import { Heart, Home, AlertCircle } from 'lucide-react';
+import { motion } from 'framer-motion';
 
-export default function Favorites() {
-  const { isLoggedIn } = useAuth();
-  const { favorites, properties, loading, removeFromFavorites, getFavorites } = useProperties();
-  const [favoriteProperties, setFavoriteProperties] = useState<any[]>([]);
+interface FavoriteProperty {
+  id: string;
+  title: string;
+  image: string;
+  price: number;
+  period?: string;
+  location: string;
+  type: string;
+  beds: number;
+  baths?: number;
+  sqft?: number;
+}
+
+const Favorites: React.FC = () => {
+  const [favorites, setFavorites] = useState<FavoriteProperty[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
 
   useEffect(() => {
-    if (isLoggedIn) {
-      getFavorites();
+    // Load favorites from API or localStorage
+    loadFavorites();
+  }, []);
+
+  const loadFavorites = async () => {
+    try {
+      setLoading(true);
+      // Replace with your actual API call
+      // const response = await api.get('/favorites');
+      // setFavorites(response.data);
+      
+      // Sample data for demonstration
+      setTimeout(() => {
+        setFavorites([
+          {
+            id: '1',
+            title: 'Modern Apartment in Bole',
+            image: 'https://via.placeholder.com/400x300',
+            price: 15000,
+            period: 'month',
+            location: 'Bole, Addis Ababa',
+            type: 'Apartment',
+            beds: 2,
+            baths: 2,
+            sqft: 1200,
+          },
+          {
+            id: '2',
+            title: 'Luxury Villa in Kazanchis',
+            image: 'https://via.placeholder.com/400x300',
+            price: 35000,
+            period: 'month',
+            location: 'Kazanchis, Addis Ababa',
+            type: 'Villa',
+            beds: 4,
+            baths: 3,
+            sqft: 2500,
+          },
+        ]);
+        setLoading(false);
+      }, 1000);
+    } catch (error) {
+      console.error('Error loading favorites:', error);
+      setLoading(false);
     }
-  }, [isLoggedIn]);
-
-  useEffect(() => {
-    // Filter properties that are in favorites
-    const favProps = properties.filter(prop => favorites.includes(prop.id));
-    setFavoriteProperties(favProps);
-  }, [properties, favorites]);
-
-  const handleRemoveFavorite = async (propertyId: string) => {
-    await removeFromFavorites(propertyId);
-    setFavoriteProperties(prev => prev.filter(p => p.id !== propertyId));
   };
 
-  if (!isLoggedIn) {
+  const handleRemoveFavorite = async (propertyId: string) => {
+    try {
+      // Replace with your actual API call
+      // await api.delete(`/favorites/${propertyId}`);
+      
+      // Update local state
+      setFavorites(favorites.filter(prop => prop.id !== propertyId));
+    } catch (error) {
+      console.error('Error removing favorite:', error);
+    }
+  };
+
+  if (loading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
-        <div className="text-6xl mb-4">❤️</div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-4">Save Your Favorite Properties</h1>
-        <p className="text-gray-600 mb-8 max-w-md mx-auto">
-          Sign in to save properties you love and keep track of your favorites.
-        </p>
-        <Link to="/login">
-          <Button variant="primary">Sign In to Continue</Button>
-        </Link>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading your favorites...</p>
+        </div>
       </div>
     );
   }
 
-  if (loading) {
+  if (!user) {
     return (
-      <div className="flex justify-center items-center min-h-[400px]">
-        <Loader size="lg" />
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="text-center max-w-md">
+          <Heart className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Sign in to view favorites</h2>
+          <p className="text-gray-600 mb-6">
+            Please sign in to see your saved properties and manage your favorites.
+          </p>
+          <button
+            onClick={() => window.location.href = '/login'}
+            className="bg-primary-600 text-white px-6 py-2 rounded-lg hover:bg-primary-700 transition-colors"
+          >
+            Sign In
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (favorites.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="text-center max-w-md">
+          <Heart className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">No favorites yet</h2>
+          <p className="text-gray-600 mb-6">
+            Start exploring properties and save your favorites to see them here.
+          </p>
+          <button
+            onClick={() => window.location.href = '/properties'}
+            className="bg-primary-600 text-white px-6 py-2 rounded-lg hover:bg-primary-700 transition-colors"
+          >
+            Browse Properties
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Header */}
+    <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">My Favorites</h1>
         <p className="text-gray-600">
-          {favoriteProperties.length} {favoriteProperties.length === 1 ? 'property' : 'properties'} saved
+          You have {favorites.length} saved {favorites.length === 1 ? 'property' : 'properties'}
         </p>
       </div>
 
-      {/* Favorite Properties Grid */}
-      {favoriteProperties.length > 0 ? (
-        <AnimatePresence>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {favoriteProperties.map((property, index) => (
-              <motion.div
-                key={property.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.3, delay: index * 0.05 }}
-              >
-                <PropertyCard
-                  property={property}
-                  onFavoriteToggle={() => handleRemoveFavorite(property.id)}
-                />
-              </motion.div>
-            ))}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {favorites.map((property) => (
+          <div key={property.id} className="relative">
+            <PropertyCard
+              property={property}
+              onFavoriteToggle={() => handleRemoveFavorite(property.id)}
+            />
+            <button
+              onClick={() => handleRemoveFavorite(property.id)}
+              className="absolute top-4 right-4 z-10 p-2 bg-white rounded-full shadow-md hover:shadow-lg transition-shadow"
+            >
+              <Heart size={20} className="fill-red-500 text-red-500" />
+            </button>
           </div>
-        </AnimatePresence>
-      ) : (
-        <div className="text-center py-16">
-          <div className="text-6xl mb-4">❤️</div>
-          <h2 className="text-2xl font-semibold text-gray-900 mb-2">No favorites yet</h2>
-          <p className="text-gray-600 mb-6">
-            Start exploring properties and save your favorites here.
-          </p>
-          <Link to="/properties">
-            <Button variant="primary">Browse Properties</Button>
-          </Link>
-        </div>
-      )}
+        ))}
+      </div>
     </div>
   );
-}
+};
+
+export default Favorites;

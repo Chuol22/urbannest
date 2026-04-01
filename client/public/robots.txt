@@ -1,0 +1,17 @@
+# Allow all crawlers
+User-agent: *
+Allow: /
+
+# Block sensitive pages
+Disallow: /dashboard/
+Disallow: /profile/
+Disallow: /settings/
+Disallow: /mynest/
+Disallow: /api/
+Disallow: /admin/
+
+# Sitemap location
+Sitemap: https://urbannest.com/sitemap.xml
+
+# Crawl delay (be polite to servers)
+Crawl-delay: 10

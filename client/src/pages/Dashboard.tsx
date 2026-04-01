@@ -40,7 +40,7 @@ const Dashboard = () => {
           {[1, 2, 3].map((item) => (
             <div key={item} className="flex items-center justify-between py-3 border-b border-gray-100">
               <div>
-                <p className="font-semibold">New inquiry about Modern Downtown Loft</p>
+                <p className="font-semibold">New inquiry about Modern Downtown city</p>
                 <p className="text-sm text-gray-500">2 hours ago</p>
               </div>
               <button className="text-[#10B981] hover:underline">View</button>

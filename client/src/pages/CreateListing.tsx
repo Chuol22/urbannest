@@ -19,7 +19,7 @@ const CreateListing = () => {
     description: '',
     price: '',
     location: '',
-    type: 'sale'
+    type: ''
   });
   
   const { user } = useAuth();

@@ -1,9 +1,10 @@
+// src/components/property/PropertyCard.tsx
 import { Heart, Bed, Bath, Square, MapPin } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../ui/Button';
-import { toast } from 'sonner'; // Make sure to install sonner
+import { toast } from 'sonner';
 
 // ✅ Property type
 interface Property {
@@ -147,4 +148,5 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
   );
 };
 
+// ✅ ADD THIS DEFAULT EXPORT
 export default PropertyCard;

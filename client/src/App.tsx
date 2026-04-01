@@ -1,4 +1,4 @@
-// client/src/App.tsx
+// src/App.tsx
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { PropertyProvider } from './context/PropertyContext';
@@ -6,9 +6,9 @@ import { ThemeProvider } from './context/ThemeContext';
 import Layout from './components/layout/Layout';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
-import React from 'react';
+import React, { Suspense } from 'react';
 
-// Lazy load pages
+// Lazy load pages for better performance
 const Home = React.lazy(() => import('./pages/Home'));
 const About = React.lazy(() => import('./pages/About'));
 const Properties = React.lazy(() => import('./pages/Properties'));
@@ -27,14 +27,13 @@ const Privacy = React.lazy(() => import('./pages/Privacy'));
 const NotFound = React.lazy(() => import('./pages/NotFound'));
 const CreateListing = React.lazy(() => import('./pages/CreateListing'));
 
-// Remove these from lazy loading since they're not standalone pages
-// const SubscriptionPlans = React.lazy(() => import('./components/subscriptions/SubscriptionPlans'));
-// const AgentDashboard = React.lazy(() => import('./components/subscriptions/AgentDashboard'));
-// const BoostOptions = React.lazy(() => import('./components/boosts/BoostOptions'));
-
+// Loading component for lazy-loaded routes
 const LoadingFallback = () => (
   <div className="min-h-screen flex items-center justify-center">
-    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+    <div className="text-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+      <p className="mt-4 text-gray-600">Loading...</p>
+    </div>
   </div>
 );
 
@@ -45,10 +44,10 @@ function App() {
         <AuthProvider>
           <PropertyProvider>
             <Router>
-              <Layout showSidebar={false}>
-                <React.Suspense fallback={<LoadingFallback />}>
+              <Layout>
+                <Suspense fallback={<LoadingFallback />}>
                   <Routes>
-                    {/* Public Routes */}
+                    {/* Public Routes - Accessible to everyone */}
                     <Route path="/" element={<Home />} />
                     <Route path="/about" element={<About />} />
                     <Route path="/properties" element={<Properties />} />
@@ -60,7 +59,7 @@ function App() {
                     <Route path="/terms" element={<Terms />} />
                     <Route path="/privacy" element={<Privacy />} />
                     
-                    {/* Protected Routes */}
+                    {/* Protected Routes - Require authentication */}
                     <Route path="/create-listing" element={
                       <ProtectedRoute>
                         <CreateListing />
@@ -92,10 +91,10 @@ function App() {
                       </ProtectedRoute>
                     } />
                     
-                    {/* 404 Route */}
+                    {/* 404 Route - Catch all unmatched routes */}
                     <Route path="*" element={<NotFound />} />
                   </Routes>
-                </React.Suspense>
+                </Suspense>
               </Layout>
             </Router>
           </PropertyProvider>

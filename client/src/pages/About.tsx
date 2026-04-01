@@ -1,5 +1,12 @@
+import { useNavigate } from 'react-router-dom';
 
 export default function About() {
+  const navigate = useNavigate();
+
+  const handleSearch = () => {
+    navigate('/properties'); // or '/search' or whatever your route is
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="text-center mb-12">
@@ -39,7 +46,7 @@ export default function About() {
             <p className="text-gray-600">All listings are verified for authenticity and quality</p>
           </div>
           
-          <div className="text-center p-6 bg-gray-50 rounded-lg">
+          <div className="text-center p-6 bg-gray-50 shadow-slate-900 rounded-lg">
             <div className="text-primary-600 text-4xl mb-4">🔒</div>
             <h3 className="text-xl font-semibold mb-2">Secure Transactions</h3>
             <p className="text-gray-600">Safe and secure payment processing</p>
@@ -56,7 +63,10 @@ export default function About() {
       <div className="bg-primary-50 rounded-lg p-8 text-center">
         <h2 className="text-2xl font-semibold text-gray-900 mb-4">Ready to Find Your Perfect Nest?</h2>
         <p className="text-gray-600 mb-6">Join thousands of satisfied tenants who found their dream home with UrbanNEST</p>
-        <button className="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors">
+        <button 
+          onClick={handleSearch}
+          className="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors cursor-pointer"
+        >
           Start Your Search
         </button>
       </div>

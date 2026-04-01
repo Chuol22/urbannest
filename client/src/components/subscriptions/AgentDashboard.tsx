@@ -32,7 +32,7 @@ const AgentDashboard: React.FC<AgentDashboardProps> = ({
   };
 
   const getListingsRemaining = () => {
-    if (!subscription) return 10 - listingsCount;
+    if (!subscription) return 5 - listingsCount;
     if (subscription.plan === 'premium') return 'Unlimited';
     return subscription.listingsLimit - listingsCount;
   };

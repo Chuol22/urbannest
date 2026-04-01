@@ -1,41 +1,60 @@
+// src/components/boosts/BoostOptions.tsx
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { TrendingUp, AlertCircle, Zap, Check } from 'lucide-react';
+import { TrendingUp, AlertCircle, Zap, Check, Shield } from 'lucide-react';
 import { BOOST_PRICES, formatPrice } from '../../utils/pricing';
 import { Button } from '../ui/Button';
+import { Alert } from '../ui/Alert';
 
 interface BoostOptionsProps {
   listingId: string;
-  onApplyBoost: (listingId: string, boostType: 'top_search' | 'urgent_badge', price: number) => void;
+  onApplyBoost: (listingId: string, boostType: 'top_search' | 'urgent_badge', price: number) => Promise<void>;
   existingBoosts?: Array<'top_search' | 'urgent_badge'>;
+  isProcessing?: boolean;
 }
 
 const BoostOptions: React.FC<BoostOptionsProps> = ({
   listingId,
   onApplyBoost,
-  existingBoosts = []
+  existingBoosts = [],
+  isProcessing = false
 }) => {
   const [selectedBoost, setSelectedBoost] = useState<'top_search' | 'urgent_badge' | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const boosts = [
     {
       id: 'top_search' as const,
       icon: TrendingUp,
-      ...BOOST_PRICES.top_search
+      ...BOOST_PRICES.top_search,
+      securityNote: 'Your listing will appear at the top of search results for 30 days'
     },
     {
       id: 'urgent_badge' as const,
       icon: AlertCircle,
-      ...BOOST_PRICES.urgent_badge
+      ...BOOST_PRICES.urgent_badge,
+      securityNote: 'An "URGENT" badge will be displayed on your listing'
     }
   ];
 
-  const handleApplyBoost = () => {
-    if (selectedBoost) {
+  const handleApplyBoost = async () => {
+    if (!selectedBoost) return;
+    
+    setError(null);
+    setIsLoading(true);
+    
+    try {
       const boost = boosts.find(b => b.id === selectedBoost);
       if (boost) {
-        onApplyBoost(listingId, selectedBoost, boost.price);
+        await onApplyBoost(listingId, selectedBoost, boost.price);
       }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to apply boost. Please try again.';
+      setError(errorMessage);
+      console.error('Boost application error:', err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -50,6 +69,14 @@ const BoostOptions: React.FC<BoostOptionsProps> = ({
         <p className="text-gray-600">Get more visibility and sell faster</p>
       </div>
 
+      {error && (
+        <Alert 
+          type="error" 
+          message={error} 
+          onClose={() => setError(null)}
+        />
+      )}
+
       <div className="grid md:grid-cols-2 gap-6">
         {boosts.map((boost) => {
           const Icon = boost.icon;
@@ -63,11 +90,11 @@ const BoostOptions: React.FC<BoostOptionsProps> = ({
                 selectedBoost === boost.id
                   ? `${boost.color} border-opacity-50 bg-opacity-10`
                   : 'border-gray-200 hover:border-gray-300'
-              }`}
+              } ${isActive ? 'opacity-75 cursor-not-allowed' : ''}`}
               style={{
                 backgroundColor: selectedBoost === boost.id ? `${boost.color}10` : 'transparent'
               }}
-              onClick={() => !isActive && setSelectedBoost(boost.id)}
+              onClick={() => !isActive && !isLoading && !isProcessing && setSelectedBoost(boost.id)}
             >
               {isActive && (
                 <div className="absolute top-4 right-4">
@@ -90,9 +117,13 @@ const BoostOptions: React.FC<BoostOptionsProps> = ({
               <p className="text-xs text-gray-500">Valid for {boost.duration}</p>
               
               {!isActive && (
-                <div className="mt-4">
+                <div className="mt-4 space-y-2">
                   <div className="text-sm text-green-600 font-semibold">
                     Estimated: +50% more views
+                  </div>
+                  <div className="flex items-center gap-1 text-xs text-gray-500">
+                    <Shield size={12} />
+                    <span>{boost.securityNote}</span>
                   </div>
                 </div>
               )}
@@ -101,21 +132,29 @@ const BoostOptions: React.FC<BoostOptionsProps> = ({
         })}
       </div>
 
-      {selectedBoost && (
+      {selectedBoost && !isBoostActive(selectedBoost) && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="mt-6 p-4 bg-gray-50 rounded-lg"
         >
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
             <div>
               <p className="font-semibold text-gray-900">Selected Boost</p>
               <p className="text-sm text-gray-600">
                 {boosts.find(b => b.id === selectedBoost)?.label}
               </p>
+              <p className="text-xs text-gray-500 mt-1">
+                Payment will be processed securely
+              </p>
             </div>
-            <Button onClick={handleApplyBoost} className="bg-gradient-to-r from-purple-500 to-purple-600">
-              Apply Boost - {formatPrice(boosts.find(b => b.id === selectedBoost)?.price || 0)}
+            <Button 
+              onClick={handleApplyBoost} 
+              loading={isLoading || isProcessing}
+              disabled={isLoading || isProcessing}
+              className="bg-gradient-to-r from-purple-500 to-purple-600"
+            >
+              {isLoading ? 'Processing...' : `Apply Boost - ${formatPrice(boosts.find(b => b.id === selectedBoost)?.price || 0)}`}
             </Button>
           </div>
         </motion.div>
