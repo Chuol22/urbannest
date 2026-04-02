@@ -122,7 +122,7 @@ export default function Register() {
                 if (errors.name) delete errors.name;
               }}
               error={errors.name}
-              placeholder="John Doe"
+              placeholder="ChuolCore"
               disabled={loading}
             />
 
@@ -136,7 +136,7 @@ export default function Register() {
                 if (errors.email) delete errors.email;
               }}
               error={errors.email}
-              placeholder="you@example.com"
+              placeholder="me@example.com"
               disabled={loading}
             />
 
@@ -149,7 +149,7 @@ export default function Register() {
                 if (errors.phone) delete errors.phone;
               }}
               error={errors.phone}
-              placeholder="+1 (555) 123-4567"
+              placeholder="+251 (96) 077-9507"
               disabled={loading}
             />
 
