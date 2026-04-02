@@ -1,73 +1,88 @@
-# React + TypeScript + Vite
+# ![alt text](src/assets/images/Urbanestlogo.png) UrbanNEST - Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+![UrbanNEST Logo](/public/favicon.ico)
 
-Currently, two official plugins are available:
+Ethiopia's premier property marketplace frontend application. Find, list, and manage properties with ease.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 📋 Table of Contents
+- [Overview](#overview)
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Getting Started](#getting-started)
+- [Project Structure](#project-structure)
+- [Environment Variables](#environment-variables)
+- [Security Features](#security-features)
+- [Available Scripts](#available-scripts)
+- [Deployment](#deployment)
+- [Contributing](#contributing)
+- [License](#license)
 
-## React Compiler
+## 🎯 Overview
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+UrbanNEST is a modern real estate platform connecting property seekers with agents and property owners in Ethiopia. This frontend application provides a seamless user experience for browsing properties, managing listings, and connecting with real estate professionals.
 
-## Expanding the ESLint configuration
+## ✨ Features
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### 🔐 Authentication & Security
+- Secure JWT-based authentication
+- Protected routes with role-based access
+- Password strength validation
+- Rate limiting on auth attempts
+- XSS protection with input sanitization
+- SessionStorage token storage (more secure than localStorage)
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### 🏠 Property Management
+- Browse properties with advanced filters
+- Detailed property views with images and specifications
+- Create and manage property listings
+- Favorite/save properties
+- Property boosts for increased visibility
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### 👤 User Features
+- User profiles and settings
+- Dashboard with property statistics
+- Saved favorites management
+- Email verification
+- Password recovery
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+### 🎨 UI/UX
+- Responsive design for all devices
+- Dark/Light theme support
+- Smooth animations with Framer Motion
+- Toast notifications for user feedback
+- Loading skeletons for better UX
+- Accessibility compliant
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 📱 Performance
+- Lazy loading for routes
+- Code splitting for optimal bundle size
+- Optimized asset loading
+- Preconnect to external resources
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 🛠 Tech Stack
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+|   Technology      |       Description |
+|-------------------|-------------|
+| **React 18**      |     UI library with hooks and functional components |
+| **TypeScript**    |     Type-safe JavaScript |
+| **Vite**          |     Next-generation build tool |
+| **Tailwind CSS**  |     Utility-first CSS framework |
+| **React Router v6** |   Client-side routing |
+| **Axios**           |  HTTP client with interceptors |
+| **Framer Motion**   |   Animation library |
+| **Lucide React**    |   Beautiful icon set |
+| **Sonner**          |   Toast notifications |
+| **DOMPurify**       |   XSS sanitization |
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js 18+ 
+- npm or yarn package manager
+
+### Installation
+
+1. **Clone the repository**
+```bash
+git clone https://github.com/yourusername/urbannest-client.git
+cd urbannest-client
