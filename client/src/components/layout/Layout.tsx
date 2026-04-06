@@ -10,15 +10,16 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children, showSidebar = false }) => {
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-white">
       <Navbar />
+
       
       <div className="flex-grow">
         {showSidebar ? (
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="flex flex-col lg:flex-row gap-8">
               <aside className="lg:w-1/4">
-                <div className="bg-white rounded-lg shadow-md p-6 sticky top-24">
+                <div className="bg-transparent rounded-lg shadow-md p-6 sticky top-24">
                   <h3 className="text-lg font-semibold mb-4">Navigation</h3>
                   <nav>
                     <ul className="space-y-2">
@@ -31,7 +32,7 @@ const Layout: React.FC<LayoutProps> = ({ children, showSidebar = false }) => {
                 </div>
               </aside>
               <main className="lg:w-3/4">
-                <div className="bg-white rounded-lg shadow-md p-6">
+                <div className="bg-transparent rounded-lg shadow-md p-6">
                   {children || <Outlet />}
                 </div>
               </main>
@@ -39,7 +40,7 @@ const Layout: React.FC<LayoutProps> = ({ children, showSidebar = false }) => {
           </div>
         ) : (
           <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="bg-transparent rounded-lg shadow-md p-6">
               {children || <Outlet />}
             </div>
           </main>

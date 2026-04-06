@@ -67,78 +67,106 @@ export default function Home() {
   };
 
   return (
-    <div className="bg-blue-900">
+    //className="bg-blue-900"
+    <div >
+      
     
       {/* Hero Section with Background Image */}
       <section 
         className="relative h-screen min-h-[900px] bg-cover bg-center bg-no-repeat"
         style={{
           backgroundImage: `url(${homeBg})`,
-        }}
-      >
-        {/* Dark Overlay */}
-        <div className="absolute inset-0 bg-black/60"></div>
-        
-        {/* Content */}
-        <div className="relative h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-center"> 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="text-center text-white"
-          >
-            <h1 className="text-4xl md:text-6xl font-bold mb-4">
-              Discover. Connect. Move In.
-            </h1>
-            <p className="text-xl md:text-2xl text-white mb-8 max-w-3xl mx-auto">
-              Find your perfect home with UrbanNEST - The smart way to rent/buy/sale your next property
-            </p>
-            
-            <div className="max-w-4xl mx-auto">
-              <SearchBar onSearch={handleSearch} /> {/* Updated here */}
-            </div>
+        }} >
 
-            {/* Add CTA Buttons under search */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
-              <Link to="/properties">
-                <Button variant="primary" size="lg" className="bg-green-700 text-white hover:bg-green-800">
-                  Browse Properties
-                </Button>
-              </Link>
-              <Link to="/create-listing">
-                <Button variant="outline" size="lg" className="border-white text-white hover:bg-white/10">
-                  List Your Property
-                </Button>
-              </Link>
+            {/* Dark Overlay */}
+            <div className="absolute inset-0 bg-black/60"></div>
+                
+            {/* Content */}
+            <div className="relative h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-center"> 
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="text-center text-white"
+              >
+                <h1 className="text-4xl md:text-6xl font-bold mb-4">
+                  Discover. Connect. Move In.
+                </h1>
+                <p className="text-xl md:text-2xl text-white mb-8 max-w-3xl mx-auto">
+                  Find your perfect home with UrbanNEST - The smart way to rent/buy/sale your next property
+                </p>
+                
+                <div className="max-w-4xl mx-auto">
+                  <SearchBar onSearch={handleSearch} /> {/* Updated here */}
+                </div>
+
+                {/* Add CTA Buttons under search */}
+                <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
+                  <Link to="/properties">
+                    <Button variant="primary" size="lg" className="bg-green-700 text-white hover:bg-green-800">
+                      Browse Properties
+                    </Button>
+                  </Link>
+                  <Link to="/create-listing">
+                    <Button variant="outline" size="lg" className="border-white text-white hover:bg-white/10">
+                      List Your Property
+                    </Button>
+                  </Link>
+                </div>
+              </motion.div>
             </div>
-          </motion.div>
-        </div>
       </section>
 
       {/* Features Section */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">Why Choose UrbanNEST?</h2>
             <p className="text-xl text-gray-600">We make renting/buying/selling simple, fast, and reliable</p>
             <p className="text-xl text-gray-600">No Fake listing. Verified property only.</p>
           </div>
+
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-green-200 text-center p-6 hover:shadow-lg transition-shadow rounded-lg">
+
+            {/* Card 1 */}
+            <div className="animate-fade-up [animation-delay:0.1s] border border-blue-500 text-center p-6 rounded-lg 
+                bg-white shadow-md 
+                hover:shadow-2xl hover:scale-105 hover:border-blue-600 hover:-translate-y-2
+                transition-all duration-300 cursor-pointer">
+
               <div className="text-4xl mb-4">🔍</div>
               <h3 className="text-xl font-semibold mb-2">Discover</h3>
-              <p className="text-gray-600">Browse thousands of verified properties in your area</p>
+              <p className="text-gray-600">
+                Browse thousands of verified properties in your area
+              </p>
             </div>
-            <div className="bg-green-200 text-center p-6 hover:shadow-lg transition-shadow rounded-lg">
+
+            {/* Card 2 */}
+            <div className="animate-fade-up [animation-delay:0.3s] border border-blue-500 text-center p-6 rounded-lg 
+                bg-white shadow-md 
+                hover:shadow-2xl hover:scale-105 hover:border-blue-600 hover:-translate-y-2
+                transition-all duration-300 cursor-pointer">
+
               <div className="text-4xl mb-4">🤝</div>
               <h3 className="text-xl font-semibold mb-2">Connect</h3>
-              <p className="text-gray-600">Chat directly with landlords and schedule viewings</p>
+              <p className="text-gray-600">
+                Chat directly with landlords and schedule viewings
+              </p>
             </div>
-            <div className="bg-green-200 text-center p-6 hover:shadow-lg transition-shadow rounded-lg">
+
+            {/* Card 3 */}
+            <div className="animate-fade-up [animation-delay:0.5s] border border-blue-500 text-center p-6 rounded-lg 
+                bg-white shadow-md 
+                hover:shadow-2xl hover:scale-105 hover:border-blue-600 hover:-translate-y-2
+                transition-all duration-300 cursor-pointer">
+
               <div className="text-4xl mb-4">🏠</div>
               <h3 className="text-xl font-semibold mb-2">Move In</h3>
-              <p className="text-gray-600">Complete paperwork and move into your new home</p>
+              <p className="text-gray-600">
+                Complete paperwork and move into your new home
+              </p>
             </div>
+
           </div>
         </div>
       </section>
@@ -147,7 +175,7 @@ export default function Home() {
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center mb-8">
-            <h2 className="text-3xl font-bold text-white">Featured Properties</h2>
+            <h2 className="text-3xl font-bold text-green-600">Featured Properties</h2>
             <Link to="/properties">
               <Button variant="outline">View All Properties</Button>
             </Link>
@@ -161,25 +189,25 @@ export default function Home() {
       </section>
       
       {/* CTA Section */}
-      <section className="bg-green-700 py-16">
+      <section className="bg-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">
+          <h2 className="text-3xl font-bold text-gray-600 mb-4">
             {isLoggedIn ? "Ready to List Your Property?" : "Join UrbanNEST Today!"}
           </h2>
-          <p className="text-xl text-green-100 mb-8">
+          <p className="text-xl text-gray-600 mb-8">
             {isLoggedIn 
               ? "Reach thousands of potential tenants and buyers. List your property now!"
               : "Create an account to start listing your properties and reach more customers."}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to={isLoggedIn ? "/create-listing" : "/register"}>
-              <Button variant="primary" size="lg" className="bg-blue-600 hover:bg-blue-700 text-white">
+              <Button variant="primary" size="lg" className=" bg-green-600 hover:bg-blue-500 text-gray-600">
                 {isLoggedIn ? "List Your Property" : "Create Free Account"}
               </Button>
             </Link>
             {!isLoggedIn && (
               <Link to="/login">
-                <Button variant="outline" size="lg" className="border-white text-white hover:bg-white/10">
+                <Button variant="outline" size="lg" className="border-green-700 text-gray-500 hover:bg-white/10">
                   Sign In
                 </Button>
               </Link>
