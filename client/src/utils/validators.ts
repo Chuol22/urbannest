@@ -1,4 +1,3 @@
-// src/utils/validators.ts
 import DOMPurify from 'dompurify';
 
 export interface ValidationResult {
@@ -24,7 +23,6 @@ export class Validator {
   }
 
   static email(value: string): string | null {
-    // More strict email validation
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (value && !emailRegex.test(value)) {
       return 'Please enter a valid email address';
@@ -36,7 +34,7 @@ export class Validator {
     // International phone number validation
     const phoneRegex = /^[\+]?[(]?[0-9]{1,4}[)]?[-\s\.]?[(]?[0-9]{1,4}[)]?[-\s\.]?[0-9]{3,4}[-\s\.]?[0-9]{4,6}$/;
     if (value && !phoneRegex.test(value)) {
-      return 'Please enter a valid phone number';
+      return 'Please enter a valid phone number (e.g., +251912345678)';
     }
     return null;
   }
@@ -116,10 +114,92 @@ export class Validator {
     }
   }
 
+  // ============ REGISTRATION VALIDATION (UPDATED FOR BACKEND) ============
+  static validateUserRegistration(data: {
+    first_name: string;
+    last_name: string;
+    email: string;
+    password: string;
+    phone: string;
+    role?: string;
+  }): ValidationResult {
+    const errors: Record<string, string> = {};
+    
+    const sanitizedFirstName = data.first_name ? this.sanitize(data.first_name) : '';
+    const sanitizedLastName = data.last_name ? this.sanitize(data.last_name) : '';
+    const sanitizedEmail = data.email ? this.sanitize(data.email) : '';
+    const sanitizedPhone = data.phone ? this.sanitize(data.phone) : '';
+    
+    // Validate First Name
+    const firstNameError = this.required(sanitizedFirstName, 'First name');
+    if (firstNameError) errors.first_name = firstNameError;
+    else if (sanitizedFirstName.length < 2) {
+      errors.first_name = 'First name must be at least 2 characters';
+    }
+    
+    // Validate Last Name
+    const lastNameError = this.required(sanitizedLastName, 'Last name');
+    if (lastNameError) errors.last_name = lastNameError;
+    else if (sanitizedLastName.length < 2) {
+      errors.last_name = 'Last name must be at least 2 characters';
+    }
+    
+    // Validate Email
+    const emailError = this.required(sanitizedEmail, 'Email');
+    if (emailError) errors.email = emailError;
+    else {
+      const emailFormatError = this.email(sanitizedEmail);
+      if (emailFormatError) errors.email = emailFormatError;
+    }
+    
+    // Validate Phone (now required)
+    const phoneError = this.required(sanitizedPhone, 'Phone number');
+    if (phoneError) errors.phone = phoneError;
+    else {
+      const phoneFormatError = this.phone(sanitizedPhone);
+      if (phoneFormatError) errors.phone = phoneFormatError;
+    }
+    
+    // Validate Password
+    const passwordError = this.required(data.password, 'Password');
+    if (passwordError) errors.password = passwordError;
+    else {
+      const passwordStrengthError = this.password(data.password);
+      if (passwordStrengthError) errors.password = passwordStrengthError;
+    }
+    
+    return {
+      isValid: Object.keys(errors).length === 0,
+      errors
+    };
+  }
+
+  // ============ LOGIN VALIDATION ============
+  static validateLogin(data: { email: string; password: string }): ValidationResult {
+    const errors: Record<string, string> = {};
+    
+    const sanitizedEmail = data.email ? this.sanitize(data.email) : '';
+    
+    const emailError = this.required(sanitizedEmail, 'Email');
+    if (emailError) errors.email = emailError;
+    else {
+      const emailFormatError = this.email(sanitizedEmail);
+      if (emailFormatError) errors.email = emailFormatError;
+    }
+    
+    const passwordError = this.required(data.password, 'Password');
+    if (passwordError) errors.password = passwordError;
+    
+    return {
+      isValid: Object.keys(errors).length === 0,
+      errors
+    };
+  }
+
+  // ============ PROPERTY FORM VALIDATION ============
   static validatePropertyForm(data: any): ValidationResult {
     const errors: Record<string, string> = {};
     
-    // Sanitize string inputs
     const sanitizedTitle = data.title ? this.sanitize(data.title) : '';
     const sanitizedAddress = data.address ? this.sanitize(data.address) : '';
     const sanitizedDescription = data.description ? this.sanitize(data.description) : '';
@@ -152,62 +232,16 @@ export class Validator {
       errors
     };
   }
-
-  static validateUserRegistration(data: any): ValidationResult {
-    const errors: Record<string, string> = {};
-    
-    const sanitizedName = data.name ? this.sanitize(data.name) : '';
-    const sanitizedEmail = data.email ? this.sanitize(data.email) : '';
-    
-    const nameError = this.required(sanitizedName, 'Name');
-    if (nameError) errors.name = nameError;
-    else if (sanitizedName.length < 2) {
-      errors.name = 'Name must be at least 2 characters';
-    }
-    
-    const emailError = this.required(sanitizedEmail, 'Email');
-    if (emailError) errors.email = emailError;
-    else {
-      const emailFormatError = this.email(sanitizedEmail);
-      if (emailFormatError) errors.email = emailFormatError;
-    }
-    
-    const passwordError = this.required(data.password, 'Password');
-    if (passwordError) errors.password = passwordError;
-    else {
-      const passwordStrengthError = this.password(data.password);
-      if (passwordStrengthError) errors.password = passwordStrengthError;
-    }
-    
-    if (data.phone) {
-      const phoneError = this.phone(data.phone);
-      if (phoneError) errors.phone = phoneError;
-    }
-    
-    return {
-      isValid: Object.keys(errors).length === 0,
-      errors
-    };
-  }
-
-  static validateLogin(data: any): ValidationResult {
-    const errors: Record<string, string> = {};
-    
-    const sanitizedEmail = data.email ? this.sanitize(data.email) : '';
-    
-    const emailError = this.required(sanitizedEmail, 'Email');
-    if (emailError) errors.email = emailError;
-    else {
-      const emailFormatError = this.email(sanitizedEmail);
-      if (emailFormatError) errors.email = emailFormatError;
-    }
-    
-    const passwordError = this.required(data.password, 'Password');
-    if (passwordError) errors.password = passwordError;
-    
-    return {
-      isValid: Object.keys(errors).length === 0,
-      errors
-    };
-  }
 }
+
+// Export a simple object for backward compatibility
+export const validator = {
+  validateLogin: (data: any) => Validator.validateLogin(data),
+  validateUserRegistration: (data: any) => Validator.validateUserRegistration(data),
+  validatePropertyForm: (data: any) => Validator.validatePropertyForm(data),
+  required: Validator.required.bind(Validator),
+  email: Validator.email.bind(Validator),
+  phone: Validator.phone.bind(Validator),
+  password: Validator.password.bind(Validator),
+  sanitize: Validator.sanitize.bind(Validator),
+};

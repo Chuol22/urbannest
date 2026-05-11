@@ -19,12 +19,12 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
-    "baseUrl": "src",
+    
     "paths": {
-      "@layout/*": ["layout/*"]
+      "@layout/*": ["./layout/*"]
     },
 
-    "ignoreDeprecations": "6.0",
+    "ignoreDeprecations": "5.0",
   },
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]

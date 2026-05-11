@@ -6,8 +6,9 @@ import BoostOptions from '../components/boosts/BoostOptions';
 import AgentDashboard from '../components/subscriptions/AgentDashboard';
 import { useListings } from '../hooks/useListings';
 import { useSubscription } from '../hooks/useSubscription';
-import useBoosts from '../hooks/useBoosts';
+import { useBoosts } from '../hooks/useBoosts';
 import { useAuth } from '../context/AuthContext';
+import { paymentService } from '../services/paymentService';
 
 const CreateListing = () => {
   const [step, setStep] = useState(1);
@@ -80,15 +81,48 @@ const CreateListing = () => {
         images: []
       };
       
-      const newListing = await createListing(listingData, selectedListingType);
-      
-      // Check if newListing exists before accessing its id
-      if (newListing && newListing.id) {
-        setCreatedListingId(newListing.id);
-        alert('Listing created successfully!');
-        setStep(3);
+      // Handle payment for featured listings
+      if (selectedListingType === 'featured') {
+        try {
+          // Initialize payment for featured listing
+          const paymentData = {
+            plan_id: 'featured',
+            property_id: null, // Will be set after property creation
+            amount: 299, // Featured listing price from pricing.ts
+            currency: 'ETB',
+            payment_method: 'telebirr' // Default payment method
+          };
+          
+          const paymentResponse = await paymentService.initializePropertyListingPayment(paymentData);
+          
+          if (paymentResponse.success) {
+            // Create the featured listing after successful payment
+            const newListing = await createListing(listingData, 'featured');
+            if (newListing && newListing.id) {
+              setCreatedListingId(newListing.id);
+              alert('Featured listing created successfully!');
+              setStep(3);
+            } else {
+              alert('Failed to create featured listing. Please try again.');
+            }
+          } else {
+            alert('Payment failed. Please try again.');
+          }
+        } catch (error) {
+          console.error('Payment error:', error);
+          alert('Payment failed. Please try again.');
+        }
       } else {
-        alert('Failed to create listing. Please try again.');
+        // Create normal listing (free or paid based on user subscription)
+        const newListing = await createListing(listingData, 'normal');
+        
+        if (newListing && newListing.id) {
+          setCreatedListingId(newListing.id);
+          alert('Listing created successfully!');
+          setStep(3);
+        } else {
+          alert('Failed to create listing. Please try again.');
+        }
       }
     } catch (error) {
       console.error('Create listing error:', error);
@@ -134,7 +168,7 @@ const CreateListing = () => {
           {step === 2 && (
             <button
               onClick={handleNext}
-              className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors ml-auto"
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors ml-auto"
             >
               Next →
             </button>

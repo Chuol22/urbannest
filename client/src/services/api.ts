@@ -1,7 +1,7 @@
-// src/services/api.ts
 import axios, { AxiosInstance, AxiosRequestConfig, InternalAxiosRequestConfig, AxiosError } from 'axios';
+import DOMPurify from 'dompurify';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
 
 export interface ApiResponse<T = any> {
   success: boolean;
@@ -21,10 +21,10 @@ class ApiService {
   constructor() {
     this.axiosInstance = axios.create({
       baseURL: API_BASE_URL,
-      timeout: 30000, // 30 seconds timeout
+      timeout: 30000,
       headers: {
         'Content-Type': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest',
+        'Accept': 'application/json',
       },
     });
 
@@ -40,15 +40,21 @@ class ApiService {
           config.headers.Authorization = `Bearer ${token}`;
         }
         
-        // Add CSRF token if available
+        // Add CSRF token if available (for extra security)
         const csrfToken = this.getCsrfToken();
         if (csrfToken && config.headers) {
           config.headers['X-CSRF-Token'] = csrfToken;
         }
         
+        // Sanitize request data if it's a POST/PUT/PATCH
+        if (config.data && typeof config.data === 'object') {
+          config.data = this.sanitizeData(config.data);
+        }
+        
         return config;
       },
       (error) => {
+        console.error('Request interceptor error:', error);
         return Promise.reject(error);
       }
     );
@@ -56,14 +62,23 @@ class ApiService {
     // Response interceptor
     this.axiosInstance.interceptors.response.use(
       (response) => {
-        return response;
+        // Ensure consistent response format
+        return {
+          ...response,
+          data: {
+            success: true,
+            data: response.data,
+            message: response.data?.message,
+          }
+        };
       },
       async (error: AxiosError) => {
         const originalRequest = error.config as any;
         
-        // Handle 401 Unauthorized errors
+        // Handle 401 Unauthorized errors (token expired)
         if (error.response?.status === 401 && !originalRequest._retry) {
           if (this.isRefreshing) {
+            // Queue the request while token is being refreshed
             return new Promise((resolve, reject) => {
               this.failedQueue.push({ resolve, reject });
             })
@@ -81,7 +96,10 @@ class ApiService {
           } catch (refreshError) {
             this.processQueue(refreshError);
             this.clearTokens();
-            window.location.href = '/login';
+            // Only redirect if not already on login page
+            if (!window.location.pathname.includes('/login')) {
+              window.location.href = '/login';
+            }
             return Promise.reject(refreshError);
           } finally {
             this.isRefreshing = false;
@@ -95,16 +113,24 @@ class ApiService {
             method: error.config?.method,
             status: error.response?.status,
             data: error.response?.data,
+            message: error.message,
           });
         }
         
-        return Promise.reject(error);
+        // Return formatted error response
+        return {
+          data: {
+            success: false,
+            message: (error.response?.data as any)?.message || error.message || 'Request failed',
+            error: error.code,
+          }
+        };
       }
     );
   }
 
   private getToken(): string | null {
-    return sessionStorage.getItem('auth_token');
+    return sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
   }
 
   private getCsrfToken(): string | null {
@@ -119,10 +145,17 @@ class ApiService {
     }
     
     const response = await this.axiosInstance.post('/auth/refresh', { refreshToken });
-    if (response.data?.token) {
-      sessionStorage.setItem('auth_token', response.data.token);
-      if (response.data.refreshToken) {
-        sessionStorage.setItem('refresh_token', response.data.refreshToken);
+    const data = response.data as any;
+    
+    if (data?.token) {
+      this.setToken(data.token);
+      if (data.refreshToken) {
+        sessionStorage.setItem('refresh_token', data.refreshToken);
+      }
+    } else if (data?.data?.token) {
+      this.setToken(data.data.token);
+      if (data.data.refreshToken) {
+        sessionStorage.setItem('refresh_token', data.data.refreshToken);
       }
     } else {
       throw new Error('Token refresh failed');
@@ -142,93 +175,69 @@ class ApiService {
 
   private clearTokens() {
     sessionStorage.removeItem('auth_token');
+    localStorage.removeItem('auth_token');
     sessionStorage.removeItem('refresh_token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('user_data');
+  }
+
+  private setToken(token: string) {
+    sessionStorage.setItem('auth_token', token);
+    localStorage.setItem('auth_token', token);
+  }
+
+  private sanitizeData(data: any): any {
+    if (typeof data === 'string') {
+      return DOMPurify.sanitize(data);
+    }
+    if (typeof data === 'object' && data !== null) {
+      const sanitized: any = {};
+      for (const key in data) {
+        if (typeof data[key] === 'string') {
+          sanitized[key] = DOMPurify.sanitize(data[key]);
+        } else if (typeof data[key] === 'object') {
+          sanitized[key] = this.sanitizeData(data[key]);
+        } else {
+          sanitized[key] = data[key];
+        }
+      }
+      return sanitized;
+    }
+    return data;
+  }
+
+  // Public methods
+  setAuthToken(token: string) {
+    this.setToken(token);
+  }
+
+  removeAuthToken() {
+    this.clearTokens();
   }
 
   async get<T = any>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
-    try {
-      const response = await this.axiosInstance.get<T>(url, config);
-      return {
-        success: true,
-        data: response.data,
-      };
-    } catch (error: any) {
-      return this.handleError(error);
-    }
+    const response = await this.axiosInstance.get(url, config);
+    return response.data;
   }
 
   async post<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
-    try {
-      const response = await this.axiosInstance.post<T>(url, data, config);
-      return {
-        success: true,
-        data: response.data,
-      };
-    } catch (error: any) {
-      return this.handleError(error);
-    }
+    const response = await this.axiosInstance.post(url, data, config);
+    return response.data;
   }
 
   async put<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
-    try {
-      const response = await this.axiosInstance.put<T>(url, data, config);
-      return {
-        success: true,
-        data: response.data,
-      };
-    } catch (error: any) {
-      return this.handleError(error);
-    }
-  }
-
-  async delete<T = any>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
-    try {
-      const response = await this.axiosInstance.delete<T>(url, config);
-      return {
-        success: true,
-        data: response.data,
-      };
-    } catch (error: any) {
-      return this.handleError(error);
-    }
+    const response = await this.axiosInstance.put(url, data, config);
+    return response.data;
   }
 
   async patch<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
-    try {
-      const response = await this.axiosInstance.patch<T>(url, data, config);
-      return {
-        success: true,
-        data: response.data,
-      };
-    } catch (error: any) {
-      return this.handleError(error);
-    }
+    const response = await this.axiosInstance.patch(url, data, config);
+    return response.data;
   }
 
-  private handleError(error: any): ApiResponse {
-    if (error.response) {
-      // Server responded with error
-      return {
-        success: false,
-        data: null as any,
-        message: error.response.data?.message || 'An error occurred',
-        error: error.response.data?.error,
-      };
-    } else if (error.request) {
-      // Request was made but no response
-      return {
-        success: false,
-        data: null as any,
-        message: 'No response from server. Please check your connection.',
-      };
-    } else {
-      // Something else happened
-      return {
-        success: false,
-        data: null as any,
-        message: error.message || 'Request failed',
-      };
-    }
+  async delete<T = any>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+    const response = await this.axiosInstance.delete(url, config);
+    return response.data;
   }
 }
 

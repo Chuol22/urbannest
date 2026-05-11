@@ -13,10 +13,10 @@ export const PROPERTY_TYPES = [
 
 export const PRICE_RANGES = [
   { label: 'Any Price', min: 0, max: Infinity },
-  { label: '$0 - $1,000', min: 0, max: 1000 },
-  { label: '$1,000 - $2,000', min: 1000, max: 2000 },
-  { label: '$2,000 - $3,000', min: 2000, max: 3000 },
-  { label: '$3,000+', min: 3000, max: Infinity },
+  { label: 'ETB 0 - ETB 1,000', min: 0, max: 1000 },
+  { label: 'ETB ,000 - ETB 2,000', min: 1000, max: 2000 },
+  { label: 'ETB 2,000 - ETB 3,000', min: 2000, max: 3000 },
+  { label: 'ETB 3,000+', min: 3000, max: Infinity },
 ];
 
 export const BEDROOMS = [1, 2, 3, 4, 5];

@@ -1,8 +1,10 @@
 export const formatPrice = (price: number): string => {
+  if (price === undefined || price === null) return '$0';
   return `$${price.toLocaleString()}`;
 };
 
 export const formatArea = (area: number): string => {
+  if (area === undefined || area === null) return '0 sq ft';
   return `${area.toLocaleString()} sq ft`;
 };
 

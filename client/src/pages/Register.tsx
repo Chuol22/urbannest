@@ -1,19 +1,19 @@
-// src/pages/Register.tsx
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Alert } from '../components/ui/Alert';
-import { Validator } from '../utils/validators';
 
 export default function Register() {
   const [formData, setFormData] = useState({
-    name: '',
+    first_name: '',     // Changed from 'name'
+    last_name: '',      // Added
     email: '',
     password: '',
     confirmPassword: '',
-    phone: '',
+    phone: '',          // Now required
+    role: 'seeker',     // Added with default
     acceptTerms: false,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -25,36 +25,46 @@ export default function Register() {
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
     
-    // Validate name
-    const nameError = Validator.required(formData.name, 'Full Name');
-    if (nameError) newErrors.name = nameError;
-    else if (formData.name.length < 2) newErrors.name = 'Name must be at least 2 characters';
+    // Validate first name
+    if (!formData.first_name.trim()) {
+      newErrors.first_name = 'First name is required';
+    } else if (formData.first_name.length < 2) {
+      newErrors.first_name = 'First name must be at least 2 characters';
+    }
+    
+    // Validate last name
+    if (!formData.last_name.trim()) {
+      newErrors.last_name = 'Last name is required';
+    } else if (formData.last_name.length < 2) {
+      newErrors.last_name = 'Last name must be at least 2 characters';
+    }
     
     // Validate email
-    const emailError = Validator.required(formData.email, 'Email');
-    if (emailError) newErrors.email = emailError;
-    else {
-      const emailFormatError = Validator.email(formData.email);
-      if (emailFormatError) newErrors.email = emailFormatError;
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email address';
+    }
+    
+    // Validate phone
+    if (!formData.phone.trim()) {
+      newErrors.phone = 'Phone number is required';
+    } else if (!/^\+?[0-9]{10,15}$/.test(formData.phone.replace(/\s/g, ''))) {
+      newErrors.phone = 'Please enter a valid phone number';
     }
     
     // Validate password
-    const passwordError = Validator.required(formData.password, 'Password');
-    if (passwordError) newErrors.password = passwordError;
-    else {
-      const passwordStrengthError = Validator.password(formData.password);
-      if (passwordStrengthError) newErrors.password = passwordStrengthError;
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+    } else if (formData.password.length < 8) {
+      newErrors.password = 'Password must be at least 8 characters';
+    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
+      newErrors.password = 'Password must contain uppercase, lowercase, and number';
     }
     
     // Validate password confirmation
     if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match';
-    }
-    
-    // Validate phone (optional)
-    if (formData.phone) {
-      const phoneError = Validator.phone(formData.phone);
-      if (phoneError) newErrors.phone = phoneError;
     }
     
     // Validate terms acceptance
@@ -76,11 +86,14 @@ export default function Register() {
     
     setLoading(true);
     try {
+      // Send data in format backend expects
       await register({
-        name: formData.name,
+        first_name: formData.first_name,
+        last_name: formData.last_name,
         email: formData.email,
         password: formData.password,
         phone: formData.phone,
+        role: formData.role,
       });
       navigate('/dashboard');
     } catch (err) {
@@ -92,15 +105,20 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-white py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
+          <div className="flex justify-center">
+            <div className="w-20 h-20 bg-blue-600 rounded-2xl flex items-center justify-center">
+              <span className="text-3xl font-bold text-white">U</span>
+            </div>
+          </div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Create your account
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
             Or{' '}
-            <Link to="/login" className="font-medium text-primary-600 hover:text-primary-500">
+            <Link to="/login" className="font-medium text-blue-900 hover:text-amber-600">
               sign in to your account
             </Link>
           </p>
@@ -112,19 +130,35 @@ export default function Register() {
           )}
 
           <div className="space-y-4">
-            <Input
-              label="Full Name *"
-              type="text"
-              required
-              value={formData.name}
-              onChange={(e) => {
-                setFormData({ ...formData, name: e.target.value });
-                if (errors.name) delete errors.name;
-              }}
-              error={errors.name}
-              placeholder="ChuolCore"
-              disabled={loading}
-            />
+            <div className="grid grid-cols-2 gap-4">
+              <Input
+                label="First Name *"
+                type="text"
+                required
+                value={formData.first_name}
+                onChange={(e) => {
+                  setFormData({ ...formData, first_name: e.target.value });
+                  if (errors.first_name) delete errors.first_name;
+                }}
+                error={errors.first_name}
+                placeholder="John"
+                disabled={loading}
+              />
+
+              <Input
+                label="Last Name *"
+                type="text"
+                required
+                value={formData.last_name}
+                onChange={(e) => {
+                  setFormData({ ...formData, last_name: e.target.value });
+                  if (errors.last_name) delete errors.last_name;
+                }}
+                error={errors.last_name}
+                placeholder="Doe"
+                disabled={loading}
+              />
+            </div>
 
             <Input
               label="Email Address *"
@@ -141,17 +175,36 @@ export default function Register() {
             />
 
             <Input
-              label="Phone Number (Optional)"
+              label="Phone Number *"
               type="tel"
+              required
               value={formData.phone}
               onChange={(e) => {
                 setFormData({ ...formData, phone: e.target.value });
                 if (errors.phone) delete errors.phone;
               }}
               error={errors.phone}
-              placeholder="+251 (96) 077-9507"
+              placeholder="+251912345678"
+              helperText="Include country code (e.g., +251 for Ethiopia)"
               disabled={loading}
             />
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                I am a *
+              </label>
+              <select
+                name="role"
+                value={formData.role}
+                onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-900 focus:border-transparent"
+                disabled={loading}
+              >
+                <option value="seeker">Property Seeker (Looking to rent/buy)</option>
+                <option value="owner">Property Owner (Have property to rent/sell)</option>
+                <option value="agent">Real Estate Agent</option>
+              </select>
+            </div>
 
             <Input
               label="Password *"
@@ -164,7 +217,7 @@ export default function Register() {
               }}
               error={errors.password}
               placeholder="••••••••"
-              helperText="Must be at least 8 characters with uppercase, lowercase, number, and special character"
+              helperText="Must be at least 8 characters with uppercase, lowercase, and number"
               disabled={loading}
             />
 
@@ -192,18 +245,18 @@ export default function Register() {
                   setFormData({ ...formData, acceptTerms: e.target.checked });
                   if (errors.acceptTerms) delete errors.acceptTerms;
                 }}
-                className={`h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded ${
+                className={`h-4 w-4 text-blue-900 focus:ring-amber-500 border-gray-300 rounded ${
                   errors.acceptTerms ? 'border-red-500' : ''
                 }`}
                 disabled={loading}
               />
               <label htmlFor="acceptTerms" className="ml-2 block text-sm text-gray-900">
                 I agree to the{' '}
-                <Link to="/terms" className="text-primary-600 hover:text-primary-500">
+                <Link to="/terms" className="text-blue-900 hover:text-amber-600">
                   Terms of Service
                 </Link>{' '}
                 and{' '}
-                <Link to="/privacy" className="text-primary-600 hover:text-primary-500">
+                <Link to="/privacy" className="text-blue-900 hover:text-amber-600">
                   Privacy Policy
                 </Link>
               </label>
@@ -213,12 +266,18 @@ export default function Register() {
             )}
           </div>
 
-          <Button type="submit" loading={loading} fullWidth>
+          <Button 
+            type="submit" 
+            loading={loading} 
+            fullWidth
+            className="bg-blue-600 hover:bg-blue-700"
+          >
             Create Account
           </Button>
 
-          <div className="text-center text-sm text-gray-600">
+          <div className="text-center text-xs text-gray-500">
             By creating an account, you agree to receive emails about your account and property updates.
+            You can unsubscribe at any time.
           </div>
         </form>
       </div>

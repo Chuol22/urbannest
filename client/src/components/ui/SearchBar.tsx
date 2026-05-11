@@ -305,7 +305,7 @@ const SearchBar = ({ onSearch, initialFilters = {}, useOpenStreetMap = false }: 
                   <div className="flex items-start gap-3">
                     <div className="mt-1">
                       {place.type === 'city' ? (
-                        <Building2 size={16} className="text-blue-500" />
+                        <Building2 size={16} className="text-blue-900" />
                       ) : (
                         <MapIcon size={16} className="text-green-500" />
                       )}

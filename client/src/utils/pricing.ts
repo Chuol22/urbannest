@@ -16,19 +16,19 @@ export const LISTING_PRICES = {
 
 export const SUBSCRIPTION_PRICES = {
   basic: {
-    price: 500,
+    price: 150,
     label: 'Basic',
     listings: 10,
     features: ['10 active listings', 'Basic analytics', 'Email support']
   },
   pro: {
-    price: 1000,
+    price: 300,
     label: 'Pro',
     listings: 30,
     features: ['30 active listings', 'Advanced analytics', 'Priority support', 'Listing insights']
   },
   premium: {
-    price: 2000,
+    price: 600,
     label: 'Premium',
     listings: -1, // Unlimited
     features: ['Unlimited listings', 'Featured priority', 'Advanced analytics', '24/7 priority support', 'Dedicated account manager']
@@ -37,14 +37,14 @@ export const SUBSCRIPTION_PRICES = {
 
 export const BOOST_PRICES = {
   top_search: {
-    price: 100,
+    price: 20,
     label: 'Top of Search',
     description: 'Boost your listing to the top of search results',
     duration: '7 days',
-    color: 'bg-purple-500'
+    color: 'bg-blue-600'
   },
   urgent_badge: {
-    price: 50,
+    price: 20,
     label: 'Urgent Sale',
     description: 'Add "Urgent" badge to attract quick buyers',
     duration: '7 days',
@@ -53,6 +53,7 @@ export const BOOST_PRICES = {
 };
 
 export const formatPrice = (price: number, currency: string = 'ETB') => {
+  if (price === undefined || price === null) return `${currency} 0`;
   return `${currency} ${price.toLocaleString()}`;
 };
 

@@ -1,23 +1,42 @@
-// client/src/components/PropertyImage.jsx
+// client/src/components/PropertyImage.tsx
 
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
+import { useState } from 'react';
+
+interface Photo {
+  photoUrl?: string;
+  thumbnailUrl?: string;
+  mediumUrl?: string;
+  responsive?: {
+    srcset?: string;
+    thumbnail?: string;
+    medium?: string;
+    large?: string;
+  };
+  id?: string;
+}
+
+interface PropertyImageProps {
+  photo: Photo;
+  alt?: string;
+  className?: string;
+  sizes?: string;
+  lazyLoad?: boolean;
+}
 
 /**
  * Responsive property image with lazy loading and fallback
  */
 const PropertyImage = ({ 
   photo, 
-  alt, 
+  alt = '', 
   className = '',
   sizes = '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw',
   lazyLoad = true 
-}) => {
+}: PropertyImageProps) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [error, setError] = useState(false);
   
   // Use Cloudinary URLs if available
-  const thumbnailUrl = photo.thumbnailUrl || photo.responsive?.thumbnail;
   const mediumUrl = photo.mediumUrl || photo.responsive?.medium;
   const largeUrl = photo.photoUrl || photo.responsive?.large;
   const srcset = photo.responsive?.srcset;
@@ -64,28 +83,15 @@ const PropertyImage = ({
   );
 };
 
-PropertyImage.propTypes = {
-  photo: PropTypes.shape({
-    photoUrl: PropTypes.string,
-    thumbnailUrl: PropTypes.string,
-    mediumUrl: PropTypes.string,
-    responsive: PropTypes.shape({
-      srcset: PropTypes.string,
-      thumbnail: PropTypes.string,
-      medium: PropTypes.string,
-      large: PropTypes.string
-    })
-  }).isRequired,
-  alt: PropTypes.string,
-  className: PropTypes.string,
-  sizes: PropTypes.string,
-  lazyLoad: PropTypes.bool
-};
-
 export default PropertyImage;
 
 // Gallery component for multiple images
-export const PropertyGallery = ({ photos, onPhotoClick }) => {
+interface PropertyGalleryProps {
+  photos: Photo[];
+  onPhotoClick?: (index: number) => void;
+}
+
+export const PropertyGallery = ({ photos, onPhotoClick }: PropertyGalleryProps) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   
   if (!photos || photos.length === 0) {
@@ -119,7 +125,7 @@ export const PropertyGallery = ({ photos, onPhotoClick }) => {
         <div className="grid grid-cols-5 gap-2">
           {thumbnails.map((photo, index) => (
             <button
-              key={photo.id}
+              key={photo.id || index}
               onClick={() => setSelectedIndex(index)}
               className={`
                 relative rounded-md overflow-hidden h-20

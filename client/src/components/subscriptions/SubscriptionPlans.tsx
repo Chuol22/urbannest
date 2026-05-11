@@ -20,21 +20,21 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
       id: 'basic' as const,
       icon: Shield,
       color: 'blue',
-      gradient: 'from-blue-500 to-blue-600',
+      gradient: 'bg-blue-600',
       ...SUBSCRIPTION_PRICES.basic
     },
     {
       id: 'pro' as const,
       icon: Zap,
       color: 'purple',
-      gradient: 'from-purple-500 to-purple-600',
+      gradient: 'bg-blue-600',
       ...SUBSCRIPTION_PRICES.pro
     },
     {
       id: 'premium' as const,
       icon: Crown,
       color: 'gold',
-      gradient: 'from-yellow-500 to-yellow-600',
+      gradient: 'bg-amber-600',
       ...SUBSCRIPTION_PRICES.premium
     }
   ];
@@ -65,12 +65,12 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
               }`}
             >
               {plan.id === 'premium' && (
-                <div className="absolute top-0 right-0 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white px-4 py-1 rounded-bl-lg text-sm font-semibold">
+                <div className="absolute top-0 right-0 bg-amber-600 text-white px-4 py-1 rounded-bl-lg text-sm font-semibold">
                   BEST VALUE
                 </div>
               )}
               
-              <div className={`bg-gradient-to-r ${plan.gradient} p-6 text-white`}>
+              <div className={`${plan.gradient} p-6 text-white`}>
                 <Icon size={40} className="mb-4" />
                 <h3 className="text-2xl font-bold mb-2">{plan.label}</h3>
                 <p className="text-4xl font-bold">
@@ -101,7 +101,7 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
                   className={`w-full ${
                     isCurrent
                       ? 'border-green-500 text-green-500'
-                      : `bg-gradient-to-r ${plan.gradient} text-white`
+                      : `${plan.gradient} text-white`
                   }`}
                   onClick={() => handleSubscribe(plan.id, plan.price)}
                   disabled={isCurrent}

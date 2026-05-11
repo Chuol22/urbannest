@@ -1,4 +1,18 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap');
+
+/* Vosage Font */
+@font-face {
+  font-family: 'Vosage';
+  src: url('/fonts/vosage.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
 
 
 @layer base {
@@ -16,14 +30,14 @@
   }
 
   body {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Vosage', 'Montserrat', sans-serif;
     color: #1F2937;
-    background-color: var(--color-primary);
+    background-color: var(--color-secondary);
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Poppins', sans-serif;
-    font-weight: 600;
+    font-family: 'Vosage', 'Montserrat', sans-serif;
+    font-weight: 700;
   }
 }
 
@@ -102,4 +116,29 @@
   animation: fadeUp 0.8s ease forwards;
   transform: translateY(20px);
   opacity: 0;
+}
+
+
+/* Dark mode styles */
+
+@layer base {
+  /* Dark mode color scheme */
+  :root {
+    --bg-primary: 255 255 255;
+    --text-primary: 17 24 39;
+  }
+
+  .dark {
+    --bg-primary: 17 24 39;
+    --text-primary: 243 244 246;
+  }
+
+  body {
+    @apply bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300;
+  }
+}
+
+/* Smooth transitions for theme switching */
+* {
+  @apply transition-colors duration-200;
 }

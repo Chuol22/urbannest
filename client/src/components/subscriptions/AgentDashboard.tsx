@@ -43,7 +43,7 @@ const AgentDashboard: React.FC<AgentDashboardProps> = ({
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-gradient-to-r from-primary-500 to-primary-600 rounded-2xl p-6 text-white"
+        className="bg-blue-600 rounded-2xl p-6 text-white"
       >
         <div className="flex justify-between items-start mb-4">
           <div>
@@ -89,7 +89,7 @@ const AgentDashboard: React.FC<AgentDashboardProps> = ({
       <div className="grid md:grid-cols-3 gap-4">
         <div className="bg-white rounded-xl p-4 shadow-sm">
           <div className="flex items-center justify-between mb-2">
-            <Eye className="text-blue-500" size={24} />
+            <Eye className="text-blue-900" size={24} />
             <span className="text-2xl font-bold text-gray-900">{stats.totalViews}</span>
           </div>
           <p className="text-gray-600 text-sm">Total Views</p>

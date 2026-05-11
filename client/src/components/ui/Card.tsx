@@ -93,7 +93,7 @@ export default function Card({
             {squareFeet && (
               <span className="feature">
                 <span className="feature-icon">📐</span>
-                {squareFeet.toLocaleString()} sqft
+                {(squareFeet ?? 0).toLocaleString()} sqft
               </span>
             )}
           </div>

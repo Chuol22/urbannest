@@ -2,10 +2,10 @@ import { Home, Users, Star, TrendingUp, Plus } from 'lucide-react';
 
 const Dashboard = () => {
   const stats = [
-    { icon: Home, label: "Properties", value: "12", change: "+2", color: "text-blue-500" },
+    { icon: Home, label: "Properties", value: "12", change: "+2", color: "text-blue-900" },
     { icon: Users, label: "Total Views", value: "1,234", change: "+15%", color: "text-green-500" },
-    { icon: Star, label: "Reviews", value: "89", change: "4.8⭐", color: "text-yellow-500" },
-    { icon: TrendingUp, label: "Revenue", value: "$12,345", change: "+23%", color: "text-purple-500" }
+    { icon: Star, label: "Reviews", value: "89", change: "4.8⭐", color: "text-amber-500" },
+    { icon: TrendingUp, label: "Revenue", value: "$12,345", change: "+23%", color: "text-blue-900" }
   ];
 
   return (

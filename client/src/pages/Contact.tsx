@@ -3,6 +3,8 @@ import { motion } from 'framer-motion';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Alert } from '../components/ui/Alert';
+import { Mail, Phone, MapPin, MessageSquare, Clock, ChevronRight } from 'lucide-react';
+import { useEffect, useRef } from 'react';
 
 interface ContactFormData {
   name: string;
@@ -58,6 +60,28 @@ export default function Contact() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
+  const [headerHeight, setHeaderHeight] = useState(0);
+
+  // Detect header height dynamically
+  useEffect(() => {
+    const updateHeaderHeight = () => {
+      const header = document.querySelector('header');
+      if (header) {
+        setHeaderHeight(header.offsetHeight);
+      }
+    };
+    updateHeaderHeight();
+    window.addEventListener('resize', updateHeaderHeight);
+    const observer = new ResizeObserver(updateHeaderHeight);
+    const header = document.querySelector('header');
+    if (header) {
+      observer.observe(header);
+    }
+    return () => {
+      window.removeEventListener('resize', updateHeaderHeight);
+      observer.disconnect();
+    };
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({
@@ -95,26 +119,103 @@ export default function Contact() {
 
   return (
     <div className="bg-white">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-r from-primary-600 to-primary-800 text-white py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="text-4xl md:text-5xl font-bold mb-6"
+      {/* Premium Hero Section */}
+      <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden">
+        {/* Background Image Container */}
+        <div className="absolute inset-0">
+          <div
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{ 
+              backgroundImage: `url('https://images.unsplash.com/photo-1497366216548-37526070297c?w=1600&q=80&fit=crop')`,
+              backgroundPosition: 'center 40%'
+            }}
           >
-            Get in Touch
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-xl text-primary-100 max-w-3xl mx-auto"
-          >
-            Have questions? We're here to help. Reach out to us anytime.
-          </motion.p>
+            <div className="absolute inset-0 bg-black/60" />
+            <div className="absolute inset-0 bg-gray-900/40" />
+            <div className="absolute inset-0 bg-black/20" />
+          </div>
+          <div className="absolute inset-0 bg-[url('/images/pattern.svg')] opacity-10" />
         </div>
+
+        {/* Hero Content */}
+        <div 
+          className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 text-center"
+          style={{ paddingTop: `${headerHeight}px` }}
+        >
+          <motion.div
+            initial={{ opacity: 0, y: 30, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.8, type: "spring", stiffness: 100, damping: 15 }}
+            className="max-w-4xl mx-auto"
+          >
+            {/* Badge */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2, type: "spring", stiffness: 150, damping: 12 }}
+              className="mb-8"
+            >
+              <span className="inline-flex items-center gap-2 px-6 py-2 rounded-2xl bg-white/10 border border-white/20 text-white text-sm font-bold backdrop-blur-md uppercase tracking-wider">
+                <motion.div
+                  animate={{ rotate: [0, 10, -10, 0] }}
+                  transition={{ repeat: Infinity, duration: 2 }}
+                >
+                  <MessageSquare size={14} className="text-amber-400" />
+                </motion.div>
+                Get In Touch
+              </span>
+            </motion.div>
+
+            <motion.h1 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.6, type: "spring", stiffness: 100, damping: 15 }}
+              className="text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black text-white mb-6 leading-tight drop-shadow-2xl"
+            >
+              We're Here <br />
+              <span className="text-amber-400">
+                To Help You
+              </span>
+            </motion.h1>
+
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4, duration: 0.5 }}
+              className="text-xl md:text-2xl text-white/90 max-w-2xl mx-auto leading-relaxed mb-12 drop-shadow-md"
+            >
+              Have questions about properties or our platform? Our team is available 24/7 
+               to assist you with any inquiries.
+            </motion.p>
+            
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.5, type: "spring", stiffness: 100, damping: 15 }}
+              className="flex justify-center gap-8 text-white/80"
+            >
+              <motion.div 
+                className="flex items-center gap-2"
+                whileHover={{ x: 5 }}
+                transition={{ type: "spring", stiffness: 400, damping: 20 }}
+              >
+                <Clock size={18} className="text-amber-400" />
+                <span className="text-sm font-medium">Fast Response</span>
+              </motion.div>
+              <motion.div 
+                className="flex items-center gap-2"
+                whileHover={{ x: 5 }}
+                transition={{ type: "spring", stiffness: 400, damping: 20 }}
+              >
+                <Phone size={18} className="text-amber-400" />
+                <span className="text-sm font-medium">Direct Support</span>
+              </motion.div>
+            </motion.div>
+          </motion.div>
+        </div>
+
+        {/* Bottom Fade */}
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-white dark:bg-gray-900 pointer-events-none" />
       </section>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -123,19 +224,34 @@ export default function Contact() {
           {contactInfo.map((info, index) => (
             <motion.div
               key={index}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="bg-gray-50 rounded-xl p-8 text-center hover:shadow-lg transition-shadow"
+              initial={{ opacity: 0, y: 20, scale: 0.95 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ delay: index * 0.1, duration: 0.5, type: "spring", stiffness: 150, damping: 12 }}
+              viewport={{ once: true }}
+              whileHover={{ y: -12, scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="bg-gray-900 rounded-xl p-8 text-center hover:shadow-xl transition-all duration-300 border-b-4 border-amber-600"
             >
-              <div className="text-4xl mb-4">{info.icon}</div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">{info.title}</h3>
+              <motion.div 
+                className="w-16 h-16 bg-white rounded-full mx-auto mb-4 flex items-center justify-center text-2xl"
+                animate={{ y: [0, -8, 0] }}
+                transition={{ repeat: Infinity, duration: 2, delay: index * 0.2 }}
+                whileHover={{ rotate: 360 }}
+                transition={{ duration: 0.6, type: "spring", stiffness: 200, damping: 15 }}
+              >
+                {info.icon}
+              </motion.div>
+              <h3 className="text-xl font-black text-white mb-4">{info.title}</h3>
               {info.details.map((detail, idx) => (
-                <p key={idx} className="text-gray-600 mb-1">{detail}</p>
+                <p key={idx} className="text-gray-300 mb-1">{detail}</p>
               ))}
-              <button className="mt-4 text-primary-600 hover:text-primary-700 text-sm font-medium">
+              <motion.button 
+                whileHover={{ x: 5 }}
+                whileTap={{ scale: 0.95 }}
+                className="mt-4 text-amber-400 hover:text-amber-300 text-sm font-medium"
+              >
                 {info.action} →
-              </button>
+              </motion.button>
             </motion.div>
           ))}
         </div>
@@ -144,12 +260,16 @@ export default function Contact() {
         <div className="grid lg:grid-cols-2 gap-12">
           {/* Contact Form */}
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5 }}
+            initial={{ opacity: 0, x: -20, scale: 0.95 }}
+            whileInView={{ opacity: 1, x: 0, scale: 1 }}
+            transition={{ duration: 0.5, type: "spring", stiffness: 100, damping: 15 }}
+            viewport={{ once: true }}
+            whileHover={{ y: -4 }}
+            className='bg-white rounded-2xl shadow-lg p-8 border-b-4 border-amber-600'
           >
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Send Us a Message</h2>
-            <p className="text-gray-600 mb-8">
+            <h2 className="text-3xl mt-4 font-black text-center text-gray-900 mb-2">Send Us a Message</h2>
+            <div className='w-20 h-1.5 bg-amber-600 mx-auto rounded-full mb-4'></div>
+            <p className="text-gray-600 mb-8 text-center">
               Whether you have a question about our properties, need assistance, or just want to say hello, 
               we'd love to hear from you.
             </p>
@@ -192,7 +312,7 @@ export default function Contact() {
               />
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block ml-4 text-sm font-medium text-gray-700 mb-1">
                   Subject
                 </label>
                 <select
@@ -226,26 +346,41 @@ export default function Contact() {
                 />
               </div>
 
-              <Button type="submit" loading={isSubmitting} fullWidth>
-                Send Message
-              </Button>
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Button type="submit" loading={isSubmitting} fullWidth className="bg-amber-600 hover:bg-amber-700 text-white shadow-xl shadow-amber-600/30">
+                  Send Message
+                </Button>
+              </motion.div>
             </form>
           </motion.div>
 
           {/* FAQ Section */}
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
+            initial={{ opacity: 0, x: 20, scale: 0.95 }}
+            whileInView={{ opacity: 1, x: 0, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.1, type: "spring", stiffness: 100, damping: 15 }}
+            viewport={{ once: true }}
+            whileHover={{ y: -4 }}
           >
-            <div className="bg-gray-50 rounded-xl p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Frequently Asked Questions</h2>
+            <div className="bg-white rounded-2xl shadow-lg p-8 border-b-4 border-amber-600">
+              <h2 className="text-2xl font-black text-gray-900 mb-6">Frequently Asked Questions</h2>
               <div className="space-y-6">
                 {faqs.map((faq, index) => (
-                  <div key={index}>
+                  <motion.div 
+                    key={index}
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1, type: "spring", stiffness: 100, damping: 15 }}
+                    viewport={{ once: true }}
+                    whileHover={{ x: 5 }}
+                    className="cursor-pointer"
+                  >
                     <h3 className="font-semibold text-gray-900 mb-2">{faq.question}</h3>
                     <p className="text-gray-600 text-sm">{faq.answer}</p>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
 
@@ -253,20 +388,35 @@ export default function Contact() {
                 <p className="text-gray-600 text-sm mb-3">
                   Can't find what you're looking for?
                 </p>
-                <Button variant="outline" fullWidth>
-                  View All FAQs
-                </Button>
+                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <Button variant="outline" fullWidth className="border-amber-600 text-amber-600 hover:bg-amber-600 hover:text-white">
+                    View All FAQs
+                  </Button>
+                </motion.div>
               </div>
             </div>
           </motion.div>
         </div>
 
         {/* Map Section */}
-        <section className="mt-16">
-          <div className="bg-gray-200 rounded-xl overflow-hidden h-96 flex items-center justify-center">
-            <p className="text-gray-500">Interactive Map Coming Soon</p>
+        <motion.section 
+          className="mt-16"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, type: "spring", stiffness: 100, damping: 15 }}
+          viewport={{ once: true }}
+        >
+          <div className="bg-gray-100 rounded-xl overflow-hidden h-96 flex items-center justify-center border-2 border-dashed border-gray-300">
+            <motion.div
+              animate={{ y: [0, -10, 0] }}
+              transition={{ repeat: Infinity, duration: 2 }}
+              className="text-center"
+            >
+              <MapPin className="w-16 h-16 text-amber-600 mx-auto mb-4" />
+              <p className="text-gray-500 font-medium">Interactive Map Coming Soon</p>
+            </motion.div>
           </div>
-        </section>
+        </motion.section>
       </div>
     </div>
   );

@@ -92,13 +92,13 @@ const ListingPricing: React.FC<ListingPricingProps> = ({
           <div className="flex justify-between items-start mb-4">
             <div>
               <h4 className="text-xl font-bold text-gray-900">Featured Listing</h4>
-              <p className="text-3xl font-bold text-yellow-600 mt-2">
+              <p className="text-3xl font-bold text-amber-600 mt-2">
                 {formatPrice(LISTING_PRICES.featured.price)}
                 <span className="text-sm text-gray-500">/7 days</span>
               </p>
             </div>
             <div className="bg-yellow-100 p-2 rounded-full">
-              <Star className="text-yellow-600" size={24} />
+              <Star className="text-amber-600" size={24} />
             </div>
           </div>
           

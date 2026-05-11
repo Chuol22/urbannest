@@ -1,5 +1,5 @@
 // src/utils/formatters.ts
-export const formatCurrency = (amount: number, currency: string = 'USD'): string => {
+export const formatCurrency = (amount: number, currency: string = 'ETB'): string => {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: currency,
@@ -68,6 +68,7 @@ export const formatPhoneNumber = (phone: string): string => {
 };
 
 export const formatSquareFeet = (sqft: number): string => {
+  if (sqft === undefined || sqft === null) return '0 sq ft';
   return `${sqft.toLocaleString()} sq ft`;
 };
 

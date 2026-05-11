@@ -152,7 +152,7 @@ const BoostOptions: React.FC<BoostOptionsProps> = ({
               onClick={handleApplyBoost} 
               loading={isLoading || isProcessing}
               disabled={isLoading || isProcessing}
-              className="bg-gradient-to-r from-purple-500 to-purple-600"
+              className="bg-blue-600"
             >
               {isLoading ? 'Processing...' : `Apply Boost - ${formatPrice(boosts.find(b => b.id === selectedBoost)?.price || 0)}`}
             </Button>
