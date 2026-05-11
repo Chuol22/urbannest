@@ -1,11 +1,10 @@
-// tests/setupTestDB.js
-const { PrismaClient } = require('@prisma/client');
-const { exec } = require('child_process');
-const util = require('util');
-const path = require('path');
-const crypto = require('crypto');
+import { PrismaClient } from '@prisma/client';
+import { exec } from 'child_process';
+import { promisify } from 'util';
+import path from 'path';
+import crypto from 'crypto';
 
-const execPromise = util.promisify(exec);
+const execPromise = promisify(exec);
 
 // Store original environment
 const originalEnv = { ...process.env };
@@ -26,42 +25,88 @@ class TestDatabaseSetup {
   }
 
   /**
+   * Get database connection details from environment
+   */
+  getDbConfig() {
+    // Parse DATABASE_URL if available
+    const databaseUrl = process.env.DATABASE_URL;
+    
+    if (databaseUrl) {
+      try {
+        // Parse PostgreSQL connection string
+        const match = databaseUrl.match(/postgresql:\/\/([^:]+):([^@]+)@([^:]+):(\d+)\/([^?]+)/);
+        if (match) {
+          return {
+            user: match[1],
+            password: match[2],
+            host: match[3],
+            port: parseInt(match[4]),
+            database: match[5]
+          };
+        }
+      } catch (error) {
+        console.warn('Failed to parse DATABASE_URL, using fallback');
+      }
+    }
+    
+    // Fallback to individual environment variables
+    return {
+      user: process.env.DB_USER || 'postgres',
+      password: process.env.DB_PASSWORD || 'postgres',
+      host: process.env.DB_HOST || 'localhost',
+      port: parseInt(process.env.DB_PORT || '5432'),
+      database: process.env.DB_NAME || 'postgres'
+    };
+  }
+
+  /**
    * Create a new test database
    */
   async createTestDatabase() {
     try {
-      // Get connection details from environment or use defaults
-      const dbUser = process.env.DB_USER || 'postgres';
-      const dbPassword = process.env.DB_PASSWORD || 'postgres';
-      const dbHost = process.env.DB_HOST || 'localhost';
-      const dbPort = process.env.DB_PORT || '5432';
-      const defaultDb = process.env.DB_NAME || 'postgres';
+      const config = this.getDbConfig();
+      const defaultDb = config.database;
 
       // Generate unique test database name
       this.testDatabaseName = this.generateTestDatabaseName();
 
       // Set the database name for connection
-      process.env.DATABASE_URL = `postgresql://${dbUser}:${dbPassword}@${dbHost}:${dbPort}/${this.testDatabaseName}`;
+      process.env.DATABASE_URL = `postgresql://${config.user}:${config.password}@${config.host}:${config.port}/${this.testDatabaseName}?sslmode=require`;
 
       // Connect to default database to create test database
       const tempPrisma = new PrismaClient({
         datasources: {
           db: {
-            url: `postgresql://${dbUser}:${dbPassword}@${dbHost}:${dbPort}/${defaultDb}`
+            url: `postgresql://${config.user}:${config.password}@${config.host}:${config.port}/${defaultDb}`
           }
         }
       });
 
-      // Create test database
-      await tempPrisma.$executeRawUnsafe(
-        `CREATE DATABASE "${this.testDatabaseName}"`
-      );
-
-      await tempPrisma.$disconnect();
-      
-      console.log(`✅ Created test database: ${this.testDatabaseName}`);
+      try {
+        // Create test database
+        await tempPrisma.$executeRawUnsafe(
+          `CREATE DATABASE "${this.testDatabaseName}"`
+        );
+        console.log(`✅ Created test database: ${this.testDatabaseName}`);
+      } catch (error) {
+        // If database already exists, drop and recreate
+        if (error.message.includes('already exists')) {
+          console.log(`⚠️ Test database already exists, dropping and recreating...`);
+          await tempPrisma.$executeRawUnsafe(
+            `DROP DATABASE IF EXISTS "${this.testDatabaseName}"`
+          );
+          await tempPrisma.$executeRawUnsafe(
+            `CREATE DATABASE "${this.testDatabaseName}"`
+          );
+          console.log(`✅ Recreated test database: ${this.testDatabaseName}`);
+        } else {
+          throw error;
+        }
+      } finally {
+        await tempPrisma.$disconnect();
+      }
     } catch (error) {
-      console.error('❌ Failed to create test database:', error);
+      console.error('❌ Failed to create test database:', error.message);
       throw error;
     }
   }
@@ -72,14 +117,27 @@ class TestDatabaseSetup {
   async runMigrations() {
     try {
       // Run Prisma migrations
-      await execPromise('npx prisma migrate deploy', {
+      const { stdout, stderr } = await execPromise('npx prisma migrate deploy', {
         env: { ...process.env, DATABASE_URL: process.env.DATABASE_URL }
       });
       
+      if (stdout) console.log(stdout);
+      if (stderr && !stderr.includes('warn')) console.error(stderr);
+      
       console.log('✅ Migrations applied successfully');
     } catch (error) {
-      console.error('❌ Failed to run migrations:', error);
-      throw error;
+      console.error('❌ Failed to run migrations:', error.message);
+      // Try to push schema instead if migrations fail
+      try {
+        console.log('⚠️ Trying to push schema instead...');
+        await execPromise('npx prisma db push', {
+          env: { ...process.env, DATABASE_URL: process.env.DATABASE_URL }
+        });
+        console.log('✅ Schema pushed successfully');
+      } catch (pushError) {
+        console.error('❌ Failed to push schema:', pushError.message);
+        throw error;
+      }
     }
   }
 
@@ -89,7 +147,8 @@ class TestDatabaseSetup {
   async initializePrisma() {
     try {
       this.prisma = new PrismaClient({
-        log: process.env.DEBUG ? ['query', 'info', 'warn', 'error'] : ['error'],
+        log: process.env.DEBUG === 'true' ? ['query', 'info', 'warn', 'error'] : ['error'],
+        errorFormat: 'pretty'
       });
 
       // Test the connection
@@ -98,7 +157,7 @@ class TestDatabaseSetup {
       
       console.log('✅ Prisma client connected to test database');
     } catch (error) {
-      console.error('❌ Failed to initialize Prisma client:', error);
+      console.error('❌ Failed to initialize Prisma client:', error.message);
       throw error;
     }
   }
@@ -114,7 +173,7 @@ class TestDatabaseSetup {
       
       return this.prisma;
     } catch (error) {
-      console.error('❌ Test database setup failed:', error);
+      console.error('❌ Test database setup failed:', error.message);
       throw error;
     }
   }
@@ -132,41 +191,42 @@ class TestDatabaseSetup {
 
       // Drop test database
       if (this.testDatabaseName) {
-        const dbUser = process.env.DB_USER || 'postgres';
-        const dbPassword = process.env.DB_PASSWORD || 'postgres';
-        const dbHost = process.env.DB_HOST || 'localhost';
-        const dbPort = process.env.DB_PORT || '5432';
-        const defaultDb = process.env.DB_NAME || 'postgres';
+        const config = this.getDbConfig();
+        const defaultDb = config.database;
 
         const tempPrisma = new PrismaClient({
           datasources: {
             db: {
-              url: `postgresql://${dbUser}:${dbPassword}@${dbHost}:${dbPort}/${defaultDb}`
+              url: `postgresql://${config.user}:${config.password}@${config.host}:${config.port}/${defaultDb}?sslmode=require`
             }
           }
         });
 
-        // Force disconnect all connections and drop database
-        await tempPrisma.$executeRawUnsafe(`
-          SELECT pg_terminate_backend(pg_stat_activity.pid)
-          FROM pg_stat_activity
-          WHERE pg_stat_activity.datname = '${this.testDatabaseName}'
-          AND pid <> pg_backend_pid();
-        `);
+        try {
+          // Force disconnect all connections and drop database
+          await tempPrisma.$executeRawUnsafe(`
+            SELECT pg_terminate_backend(pg_stat_activity.pid)
+            FROM pg_stat_activity
+            WHERE pg_stat_activity.datname = '${this.testDatabaseName}'
+            AND pid <> pg_backend_pid();
+          `);
 
-        await tempPrisma.$executeRawUnsafe(
-          `DROP DATABASE IF EXISTS "${this.testDatabaseName}"`
-        );
-
-        await tempPrisma.$disconnect();
-        
-        console.log(`✅ Dropped test database: ${this.testDatabaseName}`);
+          await tempPrisma.$executeRawUnsafe(
+            `DROP DATABASE IF EXISTS "${this.testDatabaseName}"`
+          );
+          
+          console.log(`✅ Dropped test database: ${this.testDatabaseName}`);
+        } catch (error) {
+          console.error(`⚠️ Failed to drop test database: ${error.message}`);
+        } finally {
+          await tempPrisma.$disconnect();
+        }
       }
 
       // Restore original environment
       Object.assign(process.env, originalEnv);
     } catch (error) {
-      console.error('❌ Test database cleanup failed:', error);
+      console.error('❌ Test database cleanup failed:', error.message);
       throw error;
     }
   }
@@ -197,30 +257,24 @@ class TestDatabaseSetup {
       
       console.log('✅ Database cleared');
     } catch (error) {
-      console.error('❌ Failed to clear database:', error);
+      console.error('❌ Failed to clear database:', error.message);
       throw error;
     }
+  }
+
+  /**
+   * Get the Prisma client instance
+   */
+  getPrisma() {
+    if (!this.prisma || !this.isConnected) {
+      throw new Error('Prisma client not initialized. Call setup() first.');
+    }
+    return this.prisma;
   }
 }
 
 // Create a singleton instance
 const testDB = new TestDatabaseSetup();
 
-// Global setup for Jest
-beforeAll(async () => {
-  await testDB.setup();
-});
-
-// Optional: Clear database before each test
-beforeEach(async () => {
-  if (process.env.CLEAR_DB_BEFORE_EACH_TEST === 'true') {
-    await testDB.clearDatabase();
-  }
-});
-
-// Global teardown for Jest
-afterAll(async () => {
-  await testDB.cleanup();
-});
-
-module.exports = testDB;
+// Export for use in tests
+export default testDB;

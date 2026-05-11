@@ -1,0 +1,862 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+//user model
+model User {
+  id                        String    @id @default(uuid()) @db.Uuid
+  email                     String    @unique @db.VarChar(255)
+  phone                     String    @unique @db.VarChar(20)
+  password_hash             String    @db.VarChar(255)
+  first_name                String    @db.VarChar(100)
+  last_name                 String    @db.VarChar(100)
+  role                      Role      @default(seeker)
+  is_verified               Boolean   @default(false)
+  verification_document_url String?   @db.Text
+  avatar_url                String?   @db.Text
+  is_active                 Boolean   @default(true)
+  created_at                DateTime  @default(now())
+  updated_at                DateTime  @updatedAt
+  last_login                DateTime?
+
+  // Relations
+  properties           Property[]
+  seeker_transactions  Transaction[]         @relation("SeekerTransactions")
+  owner_transactions   Transaction[]         @relation("OwnerTransactions")
+  payee_transactions   Transaction[]         @relation("PayeeTransactions")
+  payment_methods      PaymentMethodDetail[]
+  uploaded_photos      PropertyPhoto[]
+  seeker_conversations Conversation[]        @relation("SeekerConversations")
+  owner_conversations  Conversation[]        @relation("OwnerConversations")
+  seeker_bookings      Booking[]             @relation("SeekerBookings")
+  host_bookings        Booking[]             @relation("HostBookings")
+  messages             Message[]
+  booking_messages     BookingMessage[]
+  favorite_properties  FavoriteProperty[]
+  written_reviews      Review[]              @relation("WrittenReviews")
+  owner_reviews        Review[]              @relation("OwnerReviews")
+  customer_reviews     Review[]              @relation("CustomerReviews")
+  review_responses     ReviewResponse[]
+  review_helpful       ReviewHelpful[]
+  review_reports       ReviewReport[]
+  transactions         Transaction[]
+  reviewSummaries      ReviewSummary[]       @relation("OwnerReviewSummary")
+
+  @@map("users")
+}
+
+enum Role {
+  seeker
+  owner
+  agent
+  admin
+}
+
+// Property model
+model Property {
+  id      String @id @default(uuid()) @db.Uuid
+  user_id String @db.Uuid
+  user    User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  // Property details
+  title         String         @db.VarChar(255)
+  description   String?        @db.Text
+  price         Float
+  currency      Currency       @default(ETB)
+  property_type PropertyType
+  purpose       Purpose
+  status        PropertyStatus @default(available)
+
+  // Property features
+  bedrooms     Int
+  sitting_area Int
+  kitchen      Boolean @default(false)
+  bathrooms    Int
+
+  // Timestamps
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  // Relations
+  photos          PropertyPhoto[]
+  transactions    Transaction[]
+  conversations   Conversation[]
+  amenities       PropertyAmenity[]
+  location        Location?          @relation(fields: [locationId], references: [id])
+  locationId      String?            @db.Uuid
+  bookings        Booking[]
+  favorited_by    FavoriteProperty[]
+  reviews         Review[]
+  reviewSummaries ReviewSummary[]
+
+  // Indexes
+  @@index([user_id])
+  @@index([property_type])
+  @@index([purpose])
+  @@index([status])
+  @@index([price])
+  @@index([created_at])
+  @@map("properties")
+}
+
+enum PropertyType {
+  apartment
+  house
+  office
+  land
+  warehouse
+  hotel
+  restaurant_space
+  shop_space
+  shopping_mall_space
+  factory_space
+  other
+}
+
+enum PropertyStatus {
+  available
+  pending
+  sold
+  rented
+  off_market
+  coming_soon
+  price_reduced
+  withdrawn
+  leased
+}
+
+enum Purpose {
+  sale
+  rent
+  lease
+  short_term_rental
+  long_term_rental
+  other
+}
+
+enum Currency {
+  ETB
+  KES
+  UGX
+  SOS
+  NGN
+  USD
+  SSP
+  SDG
+  etc
+}
+
+// Property photo model
+model PropertyPhoto {
+  id         String   @id @default(uuid()) @db.Uuid
+  propertyId String   @db.Uuid
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  photoUrl     String  @map("photo_url") @db.Text
+  thumbnailUrl String?
+  mediumUrl    String?
+
+  isPrimary    Boolean @default(false)
+  displayOrder Int
+
+  caption String?
+  altText String?
+
+  fileSize Int
+  mimeType String
+
+  uploadedById String @db.Uuid
+  uploadedBy   User   @relation(fields: [uploadedById], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@unique([propertyId, displayOrder])
+  @@unique([propertyId, photoUrl])
+  @@index([propertyId])
+  @@index([isPrimary])
+  @@map("property_photos")
+}
+
+// Conversation model
+model Conversation {
+  id         String   @id @default(uuid()) @db.Uuid
+  propertyId String   @db.Uuid
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  seekerId String @db.Uuid
+  seeker   User   @relation("SeekerConversations", fields: [seekerId], references: [id])
+
+  ownerId String @db.Uuid
+  owner   User   @relation("OwnerConversations", fields: [ownerId], references: [id])
+
+  messages Message[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([propertyId])
+  @@index([seekerId])
+  @@index([ownerId])
+  @@map("conversations")
+}
+
+// Message model
+model Message {
+  id             String       @id @default(uuid()) @db.Uuid
+  conversationId String       @db.Uuid
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  senderId String @db.Uuid
+  sender   User   @relation(fields: [senderId], references: [id])
+
+  message String
+
+  isRead Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@index([conversationId])
+  @@index([senderId])
+  @@map("messages")
+}
+
+// Location model
+model Location {
+  id String @id @default(uuid()) @db.Uuid
+
+  country String
+  region  String?
+  city    String
+  subCity String?
+  address String
+
+  latitude  Float
+  longitude Float
+
+  properties Property[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([country])
+  @@index([city])
+  @@index([address])
+  @@index([latitude, longitude])
+  @@map("locations")
+}
+
+// Booking model
+model Booking {
+  id         String   @id @default(uuid()) @db.Uuid
+  propertyId String   @map("property_id") @db.Uuid
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  seekerId String @map("seeker_id") @db.Uuid
+  seeker   User   @relation("SeekerBookings", fields: [seekerId], references: [id])
+
+  hostId String @map("host_id") @db.Uuid
+  host   User   @relation("HostBookings", fields: [hostId], references: [id])
+
+  visitType       VisitType @default(IN_PERSON) @map("visit_type")
+  requestedDate   DateTime  @map("requested_date") @db.Timestamp(6)
+  requestedTime   String    @map("requested_time")
+  durationMinutes Int?      @default(30) @map("duration_minutes")
+
+  status BookingStatus @default(PENDING)
+
+  confirmedDate DateTime? @map("confirmed_date") @db.Timestamp(6)
+  confirmedTime String?   @map("confirmed_time")
+
+  actualVisitDate DateTime? @map("actual_visit_date") @db.Timestamp(6)
+  actualVisitTime String?   @map("actual_visit_time")
+  checkedIn       Boolean   @default(false) @map("checked_in")
+  checkedInAt     DateTime? @map("checked_in_at") @db.Timestamp(6)
+  checkedOutAt    DateTime? @map("checked_out_at") @db.Timestamp(6)
+
+  seekerPhone      String? @map("seeker_phone")
+  seekerEmail      String? @map("seeker_email")
+  preferredContact String? @map("preferred_contact")
+
+  messages    BookingMessage[]
+  transaction Transaction?
+  feedback    BookingFeedback?
+
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamp(6)
+  expiresAt DateTime? @map("expires_at") @db.Timestamp(6)
+  reviews   Review[]
+
+  @@unique([propertyId, requestedDate, requestedTime])
+  @@index([seekerId])
+  @@index([hostId])
+  @@index([status])
+  @@index([requestedDate])
+  @@map("bookings")
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+  REJECTED
+  RESCHEDULED
+  EXPIRED
+}
+
+enum VisitType {
+  IN_PERSON
+  VIRTUAL
+  PHONE_CALL
+}
+
+// Booking Message model
+model BookingMessage {
+  id        String  @id @default(uuid()) @db.Uuid
+  bookingId String  @map("booking_id") @db.Uuid
+  booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  senderId String @map("sender_id") @db.Uuid
+  sender   User   @relation(fields: [senderId], references: [id])
+
+  message String    @db.Text
+  isRead  Boolean   @default(false) @map("is_read")
+  readAt  DateTime? @map("read_at") @db.Timestamp(6)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+
+  @@index([bookingId])
+  @@index([senderId])
+  @@map("booking_messages")
+}
+
+// Booking Feedback model
+model BookingFeedback {
+  id        String  @id @default(uuid()) @db.Uuid
+  bookingId String  @unique @map("booking_id") @db.Uuid
+  booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  rating                 Int      @default(5)
+  feedbackText           String?  @map("feedback_text") @db.Text
+  hostPunctuality        Int?     @map("host_punctuality")
+  propertyAccuracy       Int?     @map("property_accuracy")
+  neighborhoodImpression Int?     @map("neighborhood_impression")
+  wouldRecommend         Boolean? @map("would_recommend")
+  followUpContacted      Boolean  @default(false) @map("follow_up_contacted")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+
+  @@index([bookingId])
+  @@map("booking_feedback")
+}
+
+// Favorite Property model
+enum FavoriteType {
+  WISHLIST
+  FAVORITE
+  SHORTLIST
+  COMPARE
+  FOLLOW
+}
+
+model FavoriteProperty {
+  id         String   @id @default(uuid()) @db.Uuid
+  userId     String   @map("user_id") @db.Uuid
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  propertyId String   @map("property_id") @db.Uuid
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  favoriteType FavoriteType @default(FAVORITE) @map("favorite_type")
+
+  notifyOnPriceChange  Boolean   @default(true) @map("notify_on_price_change")
+  notifyOnStatusChange Boolean   @default(true) @map("notify_on_status_change")
+  notifyOnNewPhotos    Boolean   @default(true) @map("notify_on_new_photos")
+  lastNotifiedAt       DateTime? @map("last_notified_at") @db.Timestamp(6)
+
+  viewCount    Int       @default(0) @map("view_count")
+  lastViewedAt DateTime? @map("last_viewed_at") @db.Timestamp(6)
+
+  tags     String[]
+  priority Int      @default(0)
+
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamp(6)
+  expiresAt DateTime? @map("expires_at") @db.Timestamp(6)
+
+  @@unique([userId, propertyId])
+  @@index([userId])
+  @@index([propertyId])
+  @@index([favoriteType])
+  @@index([createdAt])
+  @@map("favorite_properties")
+}
+
+// Amenity models
+enum AmenityCategory {
+  INTERIOR
+  EXTERIOR
+  KITCHEN
+  SITTING_AREA
+  BATHROOM
+  BEDROOM
+  SECURITY
+  ACCESSIBILITY
+  TECHNOLOGY
+  FURNISHING
+  PARKING
+  OTHER
+}
+
+model Amenity {
+  id          String          @id @default(uuid()) @db.Uuid
+  name        String          @unique
+  description String?         @db.Text
+  category    AmenityCategory
+  icon        String?
+
+  properties PropertyAmenity[]
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
+
+  @@index([category])
+  @@map("amenities")
+}
+
+model PropertyAmenity {
+  id         String   @id @default(uuid()) @db.Uuid
+  propertyId String   @map("property_id") @db.Uuid
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  amenityId  String   @map("amenity_id") @db.Uuid
+  amenity    Amenity  @relation(fields: [amenityId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
+
+  @@unique([propertyId, amenityId])
+  @@index([propertyId])
+  @@index([amenityId])
+  @@map("property_amenities")
+}
+
+// Transaction models
+enum TransactionType {
+  RENT_PAYMENT
+  SECURITY_DEPOSIT
+  DEPOSIT_REFUND
+  BUYER_PAYMENT
+  SELLER_RECEIPT
+}
+
+enum TransactionStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+enum PaymentMethod {
+  BANK_TRANSFER
+  CREDIT_CARD
+  MOBILE_MONEY
+  DIGITAL_WALLET
+  CASH
+  OTHER
+}
+
+enum PaymentGateway {
+  CBE_BIRR
+  TELEBIRR
+  M_PESA
+  COMMERCE_BANK
+  OTHER
+}
+
+enum RecurringFrequency {
+  ONE_TIME
+  DAILY
+  WEEKLY
+  BI_WEEKLY
+  MONTHLY
+  QUARTERLY
+  SEMI_ANNUALLY
+  ANNUALLY
+}
+
+// transaction model for payments related to bookings (if you plan to implement payments in the future
+
+// Main Transaction model
+model Transaction {
+  id                String @id @default(uuid()) @db.Uuid
+  userId            String @db.Uuid
+  user              User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactionNumber String @unique @map("transaction_number")
+
+  type        TransactionType
+  status      TransactionStatus @default(PENDING)
+  amount      Float
+  currency    Currency          @default(ETB)
+  description String?           @db.Text
+
+  paymentMethod        PaymentMethod
+  paymentGateway       PaymentGateway
+  gatewayTransactionId String?        @map("gateway_transaction_id")
+  gatewayResponse      Json?          @map("gateway_response")
+
+  isProrated   Boolean   @default(false) @map("is_prorated")
+  proratedDays Int?      @map("prorated_days")
+  periodStart  DateTime? @map("period_start") @db.Timestamp(6)
+  periodEnd    DateTime? @map("period_end") @db.Timestamp(6)
+
+  propertyId String?   @map("property_id") @db.Uuid
+  property   Property? @relation(fields: [propertyId], references: [id])
+
+  seekerId String? @map("seeker_id") @db.Uuid
+  seeker   User?   @relation("SeekerTransactions", fields: [seekerId], references: [id])
+
+  ownerId String? @map("owner_id") @db.Uuid
+  owner   User?   @relation("OwnerTransactions", fields: [ownerId], references: [id])
+
+  bookingId String?  @unique @db.Uuid
+  booking   Booking? @relation(fields: [bookingId], references: [id])
+
+  payeeId String? @map("payee_id") @db.Uuid
+  payee   User?   @relation("PayeeTransactions", fields: [payeeId], references: [id])
+
+  paymentSourceId String?              @map("payment_source_id") @db.Uuid
+  paymentSource   PaymentMethodDetail? @relation("SourceTransactions", fields: [paymentSourceId], references: [id])
+
+  paymentDestinationId String?              @map("payment_destination_id") @db.Uuid
+  paymentDestination   PaymentMethodDetail? @relation("DestinationTransactions", fields: [paymentDestinationId], references: [id])
+
+  receiptUrl String? @map("receipt_url")
+
+  refundedTransactionId String?       @map("refunded_transaction_id") @db.Uuid
+  refundedTransaction   Transaction?  @relation("RefundTransactions", fields: [refundedTransactionId], references: [id])
+  refundTransactions    Transaction[] @relation("RefundTransactions")
+
+  refundReason String?   @map("refund_reason") @db.Text
+  refundedAt   DateTime? @map("refunded_at") @db.Timestamp(6)
+
+  receiptConfirmed   Boolean   @default(false) @map("receipt_confirmed")
+  receiptConfirmedAt DateTime? @map("receipt_confirmed_at") @db.Timestamp(6)
+
+  receipt Receipt[]
+
+  transactionDate DateTime  @default(now()) @map("transaction_date") @db.Timestamp(6)
+  settledDate     DateTime? @map("settled_date") @db.Timestamp(6)
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamp(6)
+  reviews         Review[]
+
+  @@index([transactionNumber])
+  @@index([userId])
+  @@index([seekerId])
+  @@index([ownerId])
+  @@index([propertyId])
+  @@index([status])
+  @@index([type])
+  @@index([transactionDate])
+  @@index([gatewayTransactionId])
+  @@index([bookingId])
+  @@map("transactions")
+}
+
+model PaymentMethodDetail {
+  id     String @id @default(uuid()) @db.Uuid
+  userId String @map("user_id") @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  paymentMethod PaymentMethod
+  isDefault     Boolean       @default(false) @map("is_default")
+
+  paymentGateway         PaymentGateway
+  gatewayCustomerId      String?        @map("gateway_customer_id")
+  gatewayPaymentMethodId String?        @map("gateway_payment_method_id")
+
+  lastFour       String? @map("last_four")
+  cardBrand      String? @map("card_brand")
+  expiryMonth    Int?    @map("expiry_month")
+  expiryYear     Int?    @map("expiry_year")
+  cardholderName String? @map("cardholder_name")
+
+  bankName      String? @map("bank_name")
+  accountType   String? @map("account_type")
+  routingNumber String? @map("routing_number")
+
+  billingAddress1 String? @map("billing_address1")
+  billingAddress2 String? @map("billing_address2")
+  billingCity     String? @map("billing_city")
+  billingState    String? @map("billing_state")
+  billingCountry  String? @default("ET") @map("billing_country")
+
+  isVerified Boolean   @default(false) @map("is_verified")
+  isExpired  Boolean   @default(false) @map("is_expired")
+  isActive   Boolean   @default(true) @map("is_active")
+  lastUsedAt DateTime? @map("last_used_at") @db.Timestamp(6)
+
+  source_transactions      Transaction[] @relation("SourceTransactions")
+  destination_transactions Transaction[] @relation("DestinationTransactions")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
+
+  @@unique([gatewayCustomerId, gatewayPaymentMethodId])
+  @@index([userId])
+  @@index([isDefault])
+  @@index([isActive])
+  @@map("payment_method_details")
+}
+
+// Receipt model
+model Receipt {
+  id            String      @id @default(uuid()) @db.Uuid
+  receiptNumber String      @unique @map("receipt_number")
+  transactionId String      @unique @map("transaction_id") @db.Uuid
+  transaction   Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+
+  receiptUrl String  @map("receipt_url")
+  pdfUrl     String? @map("pdf_url")
+
+  emailedTo    String?   @map("emailed_to")
+  emailedAt    DateTime? @map("emailed_at") @db.Timestamp(6)
+  downloadedAt DateTime? @map("downloaded_at") @db.Timestamp(6)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+
+  @@map("receipts")
+}
+
+/// Review models
+enum ReviewType {
+  PROPERTY
+  OWNER
+  CUSTOMER
+  AGENCY
+}
+
+enum ReviewStatus {
+  PENDING
+  PUBLISHED
+  REMOVED
+  SPAM
+}
+
+model Review {
+  id           String @id @default(uuid()) @db.Uuid
+  reviewNumber String @unique @map("review_number")
+
+  type    ReviewType
+  status  ReviewStatus @default(PENDING)
+  rating  Int
+  title   String?      @db.VarChar(200)
+  content String       @db.Text
+  pros    String?      @db.Text
+  cons    String?      @db.Text
+
+  authorId String @map("author_id") @db.Uuid
+  author   User   @relation("WrittenReviews", fields: [authorId], references: [id])
+
+  propertyId String?   @map("property_id") @db.Uuid
+  property   Property? @relation(fields: [propertyId], references: [id])
+
+  ownerId String? @map("owner_id") @db.Uuid
+  owner   User?   @relation("OwnerReviews", fields: [ownerId], references: [id])
+
+  customerId String? @map("customer_id") @db.Uuid
+  customer   User?   @relation("CustomerReviews", fields: [customerId], references: [id])
+
+  bookingId String?  @map("booking_id") @db.Uuid
+  booking   Booking? @relation(fields: [bookingId], references: [id])
+
+  transactionId String?      @map("transaction_id") @db.Uuid
+  transaction   Transaction? @relation(fields: [transactionId], references: [id])
+
+  accuracyRating      Int? @map("accuracy_rating")
+  communicationRating Int? @map("communication_rating")
+  cleanlinessRating   Int? @map("cleanliness_rating")
+  locationRating      Int? @map("location_rating")
+  valueRating         Int? @map("value_rating")
+  amenitiesRating     Int? @map("amenities_rating")
+
+  responsivenessRating Int? @map("responsiveness_rating")
+  fairnessRating       Int? @map("fairness_rating")
+  maintenanceRating    Int? @map("maintenance_rating")
+
+  paymentReliability Int? @map("payment_reliability")
+  careOfProperty     Int? @map("care_of_property")
+  noiseLevel         Int? @map("noise_level")
+
+  isVerified         Boolean   @default(false) @map("is_verified")
+  verifiedBy         String?   @map("verified_by") @db.Uuid
+  verifiedAt         DateTime? @map("verified_at") @db.Timestamp(6)
+  verificationMethod String?   @map("verification_method")
+
+  photos    ReviewPhoto[]
+  videos    ReviewVideo[]
+  responses ReviewResponse[]
+  helpful   ReviewHelpful[]
+  reports   ReviewReport[]
+
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamp(6)
+  publishedAt DateTime? @map("published_at") @db.Timestamp(6)
+  archivedAt  DateTime? @map("archived_at") @db.Timestamp(6)
+
+  @@unique([authorId, propertyId])
+  @@unique([authorId, ownerId])
+  @@unique([authorId, customerId])
+  @@unique([authorId, bookingId])
+  @@index([authorId])
+  @@index([propertyId])
+  @@index([ownerId])
+  @@index([customerId])
+  @@index([status])
+  @@index([rating])
+  @@index([createdAt])
+  @@index([type])
+  @@index([isVerified])
+  @@map("reviews")
+}
+
+model ReviewPhoto {
+  id       String @id @default(uuid()) @db.Uuid
+  reviewId String @map("review_id") @db.Uuid
+  review   Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  photoUrl     String  @map("photo_url")
+  caption      String? @db.VarChar(200)
+  displayOrder Int     @default(0) @map("display_order")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+
+  @@index([reviewId])
+  @@map("review_photos")
+}
+
+model ReviewVideo {
+  id       String @id @default(uuid()) @db.Uuid
+  reviewId String @map("review_id") @db.Uuid
+  review   Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  videoUrl     String  @map("video_url")
+  thumbnailUrl String? @map("thumbnail_url")
+  title        String? @db.VarChar(200)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+
+  @@index([reviewId])
+  @@map("review_videos")
+}
+
+model ReviewResponse {
+  id       String @id @default(uuid()) @db.Uuid
+  reviewId String @map("review_id") @db.Uuid
+  review   Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  authorId String @map("author_id") @db.Uuid
+  author   User   @relation(fields: [authorId], references: [id])
+
+  content    String       @db.Text
+  status     ReviewStatus @default(PUBLISHED)
+  isOfficial Boolean      @default(false) @map("is_official")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
+
+  @@index([reviewId])
+  @@index([authorId])
+  @@map("review_responses")
+}
+
+model ReviewHelpful {
+  id       String @id @default(uuid()) @db.Uuid
+  reviewId String @map("review_id") @db.Uuid
+  review   Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  userId String @map("user_id") @db.Uuid
+  user   User   @relation(fields: [userId], references: [id])
+
+  isHelpful Boolean @default(true) @map("is_helpful")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+
+  @@unique([reviewId, userId])
+  @@index([reviewId])
+  @@index([userId])
+  @@map("review_helpful")
+}
+
+model ReviewReport {
+  id       String @id @default(uuid()) @db.Uuid
+  reviewId String @map("review_id") @db.Uuid
+  review   Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  reporterId String @map("reporter_id") @db.Uuid
+  reporter   User   @relation(fields: [reporterId], references: [id])
+
+  reason      String
+  description String?   @db.Text
+  status      String    @default("PENDING")
+  resolvedBy  String?   @map("resolved_by") @db.Uuid
+  resolvedAt  DateTime? @map("resolved_at") @db.Timestamp(6)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+
+  @@unique([reviewId, reporterId])
+  @@index([reviewId])
+  @@index([reporterId])
+  @@index([status])
+  @@map("review_reports")
+}
+
+model ReviewSummary {
+  id String @id @default(uuid()) @db.Uuid
+
+  propertyId String?   @unique @map("property_id") @db.Uuid
+  property   Property? @relation(fields: [propertyId], references: [id])
+
+  ownerId String? @unique @map("owner_id") @db.Uuid
+  owner   User?   @relation("OwnerReviewSummary", fields: [ownerId], references: [id])
+
+  customerId String? @unique @map("customer_id") @db.Uuid
+
+  totalReviews  Int   @default(0) @map("total_reviews")
+  averageRating Float @default(0) @map("average_rating")
+
+  fiveStarCount  Int @default(0) @map("five_star_count")
+  fourStarCount  Int @default(0) @map("four_star_count")
+  threeStarCount Int @default(0) @map("three_star_count")
+  twoStarCount   Int @default(0) @map("two_star_count")
+  oneStarCount   Int @default(0) @map("one_star_count")
+
+  avgAccuracy      Float? @map("avg_accuracy")
+  avgCommunication Float? @map("avg_communication")
+  avgCleanliness   Float? @map("avg_cleanliness")
+  avgLocation      Float? @map("avg_location")
+  avgValue         Float? @map("avg_value")
+
+  lastReviewAt DateTime? @map("last_review_at") @db.Timestamp(6)
+  updatedAt    DateTime  @updatedAt @map("updated_at") @db.Timestamp(6)
+
+  @@index([propertyId])
+  @@index([ownerId])
+  @@index([customerId])
+  @@map("review_summaries")
+}
