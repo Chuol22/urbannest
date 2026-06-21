@@ -1,3 +1,12 @@
 {
-    "prisma.pinToPrisma6": false
+    "prisma.pinToPrisma6": false,
+    "chat.agent.maxRequests": 90,
+    "chat.agent.enabled": true,
+    "editor.formatOnSave": true,
+    "files.autoSave": "off",
+    "editor.wordWrap": "on",
+    "files.exclude": {
+        "**/.git": false
+    },
+    "editor.formatOnPaste": true
 }

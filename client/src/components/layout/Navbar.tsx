@@ -3,8 +3,8 @@ import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useDarkMode } from '../../context/DarkModeContext';
-import logo from '../../assets/images/Urbanestlogo.png';
-import logoDark from '../../assets/images/Urbanestlogo.png';
+import logo from '../../assets/images/tl.png';
+import logoDark from '../../assets/images/tl.png';
 
 // Language translations
 const translations = {
@@ -168,7 +168,7 @@ export const Navbar = () => {
             <Link to="/" className="flex items-center">
               <img 
                 src={isDarkMode ? logoDark : logo} 
-                alt="UrbanNEST Logo" 
+                alt="TIIPLONGHA Logo" 
                 className="h-12 w-auto"
               />
             </Link>

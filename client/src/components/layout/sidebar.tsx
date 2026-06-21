@@ -117,7 +117,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <div className="flex items-center justify-between p-4 border-b border-gray-200">
         <Link to="/" className="flex items-center space-x-2">
           <div className="w-8 h-8 bg-primary-600 rounded-lg"></div>
-          <span className="text-xl font-bold text-primary-600">UrbanNEST</span>
+          <span className="text-xl font-bold text-primary-600">Tiiplongha</span>
         </Link>
         {variant === 'temporary' && (
           <button

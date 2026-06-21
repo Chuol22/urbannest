@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 // Import logo at the top
-import logo from '../../assets/images/Urbanestlogo.png';
+import logo from '../../assets/images/tl.png';
 
 const Footer = () => {
   return (
@@ -14,13 +14,13 @@ const Footer = () => {
               <div className="w-20 h-20 rounded-lg flex items-center justify-center overflow-hidden">
                 <img 
                   src={logo} 
-                  alt="UrbanNest Logo" 
+                  alt="Tiiplongha Logo" 
                   className="w-full h-full object-cover"
                 />
               </div>
             </div>
             <p className="text-gray-400 text-sm leading-relaxed">
-              Your perfect home finder solution. Find your dream home with UrbanNest.
+              Your perfect home finder solution. Find your dream home with Tiiplongha.
             </p>
           </div>
           

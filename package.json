@@ -1,36 +1,5 @@
 {
-  "name": "urbannest",
-  "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon src/server.js"
-  },
-  "keywords": [],
-  "author": "Chuol422",
-  "license": "ISC",
-  "description": "it is urbannest its back-end ",
   "dependencies": {
-    "@prisma/client": "^7.4.2",
-    "bcryptjs": "^3.0.3",
-    "dotenv": "^17.3.1",
-    "express": "^5.2.1",
-    "express-validator": "^7.3.1",
-    "jsonwebtoken": "^9.0.3"
-  },
-  "devDependencies": {
-    "@types/express": "^5.0.6",
-    "jest": "^30.2.0",
-    "nodemon": "^3.1.14",
-    "prisma": "^7.4.2",
-    "supertest": "^7.2.2"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Chuol22/urbannest.git"
-  },
-  "bugs": {
-    "url": "https://github.com/Chuol22/urbannest/issues"
-  },
-  "homepage": "https://github.com/Chuol22/urbannest#readme"
+    "react-helmet-async": "^3.0.0"
+  }
 }
