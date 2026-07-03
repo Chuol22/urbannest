@@ -19,25 +19,25 @@ All changes will be made incrementally with testing checkpoints to ensure zero f
   - _Requirements: 13.1, 13.2, 13.3, 13.4, 13.5, 13.6, 13.7, 13.8, 14.1, 14.2, 14.3, 14.5_
 
 - [ ] 2. Remove i18next dependencies
-  - [~] 2.1 Remove i18next packages from package.json
+  - [-] 2.1 Remove i18next packages from package.json
     - Uninstall i18next, react-i18next, i18next-browser-languagedetector
     - Uninstall @types/i18next from devDependencies
     - Regenerate package-lock.json
     - _Requirements: 1.3, 1.4_
 
-  - [~] 2.2 Verify dependency removal
+  - [x] 2.2 Verify dependency removal
     - Confirm dependencies removed from package.json
     - Check for peer dependency warnings
     - Test that npm install completes successfully
     - _Requirements: 1.3, 1.4_
 
-- [~] 3. Checkpoint - Verify build after dependency removal
+- [x] 3. Checkpoint - Verify build after dependency removal
   - Run npm run build (may show import errors - expected)
   - Confirm no dependency-related errors
   - Ask user if any issues arise
 
-- [ ] 4. Update Layout component for Google Translate
-  - [~] 4.1 Integrate GoogleTranslateScript in Layout
+- [x] 4. Update Layout component for Google Translate
+  - [x] 4.1 Integrate GoogleTranslateScript in Layout
     - Import GoogleTranslateScript component
     - Render GoogleTranslateScript in Layout component
     - Add hidden google_translate_element div to DOM
@@ -52,22 +52,22 @@ All changes will be made incrementally with testing checkpoints to ensure zero f
     - Check that widget is available on all routes
     - _Requirements: 3.2, 3.3, 3.4_
 
-- [ ] 5. Update Navbar component to remove hardcoded translations
-  - [~] 5.1 Remove translation infrastructure from Navbar
+- [x] 5. Update Navbar component to remove hardcoded translations
+  - [x] 5.1 Remove translation infrastructure from Navbar
     - Remove translations object (en and am translations)
     - Remove language state variable
     - Remove changeLanguage function
     - Remove language initialization useEffect
     - _Requirements: 4.1, 4.3_
 
-  - [~] 5.2 Replace translation keys with direct English text
+  - [x] 5.2 Replace translation keys with direct English text
     - Replace all t.propertyName references with English strings (e.g., t.forRent → 'For Rent')
     - Update all navigation menu items with direct text
     - Update all button labels with direct text
     - Update all dropdown menu items with direct text
     - _Requirements: 4.2, 4.4, 4.5_
 
-  - [~] 5.3 Integrate LanguageSelector component
+  - [x] 5.3 Integrate LanguageSelector component
     - Import LanguageSelector component
     - Replace custom language dropdown with LanguageSelector
     - Remove custom language UI code
@@ -82,29 +82,29 @@ All changes will be made incrementally with testing checkpoints to ensure zero f
     - Test on mobile and desktop viewports
     - _Requirements: 2.4, 3.5, 4.4, 4.5, 4.6_
 
-- [ ] 6. Remove i18n imports from all components
-  - [~] 6.1 Identify all files using i18next
+- [x] 6. Remove i18n imports from all components
+  - [x] 6.1 Identify all files using i18next
     - Search for files importing from 'react-i18next'
     - Search for useTranslation hook usage
     - Search for t() function calls
     - Create list of files to update
     - _Requirements: 1.6_
 
-  - [~] 6.2 Update components batch 1 (pages directory)
+  - [x] 6.2 Update components batch 1 (pages directory)
     - Remove i18next imports from page components
     - Remove useTranslation() hook calls
     - Replace t('key') with direct English text using locales/en.json as reference
     - Test each page renders correctly
     - _Requirements: 1.6, 3.5, 4.2_
 
-  - [~] 6.3 Update components batch 2 (components directory)
+  - [x] 6.3 Update components batch 2 (components directory)
     - Remove i18next imports from UI components
     - Remove useTranslation() hook calls
     - Replace t('key') with direct English text
     - Test components render correctly
     - _Requirements: 1.6, 3.5, 4.2_
 
-  - [~] 6.4 Update components batch 3 (remaining files)
+  - [x] 6.4 Update components batch 3 (remaining files)
     - Remove i18next imports from hooks, services, and utilities
     - Replace any remaining translation key references
     - Test functionality of updated files
@@ -115,14 +115,14 @@ All changes will be made incrementally with testing checkpoints to ensure zero f
   - Verify page content translates automatically
   - Ensure all tests pass, ask the user if questions arise
 
-- [ ] 8. Remove i18n files and directories
-  - [~] 8.1 Delete i18n configuration and locale files
+- [x] 8. Remove i18n files and directories
+  - [x] 8.1 Delete i18n configuration and locale files
     - Remove src/i18n/ directory entirely
     - Remove src/locales/ directory entirely
     - Optionally remove client/I18N_INTEGRATION_GUIDE.md (check with user first)
     - _Requirements: 1.1, 1.2, 1.5_
 
-  - [~] 8.2 Verify no remaining references
+  - [x] 8.2 Verify no remaining references
     - Search for any remaining imports from i18n/config
     - Search for any remaining imports from locales/
     - Confirm no references exist
@@ -135,7 +135,7 @@ All changes will be made incrementally with testing checkpoints to ensure zero f
     - _Requirements: 14.2, 14.6_
 
 - [ ] 9. Code cleanup - Remove unused imports
-  - [~] 9.1 Identify unused imports across codebase
+  - [-] 9.1 Identify unused imports across codebase
     - Run TypeScript diagnostics on all files
     - Generate list of files with unused imports
     - Categorize imports (value imports vs type imports vs side-effects)

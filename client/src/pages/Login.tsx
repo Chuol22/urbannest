@@ -3,26 +3,25 @@ import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/ui/Button';
 import { Alert } from '../components/ui/Alert';
-import { Validator } from '../utils/validators';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isRegistering, setIsRegistering] = useState(false);
-  
+
   // Registration fields - MATCH BACKEND EXPECTATIONS
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [phone, setPhone] = useState('');
   const [role, setRole] = useState('seeker');
-  
+
   const [rateLimit, setRateLimit] = useState(0);
-  
+
   const { login, register, loading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   const from = location.state?.from?.pathname || '/dashboard';
 
   // Rate limiting effect
@@ -36,13 +35,13 @@ export default function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    
+
     // Rate limiting check
     if (rateLimit >= 5) {
       setError('Too many attempts. Please wait a moment before trying again.');
       return;
     }
-    
+
     try {
       if (isRegistering) {
         // Validate registration data - MATCH BACKEND
@@ -70,9 +69,9 @@ export default function Login() {
           setError('Password must be at least 8 characters');
           return;
         }
-        
+
         // Send data in format backend expects
-        await register({ 
+        await register({
           first_name: firstName,
           last_name: lastName,
           phone: phone,
@@ -90,10 +89,10 @@ export default function Login() {
           setError('Password is required');
           return;
         }
-        
+
         await login({ email, password });
       }
-      
+
       navigate(from, { replace: true });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Authentication failed';
@@ -133,12 +132,12 @@ export default function Login() {
             {isRegistering ? 'Join UrbanNEST today' : 'Welcome back to UrbanNEST'}
           </p>
         </div>
-        
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit} noValidate>
           {error && (
             <Alert type="error" message={error} onClose={() => setError('')} />
           )}
-          
+
           {isRegistering && (
             <>
               <div className="grid grid-cols-2 gap-4">
@@ -158,7 +157,7 @@ export default function Login() {
                     disabled={loading}
                   />
                 </div>
-                
+
                 <div>
                   <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Last Name *
@@ -176,7 +175,7 @@ export default function Login() {
                   />
                 </div>
               </div>
-              
+
               <div>
                 <label htmlFor="phone" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Phone Number *
@@ -193,7 +192,7 @@ export default function Login() {
                   disabled={loading}
                 />
               </div>
-              
+
               <div>
                 <label htmlFor="role" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   I am a *
@@ -213,7 +212,7 @@ export default function Login() {
               </div>
             </>
           )}
-          
+
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Email Address or Phone Number *
@@ -231,7 +230,7 @@ export default function Login() {
               disabled={loading}
             />
           </div>
-          
+
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Password *
@@ -274,7 +273,7 @@ export default function Login() {
               {isRegistering ? 'Create Account' : 'Sign in'}
             </Button>
           </div>
-          
+
           <div className="text-center">
             <button
               type="button"

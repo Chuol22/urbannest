@@ -1,10 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Alert } from '../components/ui/Alert';
-import { Mail, Phone, MapPin, MessageSquare, Clock, ChevronRight } from 'lucide-react';
-import { useEffect, useRef } from 'react';
+import { Phone, MapPin, MessageSquare, Clock } from 'lucide-react';
 
 interface ContactFormData {
   name: string;
@@ -94,23 +93,20 @@ export default function Contact() {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitStatus('idle');
-    
+
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500));
-      
+
       // Simulate success
       setSubmitStatus('success');
       setFormData({ name: '', email: '', subject: '', message: '' });
-      
+
       // Reset success message after 5 seconds
       setTimeout(() => setSubmitStatus('idle'), 5000);
     } catch (err) {
-      // Use the error variable or handle it appropriately
-      const error = err as Error;
-      console.error('Form submission error:', error.message);
       setSubmitStatus('error');
-      setErrorMessage(error.message || 'Failed to send message. Please try again.');
+      setErrorMessage((err as Error).message || 'Failed to send message. Please try again.');
       setTimeout(() => setSubmitStatus('idle'), 5000);
     } finally {
       setIsSubmitting(false);
@@ -125,7 +121,7 @@ export default function Contact() {
         <div className="absolute inset-0">
           <div
             className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-            style={{ 
+            style={{
               backgroundImage: `url('https://images.unsplash.com/photo-1497366216548-37526070297c?w=1600&q=80&fit=crop')`,
               backgroundPosition: 'center 40%'
             }}
@@ -138,7 +134,7 @@ export default function Contact() {
         </div>
 
         {/* Hero Content */}
-        <div 
+        <div
           className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 text-center"
           style={{ paddingTop: `${headerHeight}px` }}
         >
@@ -166,7 +162,7 @@ export default function Contact() {
               </span>
             </motion.div>
 
-            <motion.h1 
+            <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.6, type: "spring", stiffness: 100, damping: 15 }}
@@ -184,17 +180,17 @@ export default function Contact() {
               transition={{ delay: 0.4, duration: 0.5 }}
               className="text-xl md:text-2xl text-white/90 max-w-2xl mx-auto leading-relaxed mb-12 drop-shadow-md"
             >
-              Have questions about properties or our platform? Our team is available 24/7 
-               to assist you with any inquiries.
+              Have questions about properties or our platform? Our team is available 24/7
+              to assist you with any inquiries.
             </motion.p>
-            
-            <motion.div 
+
+            <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5, duration: 0.5, type: "spring", stiffness: 100, damping: 15 }}
               className="flex justify-center gap-8 text-white/80"
             >
-              <motion.div 
+              <motion.div
                 className="flex items-center gap-2"
                 whileHover={{ x: 5 }}
                 transition={{ type: "spring", stiffness: 400, damping: 20 }}
@@ -202,7 +198,7 @@ export default function Contact() {
                 <Clock size={18} className="text-amber-400" />
                 <span className="text-sm font-medium">Fast Response</span>
               </motion.div>
-              <motion.div 
+              <motion.div
                 className="flex items-center gap-2"
                 whileHover={{ x: 5 }}
                 transition={{ type: "spring", stiffness: 400, damping: 20 }}
@@ -232,12 +228,11 @@ export default function Contact() {
               whileTap={{ scale: 0.98 }}
               className="bg-gray-900 rounded-xl p-8 text-center hover:shadow-xl transition-all duration-300 border-b-4 border-amber-600"
             >
-              <motion.div 
+              <motion.div
                 className="w-16 h-16 bg-white rounded-full mx-auto mb-4 flex items-center justify-center text-2xl"
                 animate={{ y: [0, -8, 0] }}
                 transition={{ repeat: Infinity, duration: 2, delay: index * 0.2 }}
                 whileHover={{ rotate: 360 }}
-                transition={{ duration: 0.6, type: "spring", stiffness: 200, damping: 15 }}
               >
                 {info.icon}
               </motion.div>
@@ -245,7 +240,7 @@ export default function Contact() {
               {info.details.map((detail, idx) => (
                 <p key={idx} className="text-gray-300 mb-1">{detail}</p>
               ))}
-              <motion.button 
+              <motion.button
                 whileHover={{ x: 5 }}
                 whileTap={{ scale: 0.95 }}
                 className="mt-4 text-amber-400 hover:text-amber-300 text-sm font-medium"
@@ -270,7 +265,7 @@ export default function Contact() {
             <h2 className="text-3xl mt-4 font-black text-center text-gray-900 mb-2">Send Us a Message</h2>
             <div className='w-20 h-1.5 bg-amber-600 mx-auto rounded-full mb-4'></div>
             <p className="text-gray-600 mb-8 text-center">
-              Whether you have a question about our properties, need assistance, or just want to say hello, 
+              Whether you have a question about our properties, need assistance, or just want to say hello,
               we'd love to hear from you.
             </p>
 
@@ -282,7 +277,7 @@ export default function Contact() {
                   message="Thank you for reaching out. We'll get back to you soon."
                 />
               )}
-              
+
               {submitStatus === 'error' && (
                 <Alert
                   type="error"
@@ -369,7 +364,7 @@ export default function Contact() {
               <h2 className="text-2xl font-black text-gray-900 mb-6">Frequently Asked Questions</h2>
               <div className="space-y-6">
                 {faqs.map((faq, index) => (
-                  <motion.div 
+                  <motion.div
                     key={index}
                     initial={{ opacity: 0, y: 10 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -399,7 +394,7 @@ export default function Contact() {
         </div>
 
         {/* Map Section */}
-        <motion.section 
+        <motion.section
           className="mt-16"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

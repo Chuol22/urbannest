@@ -1,8 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { TrendingUp, Eye, MessageCircle, Heart, Calendar, Crown } from 'lucide-react';
+import { Eye, MessageCircle, Heart, Crown } from 'lucide-react';
 import { Subscription } from '../../types';
-import { formatPrice } from '../../utils/pricing';
 import { Button } from '../ui/Button';
 
 interface AgentDashboardProps {
@@ -22,15 +21,6 @@ const AgentDashboard: React.FC<AgentDashboardProps> = ({
   stats,
   onUpgrade
 }) => {
-  const getPlanColor = () => {
-    switch (subscription?.plan) {
-      case 'basic': return 'blue';
-      case 'pro': return 'purple';
-      case 'premium': return 'yellow';
-      default: return 'gray';
-    }
-  };
-
   const getListingsRemaining = () => {
     if (!subscription) return 5 - listingsCount;
     if (subscription.plan === 'premium') return 'Unlimited';
@@ -61,7 +51,7 @@ const AgentDashboard: React.FC<AgentDashboardProps> = ({
             <Crown size={32} />
           </div>
         </div>
-        
+
         <div className="grid grid-cols-2 gap-4 mt-6">
           <div>
             <p className="text-sm opacity-90">Listings Used</p>
@@ -74,7 +64,7 @@ const AgentDashboard: React.FC<AgentDashboardProps> = ({
             <p className="text-2xl font-bold">{getListingsRemaining()}</p>
           </div>
         </div>
-        
+
         {!subscription && (
           <Button
             onClick={onUpgrade}
@@ -94,7 +84,7 @@ const AgentDashboard: React.FC<AgentDashboardProps> = ({
           </div>
           <p className="text-gray-600 text-sm">Total Views</p>
         </div>
-        
+
         <div className="bg-white rounded-xl p-4 shadow-sm">
           <div className="flex items-center justify-between mb-2">
             <MessageCircle className="text-green-500" size={24} />
@@ -102,7 +92,7 @@ const AgentDashboard: React.FC<AgentDashboardProps> = ({
           </div>
           <p className="text-gray-600 text-sm">Inquiries</p>
         </div>
-        
+
         <div className="bg-white rounded-xl p-4 shadow-sm">
           <div className="flex items-center justify-between mb-2">
             <Heart className="text-red-500" size={24} />

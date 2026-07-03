@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useTheme } from '../context/ThemeContext';
 import { useLocalStorage, useLocalStorageBoolean } from '../hooks/useLocalStorage';
@@ -19,7 +19,7 @@ interface PrivacySettings {
 }
 
 export default function Settings() {
-  const { theme, setTheme, currentTheme, isDark } = useTheme();
+  const { theme, setTheme, currentTheme } = useTheme();
   const [language, setLanguage] = useLocalStorage('language', 'en');
   const [currency, setCurrency] = useLocalStorage('currency', 'USD');
   const [distanceUnit, setDistanceUnit] = useLocalStorage('distanceUnit', 'miles');
@@ -65,7 +65,7 @@ export default function Settings() {
           className="bg-white rounded-lg shadow-md p-6"
         >
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Appearance</h2>
-          
+
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -158,7 +158,7 @@ export default function Settings() {
           className="bg-white rounded-lg shadow-md p-6"
         >
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Notifications</h2>
-          
+
           <div className="space-y-3">
             <label className="flex items-center justify-between cursor-pointer">
               <div>
@@ -254,7 +254,7 @@ export default function Settings() {
           className="bg-white rounded-lg shadow-md p-6"
         >
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Privacy</h2>
-          
+
           <div className="space-y-3">
             <label className="flex items-center justify-between cursor-pointer">
               <div>
@@ -329,7 +329,7 @@ export default function Settings() {
           className="bg-white rounded-lg shadow-md p-6"
         >
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Data & Storage</h2>
-          
+
           <div className="space-y-4">
             <label className="flex items-center justify-between cursor-pointer">
               <div>

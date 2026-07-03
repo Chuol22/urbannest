@@ -36,9 +36,6 @@ export class ErrorBoundary extends Component<Props, State> {
       errorInfo,
     });
 
-    // Log error to your error reporting service
-    console.error('Error caught by boundary:', error, errorInfo);
-    
     // Call custom error handler if provided
     if (this.props.onError) {
       this.props.onError(error, errorInfo);
@@ -70,11 +67,11 @@ export class ErrorBoundary extends Component<Props, State> {
           <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
             {/* Error Icon */}
             <div className="text-6xl mb-4">⚠️</div>
-            
+
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
               Something went wrong
             </h1>
-            
+
             <p className="text-gray-600 mb-6">
               We apologize for the inconvenience. Please try refreshing the page or contact support if the problem persists.
             </p>
@@ -103,13 +100,13 @@ export class ErrorBoundary extends Component<Props, State> {
               <Button variant="primary" onClick={this.handleReload} fullWidth>
                 Refresh Page
               </Button>
-              
+
               <Button variant="outline" onClick={this.handleReset} fullWidth>
                 Try Again
               </Button>
-              
-              <Button 
-                variant="outline" 
+
+              <Button
+                variant="outline"
                 onClick={() => window.location.href = '/'}
                 fullWidth
               >

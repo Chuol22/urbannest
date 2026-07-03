@@ -1,22 +1,20 @@
-// client/src/pages/About.tsx
 import { useNavigate } from 'react-router-dom';
 import { motion, useInView } from 'framer-motion';
 import { useRef, useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { 
-  FaHome, 
-  FaShieldAlt, 
-  FaHeadset, 
-  FaUsers, 
-  FaHandshake, 
+import {
+  FaHome,
+  FaShieldAlt,
+  FaHeadset,
+  FaUsers,
+  FaHandshake,
   FaGlobe,
   FaCheckCircle,
   FaArrowRight,
   FaHeart,
   FaStar,
   FaBuilding,
-  FaChartLine,
-  FaChevronRight
+  FaChartLine
 } from 'react-icons/fa';
 import { Home as HomeIcon, Star, Info, Target, Users } from 'lucide-react';
 
@@ -34,28 +32,28 @@ const teamMembers = [
     name: "JAMES D.",
     role: "CEO & Founder",
     image: "JD.jpg",
-    alt:'JD',
+    alt: 'JD',
     bio: "6+ years in real estate tech"
   },
   {
     name: "CHUOL N",
     role: "CTO",
     image: "CN.jpg",
-    alt:'CN',
+    alt: 'CN',
     bio: "Former Google engineer"
   },
   {
     name: "Ganun T",
     role: "Head of Operations",
     image: "GT.jpg",
-    alt:'GN',
+    alt: 'GN',
     bio: "Property management expert"
   },
   {
     name: "David DE",
     role: "Customer Success",
     image: " DDE.jpg",
-    alt:'DDE',
+    alt: 'DDE',
     bio: "Customer satisfaction specialist"
   }
 ];
@@ -81,28 +79,28 @@ const stats = [
 // Animation variants matching WhatWeBuild component
 const fadeInUpVariants = {
   hidden: { opacity: 0, y: 30 },
-  visible: { 
-    opacity: 1, 
-    y: 0, 
-    transition: { duration: 0.6, type: "spring", stiffness: 100, damping: 15 } 
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, type: "spring", stiffness: 100, damping: 15 }
   }
 };
 
 const fadeInLeftVariants = {
   hidden: { opacity: 0, x: -30 },
-  visible: { 
-    opacity: 1, 
-    x: 0, 
-    transition: { duration: 0.6, type: "spring", stiffness: 100, damping: 15 } 
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: { duration: 0.6, type: "spring", stiffness: 100, damping: 15 }
   }
 };
 
 const fadeInRightVariants = {
   hidden: { opacity: 0, x: 30 },
-  visible: { 
-    opacity: 1, 
-    x: 0, 
-    transition: { duration: 0.6, type: "spring", stiffness: 100, damping: 15 } 
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: { duration: 0.6, type: "spring", stiffness: 100, damping: 15 }
   }
 };
 
@@ -116,31 +114,20 @@ const staggerContainerVariants = {
 
 const cardVariants = {
   hidden: { opacity: 0, y: 20, scale: 0.95 },
-  visible: { 
-    opacity: 1, 
-    y: 0, 
+  visible: {
+    opacity: 1,
+    y: 0,
     scale: 1,
-    transition: { duration: 0.5, type: "spring", stiffness: 150, damping: 12 } 
+    transition: { duration: 0.5, type: "spring", stiffness: 150, damping: 12 }
   }
 };
 
 export default function About() {
   const navigate = useNavigate();
-  const [countedStats, setCountedStats] = useState(stats.map(() => 0));
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [headerHeight, setHeaderHeight] = useState(0);
   const statsRef = useRef(null);
   const sectionRef = useRef(null);
   const isStatsInView = useInView(statsRef, { once: true, margin: "-100px" });
-  const isInView = useInView(sectionRef, { once: true, amount: 0.1 });
-
-  // Rotating background images
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentImageIndex((prev) => (prev + 1) % heroImages.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
 
   // Detect header height dynamically
   useEffect(() => {
@@ -177,18 +164,18 @@ export default function About() {
 
       <div className="overflow-x-hidden bg-white dark:bg-gray-900">
         {/* Hero Section - Matching Home.tsx style */}
-        <section 
+        <section
           ref={sectionRef}
           className="relative min-h-full flex items-center justify-center overflow-hidden"
         >
-           
+
           {/* Hero Content */}
-          <div 
+          <div
             className="relative mx-auto px-4 sm:px-6 md:px-8 lg:px-10"
             style={{
-            paddingTop: `${headerHeight + 80}px`,
-            paddingBottom: '100px',
-          }}
+              paddingTop: `${headerHeight + 80}px`,
+              paddingBottom: '100px',
+            }}
           >
             <motion.div
               initial={{ opacity: 0, y: 30, scale: 0.95 }}
@@ -196,8 +183,8 @@ export default function About() {
               transition={{ duration: 0.8, type: "spring", stiffness: 100, damping: 15 }}
               className="max-w-5xl mx-auto text-center"
             >
- 
-              <motion.h1 
+
+              <motion.h1
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2, duration: 0.6, type: "spring", stiffness: 100, damping: 15 }}
@@ -208,20 +195,20 @@ export default function About() {
                   Your Future
                 </span>
               </motion.h1>
-              <motion.div 
+              <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: '5rem' }}
                 transition={{ delay: 0.4, duration: 0.5, type: "spring", stiffness: 100, damping: 15 }}
                 className='h-1.5 mb-4 bg-amber-600 mx-auto rounded-full'
               ></motion.div>
-              
+
               <motion.p
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5, duration: 0.5 }}
                 className="text-xl sm:text-2xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed mb-12 drop-shadow-md"
               >
-                Revolutionizing the real estate journey with transparency, 
+                Revolutionizing the real estate journey with transparency,
                 efficiency, and premium property solutions.
               </motion.p>
 
@@ -239,7 +226,7 @@ export default function About() {
                 </motion.button>
               </div>
             </motion.div>
-          </div> 
+          </div>
         </section>
 
         {/* Stats Section */}
@@ -258,7 +245,7 @@ export default function About() {
                     whileTap={{ scale: 0.98 }}
                     className="text-center"
                   >
-                    <motion.div 
+                    <motion.div
                       className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-2xl mb-4"
                       whileHover={{ rotate: 360 }}
                       transition={{ duration: 0.6, type: "spring", stiffness: 200, damping: 15 }}
@@ -297,7 +284,7 @@ export default function About() {
                 whileTap={{ scale: 0.98 }}
                 className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 hover:shadow-xl transition-all duration-300 border-b-4 border-amber-600"
               >
-                <motion.div 
+                <motion.div
                   className="w-16 h-16 bg-amber-600 rounded-2xl flex items-center justify-center mb-6"
                   whileHover={{ rotate: 180 }}
                   transition={{ duration: 0.6, type: "spring", stiffness: 200, damping: 15 }}
@@ -307,12 +294,12 @@ export default function About() {
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white ">Our Mission</h2>
                 <div className='w-20 h-2 mb-4 bg-amber-600 rounded-full'></div>
                 <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-4">
-                  At UrbanNEST, we're dedicated to helping individuals and families find their 
-                  perfect home or commercial space. We believe that everyone deserves a comfortable, safe, and 
+                  At UrbanNEST, we're dedicated to helping individuals and families find their
+                  perfect home or commercial space. We believe that everyone deserves a comfortable, safe, and
                   affordable place to live or work.
                 </p>
                 <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                  Our platform connects tenants with quality properties and landlords with reliable tenants, 
+                  Our platform connects tenants with quality properties and landlords with reliable tenants,
                   making the process seamless for everyone involved.
                 </p>
               </motion.div>
@@ -323,7 +310,7 @@ export default function About() {
                 whileTap={{ scale: 0.98 }}
                 className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 hover:shadow-xl transition-all duration-300 border-b-4 border-amber-600"
               >
-                <motion.div 
+                <motion.div
                   className="w-16 h-16 bg-amber-600 rounded-2xl flex items-center justify-center mb-6"
                   whileHover={{ rotate: 180 }}
                   transition={{ duration: 0.6, type: "spring", stiffness: 200, damping: 15 }}
@@ -333,11 +320,11 @@ export default function About() {
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Our Vision</h2>
                 <div className='w-20 h-2 mb-4 bg-amber-600 rounded-full'></div>
                 <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-4">
-                  To revolutionize the real estate market by creating a transparent, efficient, 
+                  To revolutionize the real estate market by creating a transparent, efficient,
                   and user-friendly platform that makes finding and managing properties a seamless experience.
                 </p>
                 <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                  We envision a future where finding your perfect space is as easy as a few clicks, 
+                  We envision a future where finding your perfect space is as easy as a few clicks,
                   backed by trust and innovation.
                 </p>
               </motion.div>
@@ -400,7 +387,7 @@ export default function About() {
                     whileTap={{ scale: 0.98 }}
                     className="group bg-white dark:bg-gray-900 rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 border-b-4 border-amber-600"
                   >
-                    <motion.div 
+                    <motion.div
                       className="w-16 h-16 bg-amber-600 rounded-2xl flex items-center justify-center mb-5"
                       animate={{ y: [0, -8, 0] }}
                       transition={{ repeat: Infinity, duration: 2, delay: index * 0.2 }}
@@ -445,7 +432,7 @@ export default function About() {
                   whileTap={{ scale: 0.98 }}
                   className="text-center p-6 bg-gray-50 dark:bg-gray-800 rounded-2xl hover:shadow-lg transition-all duration-300 border-l-4 border-amber-600"
                 >
-                  <motion.div 
+                  <motion.div
                     className="text-3xl font-black text-gray-900 mb-2"
                     whileHover={{ scale: 1.1, rotate: 5 }}
                     transition={{ type: "spring", stiffness: 400, damping: 20 }}
@@ -495,8 +482,8 @@ export default function About() {
                   className="group bg-white dark:bg-gray-900 rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 border-b-4 border-amber-600"
                 >
                   <div className="relative overflow-hidden h-48">
-                    <motion.img 
-                      src={member.image} 
+                    <motion.img
+                      src={member.image}
                       alt={member.name}
                       className="w-full h-full object-cover"
                       whileHover={{ scale: 1.1 }}
@@ -504,7 +491,7 @@ export default function About() {
                     />
                   </div>
                   <div className="p-6 text-center">
-                    <motion.h3 
+                    <motion.h3
                       className="text-xl font-black text-gray-900 dark:text-white mb-1"
                       whileHover={{ x: 5 }}
                       transition={{ type: "spring", stiffness: 400, damping: 20 }}
@@ -593,7 +580,7 @@ export default function About() {
                 Join thousands of satisfied customers who found their dream home or commercial space with UrbanNEST
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <motion.button 
+                <motion.button
                   whileHover={{ scale: 1.05, y: -4 }}
                   whileTap={{ scale: 0.97 }}
                   onClick={handleSearch}
@@ -604,7 +591,7 @@ export default function About() {
                     <FaArrowRight className="" />
                   </motion.div>
                 </motion.button>
-                  
+
               </div>
             </motion.div>
           </div>

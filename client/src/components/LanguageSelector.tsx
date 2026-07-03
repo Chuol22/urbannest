@@ -4,7 +4,7 @@
 import React, { useState, useRef } from "react";
 import { ChevronDown, Check } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useGoogleTranslate } from "@/hooks/useGoogleTranslate";
+import { useGoogleTranslate } from "../hooks/useGoogleTranslate";
 
 export const LanguageSelector: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);

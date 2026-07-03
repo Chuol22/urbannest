@@ -1,7 +1,7 @@
 // src/components/ui/SearchBar.tsx
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Search, MapPin, Home, X, Loader, Building2, Map as MapIcon } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 // Ethiopian Cities Data
 const ETHIOPIAN_CITIES = [
@@ -69,17 +69,17 @@ const SearchBar = ({ onSearch, initialFilters = {}, useOpenStreetMap = false }: 
   const [propertyType, setPropertyType] = useState(initialFilters.propertyType || '');
   const [priceRange, setPriceRange] = useState(initialFilters.priceRange || '');
   const [selectedCoordinates, setSelectedCoordinates] = useState<{ lat: number; lng: number } | null>(null);
-  
+
   // OSM States
   const [osmSuggestions, setOsmSuggestions] = useState<OSMPlace[]>([]);
   const [showOsmSuggestions, setShowOsmSuggestions] = useState(false);
   const [osmLoading, setOsmLoading] = useState(false);
-  
+
   // Local Search States
   const [showCitySuggestions, setShowCitySuggestions] = useState(false);
   const [filteredCities, setFilteredCities] = useState(ETHIOPIAN_CITIES);
   const [showNeighborhoods, setShowNeighborhoods] = useState(false);
-  
+
   const debounceTimer = useRef<number>();
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -125,7 +125,7 @@ const SearchBar = ({ onSearch, initialFilters = {}, useOpenStreetMap = false }: 
       );
 
       if (!response.ok) throw new Error('OSM API error');
-      
+
       const data: OSMPlace[] = await response.json();
       setOsmSuggestions(data);
       setShowOsmSuggestions(true);
@@ -141,7 +141,7 @@ const SearchBar = ({ onSearch, initialFilters = {}, useOpenStreetMap = false }: 
   const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setLocation(value);
-    
+
     if (useOpenStreetMap) {
       if (debounceTimer.current) {
         clearTimeout(debounceTimer.current);
@@ -160,7 +160,7 @@ const SearchBar = ({ onSearch, initialFilters = {}, useOpenStreetMap = false }: 
       lat: parseFloat(place.lat),
       lng: parseFloat(place.lon)
     });
-    
+
     const city = place.address?.city || place.address?.town || place.address?.state || '';
     setSelectedCity(city);
   };
@@ -171,7 +171,7 @@ const SearchBar = ({ onSearch, initialFilters = {}, useOpenStreetMap = false }: 
     setLocation(city.name);
     setShowCitySuggestions(false);
     setSelectedCoordinates(null);
-    
+
     if (city.neighborhoods && city.neighborhoods.length > 0) {
       setShowNeighborhoods(true);
     } else {
@@ -239,8 +239,8 @@ const SearchBar = ({ onSearch, initialFilters = {}, useOpenStreetMap = false }: 
             key={type.value}
             onClick={() => setSearchType(type.value)}
             className={`pb-3 px-4 text-lg font-medium transition-colors relative
-              ${searchType === type.value 
-                ? 'text-green-600' 
+              ${searchType === type.value
+                ? 'text-green-600'
                 : 'text-gray-500 hover:text-gray-700'}`}
           >
             {type.label}
@@ -260,7 +260,7 @@ const SearchBar = ({ onSearch, initialFilters = {}, useOpenStreetMap = false }: 
         {/* Location Input with Autocomplete */}
         <div className="relative md:col-span-1">
           <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 z-10" size={20} />
-          
+
           <input
             ref={inputRef}
             type="text"
@@ -277,7 +277,7 @@ const SearchBar = ({ onSearch, initialFilters = {}, useOpenStreetMap = false }: 
             }}
             className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
           />
-          
+
           {location && (
             <button
               onClick={clearLocation}
@@ -286,7 +286,7 @@ const SearchBar = ({ onSearch, initialFilters = {}, useOpenStreetMap = false }: 
               <X size={16} />
             </button>
           )}
-          
+
           {osmLoading && (
             <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
               <Loader size={16} className="animate-spin text-gray-400" />
@@ -433,7 +433,7 @@ const SearchBar = ({ onSearch, initialFilters = {}, useOpenStreetMap = false }: 
             </button>
           ))}
         </div>
-        
+
         {!useOpenStreetMap && (
           <div className="flex flex-wrap gap-2 items-center">
             <span className="text-sm text-gray-500 font-medium">Popular Neighborhoods (Addis Ababa):</span>

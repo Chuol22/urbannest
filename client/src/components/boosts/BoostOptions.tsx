@@ -1,7 +1,7 @@
 // src/components/boosts/BoostOptions.tsx
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { TrendingUp, AlertCircle, Zap, Check, Shield } from 'lucide-react';
+import { TrendingUp, AlertCircle, Check, Shield } from 'lucide-react';
 import { BOOST_PRICES, formatPrice } from '../../utils/pricing';
 import { Button } from '../ui/Button';
 import { Alert } from '../ui/Alert';
@@ -40,10 +40,10 @@ const BoostOptions: React.FC<BoostOptionsProps> = ({
 
   const handleApplyBoost = async () => {
     if (!selectedBoost) return;
-    
+
     setError(null);
     setIsLoading(true);
-    
+
     try {
       const boost = boosts.find(b => b.id === selectedBoost);
       if (boost) {
@@ -52,7 +52,6 @@ const BoostOptions: React.FC<BoostOptionsProps> = ({
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to apply boost. Please try again.';
       setError(errorMessage);
-      console.error('Boost application error:', err);
     } finally {
       setIsLoading(false);
     }
@@ -70,9 +69,9 @@ const BoostOptions: React.FC<BoostOptionsProps> = ({
       </div>
 
       {error && (
-        <Alert 
-          type="error" 
-          message={error} 
+        <Alert
+          type="error"
+          message={error}
           onClose={() => setError(null)}
         />
       )}
@@ -81,16 +80,15 @@ const BoostOptions: React.FC<BoostOptionsProps> = ({
         {boosts.map((boost) => {
           const Icon = boost.icon;
           const isActive = isBoostActive(boost.id);
-          
+
           return (
             <motion.div
               key={boost.id}
               whileHover={{ scale: 1.02 }}
-              className={`relative p-6 rounded-2xl border-2 transition-all cursor-pointer ${
-                selectedBoost === boost.id
-                  ? `${boost.color} border-opacity-50 bg-opacity-10`
-                  : 'border-gray-200 hover:border-gray-300'
-              } ${isActive ? 'opacity-75 cursor-not-allowed' : ''}`}
+              className={`relative p-6 rounded-2xl border-2 transition-all cursor-pointer ${selectedBoost === boost.id
+                ? `${boost.color} border-opacity-50 bg-opacity-10`
+                : 'border-gray-200 hover:border-gray-300'
+                } ${isActive ? 'opacity-75 cursor-not-allowed' : ''}`}
               style={{
                 backgroundColor: selectedBoost === boost.id ? `${boost.color}10` : 'transparent'
               }}
@@ -104,18 +102,18 @@ const BoostOptions: React.FC<BoostOptionsProps> = ({
                   </div>
                 </div>
               )}
-              
+
               <div className={`${boost.color} bg-opacity-20 w-12 h-12 rounded-full flex items-center justify-center mb-4`}>
                 <Icon size={24} className={boost.color.replace('bg-', 'text-')} />
               </div>
-              
+
               <h4 className="text-xl font-bold text-gray-900 mb-2">{boost.label}</h4>
               <p className="text-3xl font-bold text-gray-900 mb-2">
                 {formatPrice(boost.price)}
               </p>
               <p className="text-gray-600 text-sm mb-4">{boost.description}</p>
               <p className="text-xs text-gray-500">Valid for {boost.duration}</p>
-              
+
               {!isActive && (
                 <div className="mt-4 space-y-2">
                   <div className="text-sm text-green-600 font-semibold">
@@ -148,8 +146,8 @@ const BoostOptions: React.FC<BoostOptionsProps> = ({
                 Payment will be processed securely
               </p>
             </div>
-            <Button 
-              onClick={handleApplyBoost} 
+            <Button
+              onClick={handleApplyBoost}
               loading={isLoading || isProcessing}
               disabled={isLoading || isProcessing}
               className="bg-blue-600"

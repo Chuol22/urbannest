@@ -22,12 +22,12 @@ const CreateListing = () => {
     location: '',
     type: ''
   });
-  
+
   const { user } = useAuth();
   const userId = user?.id || 'temp-user-id';
   const { freeListingsCount, createListing, loading: listingsLoading } = useListings(userId);
-  const { subscription, subscribe, loading: subscriptionLoading } = useSubscription(userId);
-  const { applyBoost, loading: boostLoading } = useBoosts();
+  const { subscription, subscribe } = useSubscription(userId);
+  const { applyBoost } = useBoosts();
 
   const handleListingSelect = (type: 'normal' | 'featured', price: number) => {
     setSelectedListingType(type);
@@ -64,7 +64,7 @@ const CreateListing = () => {
 
   const handleCreateListing = async () => {
     if (!selectedListingType) return;
-    
+
     try {
       // Validate form data
       if (!formData.title || !formData.description || !formData.price || !formData.location) {
@@ -80,7 +80,7 @@ const CreateListing = () => {
         type: formData.type as 'sale' | 'rent',
         images: []
       };
-      
+
       // Handle payment for featured listings
       if (selectedListingType === 'featured') {
         try {
@@ -92,9 +92,9 @@ const CreateListing = () => {
             currency: 'ETB',
             payment_method: 'telebirr' // Default payment method
           };
-          
+
           const paymentResponse = await paymentService.initializePropertyListingPayment(paymentData);
-          
+
           if (paymentResponse.success) {
             // Create the featured listing after successful payment
             const newListing = await createListing(listingData, 'featured');
@@ -115,7 +115,7 @@ const CreateListing = () => {
       } else {
         // Create normal listing (free or paid based on user subscription)
         const newListing = await createListing(listingData, 'normal');
-        
+
         if (newListing && newListing.id) {
           setCreatedListingId(newListing.id);
           alert('Listing created successfully!');
@@ -203,7 +203,7 @@ const CreateListing = () => {
                   required
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Description *
@@ -218,7 +218,7 @@ const CreateListing = () => {
                   required
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Price (ETB) *
@@ -233,7 +233,7 @@ const CreateListing = () => {
                   required
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Location *
@@ -248,7 +248,7 @@ const CreateListing = () => {
                   required
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Listing Type *
@@ -264,7 +264,7 @@ const CreateListing = () => {
                 </select>
               </div>
             </div>
-            
+
             <button
               onClick={handleCreateListing}
               disabled={listingsLoading || !formData.title || !formData.description || !formData.price || !formData.location}

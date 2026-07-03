@@ -1,7 +1,6 @@
-// client/src/pages/Home.tsx
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { propertyService } from '../services/propertyService';
 import { Property } from '../types';
 import PropertyCard from '../components/property/PropertyCard';
@@ -10,13 +9,11 @@ import SearchBar from '../components/ui/SearchBar';
 import ChatBot from '../components/ui/ChatBot';
 import homeBg from '../assets/images/h_photo.jpg';
 import ctaBg from '../assets/images/bg.jpg';
-import { useAuth } from '../context/AuthContext';
-import { MapPin, Home as HomeIcon, Star, Building, Calendar, ChevronRight, Plus, ArrowRight } from 'lucide-react';
+import { MapPin, Star, ChevronRight, Plus, ArrowRight } from 'lucide-react';
 
 // Popular Locations Component (Integrated - Map Removed)
 const PopularLocations = () => {
   const [selectedNeighborhood, setSelectedNeighborhood] = useState<string>('all');
-  const [hoveredCity, setHoveredCity] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const popularCitiesList = [
@@ -25,7 +22,7 @@ const PopularLocations = () => {
     { name: 'Gambella', slug: 'Gambella', properties: '512', image: 'https://images.unsplash.com/photo-1591779051696-1c3fa1469a79?w=400&h=300&fit=crop' },
     { name: 'Hawassa', slug: 'hawassa', properties: '456', image: 'https://images.unsplash.com/photo-1576479094293-533c00d9b5fc?w=400&h=300&fit=crop' },
     { name: 'Adama', slug: 'adama', properties: '345', image: 'https://images.unsplash.com/photo-1590077428593-55c4ae1fd254?w=400&h=300&fit=crop' },
-    { name: 'Jimma', slug: 'jimma', properties: '278', image: 'https://images.unsplash.com/photo-1590077428593-55c4ae1fd254?w=400&h=300&fit=crop' }, 
+    { name: 'Jimma', slug: 'jimma', properties: '278', image: 'https://images.unsplash.com/photo-1590077428593-55c4ae1fd254?w=400&h=300&fit=crop' },
   ];
 
   const neighborhoods = ['Bole', 'CMC', 'Kazanchis', 'Piassa', 'Mexico', 'Megenagna', 'Ayat', 'Jemo', 'Gergi', 'Lideta', 'Saris', 'Kality'];
@@ -42,59 +39,11 @@ const PopularLocations = () => {
     }
   };
 
-  // Animation variants for staggered entrance
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.3,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, x: -30 },
-    visible: {
-      opacity: 1,
-      x: 0,
-      transition: {
-        type: "spring",
-        stiffness: 100,
-        damping: 12,
-      },
-    },
-  };
-
-  const cityCardVariants = {
-    hidden: { opacity: 0, y: 30, scale: 0.9 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      transition: {
-        type: "spring",
-        stiffness: 200,
-        damping: 20,
-      },
-    },
-    hover: {
-      y: -12,
-      scale: 1.03,
-      transition: {
-        type: "spring",
-        stiffness: 400,
-        damping: 10,
-      },
-    },
-  };
-
   return (
     <section className="popular-locations py-16 bg-white dark:bg-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -113,7 +62,7 @@ const PopularLocations = () => {
 
         {/* Cities Horizontal Scroll with Animation */}
         <div className="relative mb-12">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
@@ -135,14 +84,14 @@ const PopularLocations = () => {
                 <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden transition-all duration-500 hover:shadow-2xl">
                   {/* City Image */}
                   <div className="relative h-48 overflow-hidden">
-                    <img 
-                      src={city.image} 
+                    <img
+                      src={city.image}
                       alt={city.name}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
                     />
                     <div className="absolute inset-0 bg-black/50 group-hover:bg-black/40 transition-colors duration-500"></div>
                   </div>
-                  
+
                   {/* City Info */}
                   <div className="p-5">
                     <motion.div
@@ -156,9 +105,9 @@ const PopularLocations = () => {
                       </h3>
                     </motion.div>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">{city.properties} properties</p>
-                    
+
                     {/* Animated Arrow Button */}
-                    <motion.div 
+                    <motion.div
                       className="flex items-center text-amber-600 dark:text-amber-400 font-medium group"
                       initial={false}
                     >
@@ -174,9 +123,9 @@ const PopularLocations = () => {
                         <ArrowRight className="w-4 h-4" />
                       </motion.span>
                     </motion.div>
-                    
+
                     {/* Walking Arrow Animation (sequential) */}
-                    <motion.div 
+                    <motion.div
                       className="absolute bottom-5 right-5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                       initial={{ x: -10 }}
                       whileInView={{ x: 0 }}
@@ -208,7 +157,7 @@ const PopularLocations = () => {
               </motion.div>
             ))}
           </motion.div>
-          
+
           {/* Scroll Indicators */}
           <div className="flex justify-center gap-2 mt-4">
             {popularCitiesList.map((_, index) => (
@@ -221,7 +170,7 @@ const PopularLocations = () => {
         </div>
 
         {/* Popular Neighborhoods - Addis Ababa */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.4 }}
@@ -237,11 +186,10 @@ const PopularLocations = () => {
                 whileHover={{ scale: 1.08, y: -2 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => handleNeighborhoodClick('all')}
-                className={`text-sm px-3 py-1.5 rounded-full transition-all duration-300 ${
-                  selectedNeighborhood === 'all'
-                    ? 'bg-amber-600 text-white shadow-lg shadow-amber-600/30'
-                    : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-amber-100 dark:hover:bg-amber-900 hover:text-amber-700 dark:hover:text-amber-300'
-                }`}
+                className={`text-sm px-3 py-1.5 rounded-full transition-all duration-300 ${selectedNeighborhood === 'all'
+                  ? 'bg-amber-600 text-white shadow-lg shadow-amber-600/30'
+                  : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-amber-100 dark:hover:bg-amber-900 hover:text-amber-700 dark:hover:text-amber-300'
+                  }`}
               >
                 All
               </motion.button>
@@ -255,11 +203,10 @@ const PopularLocations = () => {
                   whileHover={{ scale: 1.08, y: -2 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => handleNeighborhoodClick(neighborhood)}
-                  className={`text-sm px-3 py-1.5 rounded-full transition-all duration-300 ${
-                    selectedNeighborhood === neighborhood
-                      ? 'bg-amber-600 text-white shadow-lg shadow-amber-600/30 scale-105'
-                      : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-amber-100 dark:hover:bg-amber-900 hover:text-amber-700 dark:hover:text-amber-300'
-                  }`}
+                  className={`text-sm px-3 py-1.5 rounded-full transition-all duration-300 ${selectedNeighborhood === neighborhood
+                    ? 'bg-amber-600 text-white shadow-lg shadow-amber-600/30 scale-105'
+                    : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-amber-100 dark:hover:bg-amber-900 hover:text-amber-700 dark:hover:text-amber-300'
+                    }`}
                 >
                   {neighborhood}
                 </motion.button>
@@ -269,7 +216,7 @@ const PopularLocations = () => {
 
           {/* Selected Neighborhood Info */}
           {selectedNeighborhood !== 'all' && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: -10, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
@@ -283,7 +230,7 @@ const PopularLocations = () => {
                   onClick={() => handleCityClick(selectedNeighborhood.toLowerCase())}
                   className="ml-2 text-amber-600 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300 font-medium underline inline-flex items-center gap-1"
                 >
-                  Browse all 
+                  Browse all
                   <ArrowRight className="w-3 h-3" />
                 </motion.button>
               </p>
@@ -416,9 +363,8 @@ export default function Home() {
           )}
 
           <div
-            className={`absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-1000 ${
-              imageLoaded ? 'opacity-100' : 'opacity-0'
-            }`}
+            className={`absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-1000 ${imageLoaded ? 'opacity-100' : 'opacity-0'
+              }`}
             style={{
               backgroundImage: `url(${homeBg})`,
               backgroundSize: 'cover',
@@ -459,9 +405,9 @@ export default function Home() {
               >
                 Find Your Dream
                 <span className="block text-amber-400">Property</span>
-                
+
                 {/* Typing Animation Component */}
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.5, duration: 0.5 }}
@@ -478,14 +424,14 @@ export default function Home() {
                   </motion.span>
                 </motion.div>
               </motion.h1>
-              
+
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4, duration: 0.6, type: "spring", stiffness: 100, damping: 15 }}
                 className="text-xl md:text-2xl lg:text-2xl text-gray-200 max-w-4xl mx-auto leading-relaxed mt-6 mb-8"
               >
-                Discover safe, secure and trusted properties with UrbanNest, Your trusted partner in finding the perfect home. 
+                Discover safe, secure and trusted properties with UrbanNest, Your trusted partner in finding the perfect home.
                 Browse verified listings and connect with trusted landlords or agents.
               </motion.p>
 
@@ -571,7 +517,7 @@ export default function Home() {
           <h2 className="lg:text-3xl text-2xl font-bold leading-none tracking-tighter text-gray-900 lg:mb-10">What Are You Looking For?</h2>
           <div className='w-20 h-1.5 bg-amber-600 rounded-full mt-2'></div>
         </motion.div>
-        
+
         <div className="flex justify-center">
           <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-3 md:gap-6 lg:gap-6 lg:mt-12 md:mt-8 mt-4 items-center w-full">
             {[
@@ -606,13 +552,13 @@ export default function Home() {
                       whileHover={{ scale: 1.1 }}
                       transition={{ duration: 0.5, ease: "easeOut" }}
                     />
-                    <motion.div 
+                    <motion.div
                       className="bg-black/60 absolute top-0 left-0 h-full w-full rounded-md group-hover:bg-black/50 transition-colors duration-300"
                     ></motion.div>
                   </div>
                   <div className="absolute md:m-6 sm:m-3 bottom-0 z-30">
                     <h2 className="w-full text-xl sm:text-sm font-semibold leading-8 mt-2 text-white">{item.title}</h2>
-                    <motion.p 
+                    <motion.p
                       className="sm:hidden mt-4 text-base font-medium cursor-pointer leading-4 underline text-white"
                       whileHover={{ x: 5 }}
                       transition={{ type: "spring", stiffness: 400, damping: 20 }}
@@ -633,7 +579,7 @@ export default function Home() {
       {/* Features Section */}
       <section className="py-20 bg-gray-50 dark:bg-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, type: "spring", stiffness: 100, damping: 15 }}
@@ -677,7 +623,7 @@ export default function Home() {
                 whileTap={{ scale: 0.98 }}
                 className="bg-white dark:bg-gray-900 rounded-lg shadow-md p-8 text-center hover:shadow-xl transition-all duration-300"
               >
-                <motion.div 
+                <motion.div
                   className="text-4xl mb-4"
                   animate={{ y: [0, -10, 0] }}
                   transition={{ repeat: Infinity, duration: 2, delay: index * 0.2 }}
@@ -695,7 +641,7 @@ export default function Home() {
       {/* Featured Properties Section */}
       <section id="properties-section" className="py-20 bg-white dark:bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, type: "spring", stiffness: 100, damping: 15 }}
@@ -709,8 +655,8 @@ export default function Home() {
             </div>
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Link to="/properties">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="border-amber-600 text-amber-600 hover:bg-amber-600 hover:text-white transition-all duration-300 dark:border-amber-400 dark:text-amber-400 dark:hover:bg-amber-400 dark:hover:text-gray-900"
                 >
                   View All →
@@ -718,11 +664,11 @@ export default function Home() {
               </Link>
             </motion.div>
           </motion.div>
-          
+
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {loading ? (
               // Loading skeletons
-              [1,2,3,4,5,6].map((i) => (
+              [1, 2, 3, 4, 5, 6].map((i) => (
                 <div key={i} className="bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse">
                   <div className="h-48 bg-gray-200 dark:bg-gray-700 rounded-t-lg"></div>
                   <div className="p-4 space-y-3">
@@ -734,7 +680,7 @@ export default function Home() {
             ) : error ? (
               <div className="col-span-3 text-center py-12">
                 <p className="text-red-500 dark:text-red-400">{error}</p>
-                <button 
+                <button
                   onClick={() => window.location.reload()}
                   className="mt-4 text-blue-900 dark:text-blue-700 hover:text-blue-950 underline"
                 >
@@ -762,7 +708,7 @@ export default function Home() {
       {/* Testimonials Section */}
       <section className="py-20 bg-gray-50 dark:bg-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, type: "spring", stiffness: 100, damping: 15 }}
@@ -808,13 +754,13 @@ export default function Home() {
                 whileTap={{ scale: 0.98 }}
                 className="bg-white dark:bg-gray-900 rounded-lg shadow-md p-6 hover:shadow-xl transition-all duration-300"
               >
-                <motion.div 
+                <motion.div
                   className="flex items-center mb-4"
                   whileHover={{ x: 5 }}
                   transition={{ type: "spring", stiffness: 400, damping: 20 }}
                 >
-                  <img 
-                    src={testimonial.image} 
+                  <img
+                    src={testimonial.image}
                     alt={testimonial.name}
                     className="w-12 h-12 rounded-full object-cover mr-4"
                   />
@@ -861,7 +807,7 @@ export default function Home() {
               {isLoggedIn ? "Ready to List Your Property?" : "Join UrbanNEST Today"}
             </h2>
             <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-              {isLoggedIn 
+              {isLoggedIn
                 ? "Reach thousands of potential tenants and buyers. List your property now!"
                 : "Create a free account to start your property journey. Buy, rent, or sell with confidence."}
             </p>

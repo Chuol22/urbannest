@@ -1,7 +1,7 @@
 import { Heart, Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-const MyNest = () => {
+const MyPlace = () => {
   const savedProperties = [
     {
       id: 1,
@@ -17,7 +17,7 @@ const MyNest = () => {
     <div className="container-custom py-12">
       <div className="flex items-center space-x-3 mb-8">
         <Heart className="text-[#10B981]" size={32} />
-        <h1 className="text-4xl font-bold text-gray-800">My Nest</h1>
+        <h1 className="text-4xl font-bold text-gray-800">My Place</h1>
       </div>
 
       {savedProperties.length > 0 ? (
@@ -34,7 +34,7 @@ const MyNest = () => {
                 <h3 className="text-lg font-semibold mb-2">{property.title}</h3>
                 <p className="text-gray-600 mb-2">{property.location}</p>
                 <div className="flex justify-between items-center">
-                  <p className="text-2xl font-bold text-[#10B981]">${property.price}<span className="text-sm">/month</span></p>
+                  <p className="text-2xl font-bold text-[#10B981]">ETB{property.price}<span className="text-sm">/month</span></p>
                   <button className="p-2 hover:bg-red-50 rounded-full transition-colors">
                     <Trash2 size={20} className="text-red-500" />
                   </button>
@@ -46,7 +46,7 @@ const MyNest = () => {
       ) : (
         <div className="text-center py-20">
           <Heart size={64} className="mx-auto text-gray-300 mb-4" />
-          <h3 className="text-2xl font-semibold text-gray-600 mb-2">Your Nest is Empty</h3>
+          <h3 className="text-2xl font-semibold text-gray-600 mb-2">Your Place is Empty</h3>
           <p className="text-gray-500 mb-6">Start exploring properties and save your favorites</p>
           <button className="btn-primary">Explore Properties</button>
         </div>
@@ -55,4 +55,4 @@ const MyNest = () => {
   );
 };
 
-export default MyNest;
+export default MyPlace;

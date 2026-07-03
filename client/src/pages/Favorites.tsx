@@ -2,8 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import PropertyCard from '../components/property/PropertyCard';
 import { useAuth } from '../context/AuthContext';
-import { Heart, Home, AlertCircle } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Heart } from 'lucide-react';
 
 interface FavoriteProperty {
   id: string;
@@ -32,9 +31,6 @@ const Favorites: React.FC = () => {
     try {
       setLoading(true);
       // Replace with your actual API call
-      // const response = await api.get('/favorites');
-      // setFavorites(response.data);
-      
       // Sample data for demonstration
       setTimeout(() => {
         setFavorites([
@@ -74,8 +70,6 @@ const Favorites: React.FC = () => {
   const handleRemoveFavorite = async (propertyId: string) => {
     try {
       // Replace with your actual API call
-      // await api.delete(`/favorites/${propertyId}`);
-      
       // Update local state
       setFavorites(favorites.filter(prop => prop.id !== propertyId));
     } catch (error) {

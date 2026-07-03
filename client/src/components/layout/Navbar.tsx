@@ -1,83 +1,19 @@
 // client/src/components/layout/Navbar.tsx
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useDarkMode } from '../../context/DarkModeContext';
+import { LanguageSelector } from '../LanguageSelector';
 import logo from '../../assets/images/tl.png';
 import logoDark from '../../assets/images/tl.png';
-
-// Language translations
-const translations = {
-  en: {
-    forRent: 'For Rent',
-    forSell: 'For Sell',
-    commercial: 'Commercial',
-    findAgent: 'Find Agent',
-    aboutUs: 'About Us',
-    contact: 'Contact',
-    signIn: 'Login',
-    register: 'Register',
-    houses: 'Houses/Home',
-    pensionHotel: 'Pension/Hotel',
-    apartment: 'Apartment',
-    land: 'Land',
-    shopRent: 'Shop for Rent',
-    shopSell: 'Shop for Sell',
-    officeRent: 'Office Building for Rent',
-    officeSell: 'Office Building for Sell',
-    landFarmRent: 'Land/Farm for Rent',
-    landFarmSell: 'Land/Farm for Sell',
-    pensionHotelAgent: 'Pension/Hotel Agent',
-    commercialAgent: 'Commercial Agent',
-    landAgent: 'Land Agent',
-  },
-  am: {
-    forRent: 'ለኪራይ',
-    forSell: 'ለሽያጭ',
-    commercial: 'ንግድ',
-    findAgent: 'ኤጀንት ያግኙ',
-    aboutUs: 'ስለእኛ',
-    contact: 'አግኙን',
-    signIn: 'ግባ',
-    register: 'ተመዝገብ',
-    houses: 'ቤቶች/ቤት',
-    pensionHotel: 'ፔንሽን/ሆቴል',
-    apartment: 'አፓርታማንት',
-    land: 'መሬት',
-    shopRent: 'ሱቅ ለኪራይ',
-    shopSell: 'ሱቅ ለሽያጭ',
-    officeRent: 'ኦፊስ ለኪራይ',
-    officeSell: 'ኦፊስ ለሽያጭ',
-    landFarmRent: 'መሬት/እርሻን ለኪራይ',
-    landFarmSell: 'መሬት/እርሻን ለሽያጭ',
-    pensionHotelAgent: 'ፔንሽን/ሆቴል ኤጀንት',
-    commercialAgent: 'ንግድ ኤጀንት',
-    landAgent: 'መሬት ኤጀንት',
-  }
-};
 
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
-  const [language, setLanguage] = useState<'en' | 'am'>('en');
   const { isLoggedIn, logout, user } = useAuth();
   const { isDarkMode, toggleDarkMode } = useDarkMode();
   const navigate = useNavigate();
   const dropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Language initialization
-  useEffect(() => {
-    const savedLanguage = localStorage.getItem('language') as 'en' | 'am' | null;
-    if (savedLanguage && (savedLanguage === 'en' || savedLanguage === 'am')) {
-      setLanguage(savedLanguage);
-    } else {
-      // Clear invalid language and default to English
-      localStorage.removeItem('language');
-      setLanguage('en');
-    }
-  }, []);
-
-  const t = translations[language] || translations['en'];
 
   const handleLogout = () => {
     logout();
@@ -104,56 +40,50 @@ export const Navbar = () => {
     }, 200);
   };
 
-  const changeLanguage = (lang: 'en' | 'am') => {
-    setLanguage(lang);
-    localStorage.setItem('language', lang);
-    setOpenDropdown(null);
-  };
-
   // Navigation structure
   const navItems = [
     {
-      label: t.forRent,
+      label: 'For Rent',
       dropdown: [
-        { to: '/properties?type=rent&category=house', label: t.houses },
-        { to: '/properties?type=rent&category=pension', label: t.pensionHotel },
-        { to: '/properties?type=rent&category=apartment', label: t.apartment },
+        { to: '/properties?type=rent&category=house', label: 'Houses/Home' },
+        { to: '/properties?type=rent&category=pension', label: 'Pension/Hotel' },
+        { to: '/properties?type=rent&category=apartment', label: 'Apartment' },
       ]
     },
     {
-      label: t.forSell,
+      label: 'For Sell',
       dropdown: [
-        { to: '/properties?type=sell&category=house', label: t.houses },
-        { to: '/properties?type=sell&category=land', label: t.land },
-        { to: '/properties?type=sell&category=apartment', label: t.apartment },
+        { to: '/properties?type=sell&category=house', label: 'Houses/Home' },
+        { to: '/properties?type=sell&category=land', label: 'Land' },
+        { to: '/properties?type=sell&category=apartment', label: 'Apartment' },
       ]
     },
     {
-      label: t.commercial,
+      label: 'Commercial',
       dropdown: [
-        { to: '/properties?type=commercial&category=shop-rent', label: t.shopRent },
-        { to: '/properties?type=commercial&category=shop-sell', label: t.shopSell },
-        { to: '/properties?type=commercial&category=office-rent', label: t.officeRent },
-        { to: '/properties?type=commercial&category=office-sell', label: t.officeSell },
-        { to: '/properties?type=commercial&category=land-rent', label: t.landFarmRent },
-        { to: '/properties?type=commercial&category=land-sell', label: t.landFarmSell },
+        { to: '/properties?type=commercial&category=shop-rent', label: 'Shop Rent' },
+        { to: '/properties?type=commercial&category=shop-sell', label: 'Shop Sell' },
+        { to: '/properties?type=commercial&category=office-rent', label: 'Office Rent' },
+        { to: '/properties?type=commercial&category=office-sell', label: 'Office Sell' },
+        { to: '/properties?type=commercial&category=land-rent', label: 'Land/Farm Rent' },
+        { to: '/properties?type=commercial&category=land-sell', label: 'Land/Farm Sell' },
       ]
     },
     {
-      label: t.findAgent,
+      label: 'Find Agent',
       dropdown: [
-        { to: '/agents?type=pension', label: t.pensionHotelAgent },
-        { to: '/agents?type=commercial', label: t.commercialAgent },
-        { to: '/agents?type=land', label: t.landAgent },
+        { to: '/agents?type=pension', label: 'Pension/Hotel Agent' },
+        { to: '/agents?type=commercial', label: 'Commercial Agent' },
+        { to: '/agents?type=land', label: 'Land Agent' },
       ]
     },
     {
-      label: t.aboutUs,
+      label: 'About Us',
       dropdown: null,
       to: '/about'
     },
     {
-      label: t.contact,
+      label: 'Contact',
       dropdown: null,
       to: '/contact'
     }
@@ -166,9 +96,9 @@ export const Navbar = () => {
           {/* Logo */}
           <div className="flex-shrink-0">
             <Link to="/" className="flex items-center">
-              <img 
-                src={isDarkMode ? logoDark : logo} 
-                alt="TIIPLONGHA Logo" 
+              <img
+                src={isDarkMode ? logoDark : logo}
+                alt="TIIPLONGHA Logo"
                 className="h-12 w-auto"
               />
             </Link>
@@ -177,7 +107,7 @@ export const Navbar = () => {
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center space-x-2">
             {navItems.map((item) => (
-              <div 
+              <div
                 key={item.label}
                 className="relative"
                 onMouseEnter={() => item.dropdown && handleMouseEnter(item.label)}
@@ -190,16 +120,16 @@ export const Navbar = () => {
                       className="text-gray-900 dark:text-gray-300 hover:text-amber-600 dark:hover:text-amber-500 px-3 py-2 rounded-md text-sm font-medium transition-colors inline-flex items-center"
                     >
                       {item.label}
-                      <svg 
-                        className={`ml-1 h-4 w-4 transition-transform duration-200 ${openDropdown === item.label ? 'rotate-180' : ''}`} 
-                        fill="none" 
-                        stroke="currentColor" 
+                      <svg
+                        className={`ml-1 h-4 w-4 transition-transform duration-200 ${openDropdown === item.label ? 'rotate-180' : ''}`}
+                        fill="none"
+                        stroke="currentColor"
                         viewBox="0 0 24 24"
                       >
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
                     </button>
-                    
+
                     {/* Dropdown Menu */}
                     {openDropdown === item.label && (
                       <div className="absolute left-0 mt-2 w-56 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 dark:ring-gray-700 z-50">
@@ -219,7 +149,7 @@ export const Navbar = () => {
                     )}
                   </>
                 ) : (
-                  <Link 
+                  <Link
                     to={item.to}
                     className="text-gray-900 dark:text-gray-300 hover:text-amber-600 dark:hover:text-amber-500 px-3 py-2 rounded-md text-sm font-medium transition-colors"
                   >
@@ -228,6 +158,9 @@ export const Navbar = () => {
                 )}
               </div>
             ))}
+
+            {/* Language Selector */}
+            <LanguageSelector />
 
             {/* Theme Toggle */}
             <button
@@ -245,47 +178,6 @@ export const Navbar = () => {
                 </svg>
               )}
             </button>
-
-            {/* Language Dropdown */}
-            <div className="relative">
-              <button
-                onClick={() => handleDropdownToggle('language')}
-                className="flex items-center space-x-1 text-gray-900 dark:text-gray-300 hover:text-amber-600 dark:hover:text-amber-500 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-              >
-                <span className="text-lg">🌐</span>
-                <span className="hidden md:inline">{language === 'en' ? 'EN' : 'AM'}</span>
-                <svg className="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-              
-              {openDropdown === 'language' && (
-                <div className="absolute right-0 mt-2 w-32 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 z-50">
-                  <div className="py-1">
-                    <button
-                      onClick={() => changeLanguage('en')}
-                      className={`block w-full text-left px-4 py-2 text-sm transition-colors ${
-                        language === 'en' 
-                          ? 'bg-amber-50 dark:bg-gray-700 text-amber-600 dark:text-amber-500' 
-                          : 'text-gray-900 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                      }`}
-                    >
-                      English
-                    </button>
-                    <button
-                      onClick={() => changeLanguage('am')}
-                      className={`block w-full text-left px-4 py-2 text-sm transition-colors ${
-                        language === 'am' 
-                          ? 'bg-amber-50 dark:bg-gray-700 text-amber-600 dark:text-amber-500' 
-                          : 'text-gray-900 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                      }`}
-                    >
-                      አማርኛ
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
 
             {/* Auth Buttons */}
             {isLoggedIn ? (
@@ -311,13 +203,13 @@ export const Navbar = () => {
                   onClick={() => navigate('/login')}
                   className="text-gray-900 dark:text-gray-300 hover:text-amber-600 dark:hover:text-amber-500 px-3 py-2 rounded-md text-sm font-medium transition-colors"
                 >
-                  {t.signIn}
+                  Login
                 </button>
                 <button
                   onClick={() => navigate('/register')}
                   className="bg-amber-600 text-white px-4 py-2 rounded-md hover:bg-amber-700 transition-colors text-sm font-medium"
                 >
-                  {t.register}
+                  Register
                 </button>
               </div>
             )}
@@ -359,36 +251,6 @@ export const Navbar = () => {
         {isOpen && (
           <div className="lg:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1">
-              {/* Mobile Language Selector */}
-              <div className="mb-2 space-y-1 bg-gray-50 dark:bg-gray-800 rounded-md p-2">
-                <button
-                  onClick={() => {
-                    changeLanguage('en');
-                    setIsOpen(false);
-                  }}
-                  className={`block w-full text-left px-3 py-2 rounded-md text-sm ${
-                    language === 'en' 
-                      ? 'bg-amber-100 dark:bg-gray-700 text-amber-600' 
-                      : 'text-gray-900 dark:text-gray-300'
-                  }`}
-                >
-                  English
-                </button>
-                <button
-                  onClick={() => {
-                    changeLanguage('am');
-                    setIsOpen(false);
-                  }}
-                  className={`block w-full text-left px-3 py-2 rounded-md text-sm ${
-                    language === 'am' 
-                      ? 'bg-amber-100 dark:bg-gray-700 text-amber-600' 
-                      : 'text-gray-900 dark:text-gray-300'
-                  }`}
-                >
-                  አማርኛ
-                </button>
-              </div>
-
               {/* Mobile Navigation Items */}
               {navItems.map((item) => (
                 <div key={item.label} className="space-y-1">
@@ -399,10 +261,10 @@ export const Navbar = () => {
                         className="w-full flex justify-between items-center text-gray-900 dark:text-gray-300 hover:text-amber-600 dark:hover:text-amber-500 px-3 py-2 rounded-md text-base font-medium"
                       >
                         {item.label}
-                        <svg 
-                          className={`h-4 w-4 transition-transform duration-200 ${openDropdown === `mobile-${item.label}` ? 'rotate-180' : ''}`} 
-                          fill="none" 
-                          stroke="currentColor" 
+                        <svg
+                          className={`h-4 w-4 transition-transform duration-200 ${openDropdown === `mobile-${item.label}` ? 'rotate-180' : ''}`}
+                          fill="none"
+                          stroke="currentColor"
                           viewBox="0 0 24 24"
                         >
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -435,6 +297,11 @@ export const Navbar = () => {
                 </div>
               ))}
 
+              {/* Mobile Language Selector */}
+              <div className="pt-2 pb-2">
+                <LanguageSelector />
+              </div>
+
               {/* Mobile Auth */}
               {isLoggedIn ? (
                 <div className="space-y-2 pt-4 border-t border-gray-200 dark:border-gray-700">
@@ -462,7 +329,7 @@ export const Navbar = () => {
                     }}
                     className="w-full text-left text-gray-900 dark:text-gray-300 hover:text-amber-600 dark:hover:text-amber-500 px-3 py-2 rounded-md text-base font-medium"
                   >
-                    {t.signIn}
+                    Login
                   </button>
                   <button
                     onClick={() => {
@@ -471,7 +338,7 @@ export const Navbar = () => {
                     }}
                     className="w-full bg-amber-600 text-white px-4 py-2 rounded-md hover:bg-amber-700 text-base font-medium"
                   >
-                    {t.register}
+                    Register
                   </button>
                 </div>
               )}

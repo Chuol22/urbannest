@@ -1,5 +1,4 @@
 // src/components/ui/Pagination.tsx
-import React from 'react';
 
 interface PaginationProps {
   currentPage: number;
@@ -23,34 +22,34 @@ export default function Pagination({
 
   const getPageNumbers = () => {
     const totalPageNumbers = siblingCount * 2 + 5;
-    
+
     if (totalPages <= totalPageNumbers) {
       return range(1, totalPages);
     }
-    
+
     const leftSiblingIndex = Math.max(currentPage - siblingCount, 1);
     const rightSiblingIndex = Math.min(currentPage + siblingCount, totalPages);
-    
+
     const showLeftDots = leftSiblingIndex > 2;
     const showRightDots = rightSiblingIndex < totalPages - 2;
-    
+
     if (!showLeftDots && showRightDots) {
       const leftItemsCount = 3 + 2 * siblingCount;
       const leftRange = range(1, leftItemsCount);
       return [...leftRange, '...', totalPages];
     }
-    
+
     if (showLeftDots && !showRightDots) {
       const rightItemsCount = 3 + 2 * siblingCount;
       const rightRange = range(totalPages - rightItemsCount + 1, totalPages);
       return [1, '...', ...rightRange];
     }
-    
+
     if (showLeftDots && showRightDots) {
       const middleRange = range(leftSiblingIndex, rightSiblingIndex);
       return [1, '...', ...middleRange, '...', totalPages];
     }
-    
+
     return [];
   };
 
@@ -71,7 +70,7 @@ export default function Pagination({
             </button>
           </li>
         )}
-        
+
         <li>
           <button
             onClick={() => onPageChange(currentPage - 1)}
@@ -82,7 +81,7 @@ export default function Pagination({
             ‹
           </button>
         </li>
-        
+
         {pageNumbers.map((page, index) => (
           <li key={index}>
             {page === '...' ? (
@@ -99,7 +98,7 @@ export default function Pagination({
             )}
           </li>
         ))}
-        
+
         <li>
           <button
             onClick={() => onPageChange(currentPage + 1)}
@@ -110,7 +109,7 @@ export default function Pagination({
             ›
           </button>
         </li>
-        
+
         {showFirstLast && (
           <li>
             <button

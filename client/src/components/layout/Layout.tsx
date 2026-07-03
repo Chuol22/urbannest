@@ -6,6 +6,7 @@ import Navbar from './Navbar';
 import Footer from './Footer';
 import ScrollToTop from './ScrollToTop';
 import ChatBot from '../ui/ChatBot';
+import { GoogleTranslateScript } from '../GoogleTranslateScript';
 
 interface LayoutProps {
   children?: React.ReactNode;
@@ -92,10 +93,13 @@ const Layout: React.FC<LayoutProps> = ({ children, showSidebar = false }) => {
         <link rel="canonical" href={window.location.href} />
       </Helmet>
 
+      <GoogleTranslateScript />
+      <div id="google_translate_element" style={{ display: 'none' }} />
+
       <div className="min-h-screen flex flex-col bg-white">
         <Navbar />
-        
-        <main 
+
+        <main
           className="flex-grow"
           style={{ paddingTop: mainPaddingTop }}
         >
@@ -136,7 +140,7 @@ const Layout: React.FC<LayoutProps> = ({ children, showSidebar = false }) => {
                     </nav>
                   </div>
                 </aside>
-                
+
                 <div className="lg:w-3/4">
                   <div className="bg-white rounded-lg shadow-md p-6">
                     {children || <Outlet />}
@@ -150,7 +154,7 @@ const Layout: React.FC<LayoutProps> = ({ children, showSidebar = false }) => {
             </div>
           )}
         </main>
-        
+
         <Footer />
         <ScrollToTop />
         <ChatBot isOpen={showChat} onToggle={() => setShowChat(!showChat)} />
