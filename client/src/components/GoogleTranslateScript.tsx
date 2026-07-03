@@ -1,7 +1,6 @@
-"use client";
-
 // Loads Google Translate widget and patches DOM to prevent React crashes
-import { useEffect, useRef } from "react";
+
+import { useEffect, useRef } from 'react';
 
 declare global {
   interface Window {

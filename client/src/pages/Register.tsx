@@ -1,9 +1,11 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+
 import { useAuth } from '../context/AuthContext';
+
+import { Alert } from '../components/ui/Alert';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
-import { Alert } from '../components/ui/Alert';
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -24,35 +26,35 @@ export default function Register() {
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
-    
+
     // Validate first name
     if (!formData.first_name.trim()) {
       newErrors.first_name = 'First name is required';
     } else if (formData.first_name.length < 2) {
       newErrors.first_name = 'First name must be at least 2 characters';
     }
-    
+
     // Validate last name
     if (!formData.last_name.trim()) {
       newErrors.last_name = 'Last name is required';
     } else if (formData.last_name.length < 2) {
       newErrors.last_name = 'Last name must be at least 2 characters';
     }
-    
+
     // Validate email
     if (!formData.email.trim()) {
       newErrors.email = 'Email is required';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = 'Please enter a valid email address';
     }
-    
+
     // Validate phone
     if (!formData.phone.trim()) {
       newErrors.phone = 'Phone number is required';
     } else if (!/^\+?[0-9]{10,15}$/.test(formData.phone.replace(/\s/g, ''))) {
       newErrors.phone = 'Please enter a valid phone number';
     }
-    
+
     // Validate password
     if (!formData.password) {
       newErrors.password = 'Password is required';
@@ -61,17 +63,17 @@ export default function Register() {
     } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
       newErrors.password = 'Password must contain uppercase, lowercase, and number';
     }
-    
+
     // Validate password confirmation
     if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match';
     }
-    
+
     // Validate terms acceptance
     if (!formData.acceptTerms) {
       newErrors.acceptTerms = 'You must accept the terms and conditions';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -79,11 +81,11 @@ export default function Register() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setGeneralError('');
-    
+
     if (!validateForm()) {
       return;
     }
-    
+
     setLoading(true);
     try {
       // Send data in format backend expects
@@ -245,9 +247,8 @@ export default function Register() {
                   setFormData({ ...formData, acceptTerms: e.target.checked });
                   if (errors.acceptTerms) delete errors.acceptTerms;
                 }}
-                className={`h-4 w-4 text-blue-900 focus:ring-amber-500 border-gray-300 rounded ${
-                  errors.acceptTerms ? 'border-red-500' : ''
-                }`}
+                className={`h-4 w-4 text-blue-900 focus:ring-amber-500 border-gray-300 rounded ${errors.acceptTerms ? 'border-red-500' : ''
+                  }`}
                 disabled={loading}
               />
               <label htmlFor="acceptTerms" className="ml-2 block text-sm text-gray-900">
@@ -266,9 +267,9 @@ export default function Register() {
             )}
           </div>
 
-          <Button 
-            type="submit" 
-            loading={loading} 
+          <Button
+            type="submit"
+            loading={loading}
             fullWidth
             className="bg-blue-600 hover:bg-blue-700"
           >

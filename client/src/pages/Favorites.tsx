@@ -1,8 +1,11 @@
 // src/pages/Favorites.tsx
-import React, { useState, useEffect } from 'react';
-import PropertyCard from '../components/property/PropertyCard';
-import { useAuth } from '../context/AuthContext';
+
+import React, { useEffect, useState } from 'react';
+
 import { Heart } from 'lucide-react';
+
+import { useAuth } from '../context/AuthContext';
+import PropertyCard from '../components/property/PropertyCard';
 
 interface FavoriteProperty {
   id: string;

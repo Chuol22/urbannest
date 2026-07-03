@@ -134,21 +134,21 @@ All changes will be made incrementally with testing checkpoints to ensure zero f
     - Run npm run dev and test application
     - _Requirements: 14.2, 14.6_
 
-- [ ] 9. Code cleanup - Remove unused imports
-  - [-] 9.1 Identify unused imports across codebase
+- [x] 9. Code cleanup - Remove unused imports
+  - [x] 9.1 Identify unused imports across codebase
     - Run TypeScript diagnostics on all files
     - Generate list of files with unused imports
     - Categorize imports (value imports vs type imports vs side-effects)
     - _Requirements: 6.1, 6.2, 6.3_
 
-  - [~] 9.2 Remove unused imports batch 1 (components)
+  - [x] 9.2 Remove unused imports batch 1 (components)
     - Remove unused import statements from component files
     - Preserve side-effect imports (CSS, module initialization)
     - Preserve React imports needed for JSX
     - Test that components still function
     - _Requirements: 6.1, 6.2, 6.5_
 
-  - [~] 9.3 Remove unused imports batch 2 (pages, hooks, services)
+  - [x] 9.3 Remove unused imports batch 2 (pages, hooks, services)
     - Remove unused imports from remaining TypeScript files
     - Verify type-only imports are properly marked
     - Maintain proper import organization
@@ -160,14 +160,14 @@ All changes will be made incrementally with testing checkpoints to ensure zero f
     - Verify no compilation errors
     - _Requirements: 14.2, 14.6_
 
-- [ ] 10. Code cleanup - Remove console logs and debug code
-  - [~] 10.1 Identify all console statements
+- [x] 10. Code cleanup - Remove console logs and debug code
+  - [x] 10.1 Identify all console statements
     - Search for console.log, console.debug, console.info in src/
     - Categorize: debug logs vs error handling
     - Create list of statements to remove vs preserve
     - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5_
 
-  - [~] 10.2 Remove debug console statements
+  - [x] 10.2 Remove debug console statements
     - Remove console.log statements from all source files
     - Remove console.debug statements
     - Preserve console.error and console.warn for actual error handling
@@ -179,14 +179,14 @@ All changes will be made incrementally with testing checkpoints to ensure zero f
     - Verify no functionality depended on console output
     - _Requirements: 13.1, 13.2, 13.3, 13.4, 13.5, 13.6, 13.7, 13.8_
 
-- [ ] 11. Code cleanup - Remove commented code
-  - [~] 11.1 Identify commented code blocks
+- [x] 11. Code cleanup - Remove commented code
+  - [x] 11.1 Identify commented code blocks
     - Review all .ts and .tsx files for commented code
     - Distinguish between documentation comments and commented code
     - Identify TODO, FIXME, NOTE comments to preserve
     - _Requirements: 8.1, 8.2, 8.3, 8.5_
 
-  - [~] 11.2 Remove obsolete commented code
+  - [x] 11.2 Remove obsolete commented code
     - Remove commented-out code blocks (// and /* */ style)
     - Preserve JSDoc and explanatory comments
     - Preserve actionable TODO/FIXME comments
@@ -203,21 +203,21 @@ All changes will be made incrementally with testing checkpoints to ensure zero f
   - Test payment and subscription features
   - Ensure all tests pass, ask the user if questions arise
 
-- [ ] 13. Standardize import organization
-  - [~] 13.1 Apply import organization to components
+- [x] 13. Standardize import organization
+  - [x] 13.1 Apply import organization to components
     - Organize imports in standard order: React, external libraries, internal imports, relative imports, assets
     - Group imports by category with blank lines
     - Sort imports alphabetically within each group
     - Apply to all component files
     - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5_
 
-  - [~] 13.2 Apply import organization to pages and hooks
+  - [x] 13.2 Apply import organization to pages and hooks
     - Organize imports following the same standard order
     - Ensure consistent grouping and sorting
     - Apply to all page components, hooks, and context files
     - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5_
 
-  - [~] 13.3 Apply import organization to services and utilities
+  - [x] 13.3 Apply import organization to services and utilities
     - Organize imports in services, utilities, and type files
     - Consolidate related imports where appropriate
     - Ensure consistent formatting across all files
@@ -230,7 +230,7 @@ All changes will be made incrementally with testing checkpoints to ensure zero f
     - _Requirements: 14.2, 14.6_
 
 - [ ] 14. Apply consistent code formatting
-  - [~] 14.1 Format TypeScript and React files
+  - [-] 14.1 Format TypeScript and React files
     - Ensure consistent indentation (2 spaces)
     - Ensure consistent spacing around operators and braces
     - Ensure consistent line breaks and blank lines

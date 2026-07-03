@@ -1,9 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+
 import { motion } from 'framer-motion';
+
 import { useAuth } from '../hooks/useAuth';
+
+import { Alert } from '../components/ui/Alert';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
-import { Alert } from '../components/ui/Alert';
 import { Loader } from '../components/ui/Loader';
 
 export default function Profile() {
@@ -12,13 +15,13 @@ export default function Profile() {
   const [isUpdating, setIsUpdating] = useState(false);
   const [updateStatus, setUpdateStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
-  
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
   });
-  
+
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
     newPassword: '',
@@ -45,7 +48,7 @@ export default function Profile() {
         name: formData.name,
         phone: formData.phone,
       });
-      
+
       setUpdateStatus('success');
       setIsEditing(false);
       setTimeout(() => setUpdateStatus('idle'), 3000);
@@ -60,7 +63,7 @@ export default function Profile() {
 
   const handlePasswordUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validation
     if (!passwordData.currentPassword) {
       setUpdateStatus('error');
@@ -68,14 +71,14 @@ export default function Profile() {
       setTimeout(() => setUpdateStatus('idle'), 3000);
       return;
     }
-    
+
     if (passwordData.newPassword.length < 6) {
       setUpdateStatus('error');
       setErrorMessage('New password must be at least 6 characters');
       setTimeout(() => setUpdateStatus('idle'), 3000);
       return;
     }
-    
+
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       setUpdateStatus('error');
       setErrorMessage('New passwords do not match');
@@ -88,7 +91,7 @@ export default function Profile() {
 
     try {
       await changePassword(passwordData.currentPassword, passwordData.newPassword);
-      
+
       setUpdateStatus('success');
       setPasswordData({
         currentPassword: '',
@@ -136,7 +139,7 @@ export default function Profile() {
           {updateStatus === 'success' && (
             <Alert type="success" message="Profile updated successfully!" />
           )}
-          
+
           {updateStatus === 'error' && (
             <Alert type="error" message={errorMessage} />
           )}
@@ -151,7 +154,7 @@ export default function Profile() {
                 disabled={!isEditing}
                 required
               />
-              
+
               <Input
                 label="Email Address"
                 name="email"
@@ -160,7 +163,7 @@ export default function Profile() {
                 disabled
                 className="bg-gray-50"
               />
-              
+
               <Input
                 label="Phone Number"
                 name="phone"
@@ -206,7 +209,7 @@ export default function Profile() {
           className="bg-white rounded-lg shadow-md p-6"
         >
           <h2 className="text-xl font-semibold text-gray-900 mb-6">Change Password</h2>
-          
+
           <form onSubmit={handlePasswordUpdate}>
             <div className="space-y-4">
               <Input
@@ -217,7 +220,7 @@ export default function Profile() {
                 onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
                 required
               />
-              
+
               <Input
                 label="New Password"
                 name="newPassword"
@@ -227,7 +230,7 @@ export default function Profile() {
                 required
                 helperText="Must be at least 6 characters"
               />
-              
+
               <Input
                 label="Confirm New Password"
                 name="confirmPassword"

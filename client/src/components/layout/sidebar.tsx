@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+
+import { AnimatePresence, motion } from 'framer-motion';
+
 import { useAuth } from '../../context/AuthContext';
 
 interface SidebarProps {
@@ -16,10 +18,10 @@ interface NavItem {
   roles?: ('tenant' | 'landlord' | 'admin')[];
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ 
-  isOpen, 
-  onClose, 
-  variant = 'temporary' 
+export const Sidebar: React.FC<SidebarProps> = ({
+  isOpen,
+  onClose,
+  variant = 'temporary'
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -208,7 +210,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             onClick={onClose}
             className="fixed inset-0 bg-black bg-opacity-50 z-40"
           />
-          
+
           {/* Sidebar */}
           <motion.aside
             initial={{ x: -300 }}

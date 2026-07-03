@@ -1,14 +1,17 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React, { Suspense } from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { HelmetProvider } from 'react-helmet-async';
 import { Toaster } from 'sonner';
-import { AuthProvider } from './context/AuthContext';
-import { PropertyProvider } from './context/PropertyContext';
-import { DarkModeProvider } from './context/DarkModeContext';
-import Layout from './components/layout/Layout';
-import { ProtectedRoute } from './components/auth/ProtectedRoute';
+
 import { ErrorBoundary } from './components/common/ErrorBoundary';
-import React, { Suspense } from 'react';
+import { ProtectedRoute } from './components/auth/ProtectedRoute';
+import Layout from './components/layout/Layout';
+
+import { DarkModeProvider } from './context/DarkModeContext';
+import { PropertyProvider } from './context/PropertyContext';
+import { AuthProvider } from './context/AuthContext';
 
 // Lazy load pages for better performance
 const Home = React.lazy(() => import('./pages/Home'));
@@ -17,7 +20,7 @@ const Properties = React.lazy(() => import('./pages/Properties'));
 const PropertyDetail = React.lazy(() => import('./pages/PropertyDetail'));
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
 const Contact = React.lazy(() => import('./pages/Contact'));
-const MyNest = React.lazy(() => import('./pages/MyNest'));
+const MyNest = React.lazy(() => import('./pages/MyPlace'));
 const Login = React.lazy(() => import('./pages/Login'));
 const Register = React.lazy(() => import('./pages/Register'));
 const Profile = React.lazy(() => import('./pages/Profile'));
@@ -65,10 +68,10 @@ function App() {
                         <Route path="/forgot-password" element={<ForgotPassword />} />
                         <Route path="/terms" element={<Terms />} />
                         <Route path="/privacy" element={<Privacy />} />
-                        
+
                         {/* Payment Routes - Public (for redirects from payment gateway) */}
                         <Route path="/payment/success" element={<PaymentSuccess />} />
-                        
+
                         {/* Protected Routes - Require authentication */}
                         <Route path="/create-listing" element={
                           <ProtectedRoute>
@@ -100,7 +103,7 @@ function App() {
                             <Settings />
                           </ProtectedRoute>
                         } />
-                        
+
                         {/* 404 Route - Catch all unmatched routes */}
                         <Route path="*" element={<NotFound />} />
                       </Routes>

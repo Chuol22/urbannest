@@ -1,9 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+
+import { Clock, MapPin, MessageSquare, Phone } from 'lucide-react';
 import { motion } from 'framer-motion';
+
+import { Alert } from '../components/ui/Alert';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
-import { Alert } from '../components/ui/Alert';
-import { Phone, MapPin, MessageSquare, Clock } from 'lucide-react';
 
 interface ContactFormData {
   name: string;
@@ -260,10 +262,10 @@ export default function Contact() {
             transition={{ duration: 0.5, type: "spring", stiffness: 100, damping: 15 }}
             viewport={{ once: true }}
             whileHover={{ y: -4 }}
-            className='bg-white rounded-2xl shadow-lg p-8 border-b-4 border-amber-600'
+            className="bg-white rounded-2xl shadow-lg p-8 border-b-4 border-amber-600"
           >
             <h2 className="text-3xl mt-4 font-black text-center text-gray-900 mb-2">Send Us a Message</h2>
-            <div className='w-20 h-1.5 bg-amber-600 mx-auto rounded-full mb-4'></div>
+            <div className="w-20 h-1.5 bg-amber-600 mx-auto rounded-full mb-4"></div>
             <p className="text-gray-600 mb-8 text-center">
               Whether you have a question about our properties, need assistance, or just want to say hello,
               we'd love to hear from you.

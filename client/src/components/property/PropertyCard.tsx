@@ -1,7 +1,8 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { FaBed, FaBath, FaRuler, FaHeart, FaRegHeart, FaMapMarkerAlt } from 'react-icons/fa';
+
+import { motion } from 'framer-motion';
+import { FaBath, FaBed, FaHeart, FaMapMarkerAlt, FaRegHeart, FaRuler } from 'react-icons/fa';
 
 interface PropertyCardProps {
   property: any;
@@ -10,9 +11,9 @@ interface PropertyCardProps {
   viewMode?: 'grid' | 'list';
 }
 
-export const PropertyCard: React.FC<PropertyCardProps> = ({ 
-  property, 
-  onFavoriteToggle, 
+export const PropertyCard: React.FC<PropertyCardProps> = ({
+  property,
+  onFavoriteToggle,
   isFavorite = false,
   viewMode = 'grid'
 }) => {
@@ -30,8 +31,8 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
       >
         <Link to={`/property/${property.id}`} className="flex flex-col md:flex-row">
           <div className="md:w-72 h-56 relative overflow-hidden">
-            <img 
-              src={property.image || property.photos?.[0]?.url || 'https://via.placeholder.com/300'} 
+            <img
+              src={property.image || property.photos?.[0]?.url || 'https://via.placeholder.com/300'}
               alt={property.title}
               className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
             />
@@ -63,14 +64,14 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
                 <span className="text-gray-500 text-sm">/{property.period || 'month'}</span>
               </div>
             </div>
-            
+
             <div className="flex items-center text-gray-500 mb-4">
               <FaMapMarkerAlt className="mr-1" size={14} />
               <span className="text-sm">{property.location?.city || property.location}, Ethiopia</span>
             </div>
-            
+
             <p className="text-gray-600 mb-4 line-clamp-2">{property.description}</p>
-            
+
             <div className="flex items-center space-x-4 text-gray-500">
               {property.bedrooms > 0 && (
                 <div className="flex items-center">
@@ -105,8 +106,8 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
     >
       <Link to={`/property/${property.id}`}>
         <div className="relative h-56 overflow-hidden">
-          <img 
-            src={property.image || property.photos?.[0]?.url || 'https://via.placeholder.com/300'} 
+          <img
+            src={property.image || property.photos?.[0]?.url || 'https://via.placeholder.com/300'}
             alt={property.title}
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
           />
@@ -131,7 +132,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
             </span>
           )}
         </div>
-        
+
         <div className="p-4">
           <div className="flex justify-between items-start mb-2">
             <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-1">
@@ -144,12 +145,12 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
               <span className="text-gray-500 text-xs">/{property.period || 'month'}</span>
             </div>
           </div>
-          
+
           <div className="flex items-center text-gray-500 mb-3">
             <FaMapMarkerAlt className="mr-1" size={12} />
             <span className="text-xs">{property.location?.city || property.location}</span>
           </div>
-          
+
           <div className="flex items-center justify-between pt-3 border-t border-gray-100">
             <div className="flex items-center space-x-3 text-gray-500">
               {property.bedrooms > 0 && (

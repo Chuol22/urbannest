@@ -1,19 +1,23 @@
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+
 import { motion } from 'framer-motion';
+
+import { useAuth } from '../context/AuthContext';
 import { useProperties } from '../hooks/useProperties';
-import { useAuth } from '../hooks/useAuth';
+
+import { Alert } from '../components/ui/Alert';
 import { Button } from '../components/ui/Button';
 import { Loader } from '../components/ui/Loader';
-import { Alert } from '../components/ui/Alert';
-import { formatPrice, formatArea } from '../utils/helpers';
+
+import { formatArea, formatPrice } from '../utils/helpers';
 
 export default function PropertyDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { getPropertyById, addToFavorites, removeFromFavorites, isFavorite } = useProperties();
   const { isLoggedIn } = useAuth();
-  
+
   const [property, setProperty] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -88,7 +92,7 @@ export default function PropertyDetail() {
 
   if (error || !property) {
     return (
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ type: "spring", stiffness: 150, damping: 12 }}
@@ -126,7 +130,7 @@ export default function PropertyDetail() {
         </motion.button>
 
         {/* Image Gallery */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.6, type: "spring", stiffness: 100, damping: 15 }}
@@ -141,7 +145,7 @@ export default function PropertyDetail() {
               alt={property.title}
               className="w-full h-full object-cover"
             />
-            
+
             {/* Favorite Button */}
             <motion.button
               whileHover={{ scale: 1.1, rotate: 10 }}
@@ -168,7 +172,7 @@ export default function PropertyDetail() {
 
             {/* Available Badge */}
             {property.isAvailable ? (
-              <motion.div 
+              <motion.div
                 initial={{ x: -20, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ delay: 0.3, type: "spring", stiffness: 100, damping: 15 }}
@@ -177,7 +181,7 @@ export default function PropertyDetail() {
                 Available Now
               </motion.div>
             ) : (
-              <motion.div 
+              <motion.div
                 initial={{ x: -20, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ delay: 0.3, type: "spring", stiffness: 100, damping: 15 }}
@@ -190,7 +194,7 @@ export default function PropertyDetail() {
 
           {/* Thumbnails */}
           {property.images && property.images.length > 1 && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.5, type: "spring", stiffness: 100, damping: 15 }}
@@ -223,13 +227,13 @@ export default function PropertyDetail() {
         {/* Property Details */}
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Main Info */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3, duration: 0.6, type: "spring", stiffness: 100, damping: 15 }}
             className="lg:col-span-2"
           >
-            <motion.h1 
+            <motion.h1
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, type: "spring", stiffness: 100, damping: 15 }}
@@ -237,8 +241,8 @@ export default function PropertyDetail() {
             >
               {property.title}
             </motion.h1>
-            
-            <motion.div 
+
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.5 }}
@@ -251,13 +255,13 @@ export default function PropertyDetail() {
               <span>{property.location}</span>
             </motion.div>
 
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6, type: "spring", stiffness: 100, damping: 15 }}
               className="flex flex-wrap gap-4 mb-6"
             >
-              <motion.div 
+              <motion.div
                 whileHover={{ y: -2, scale: 1.05 }}
                 className="flex items-center text-gray-700"
               >
@@ -266,7 +270,7 @@ export default function PropertyDetail() {
                 </svg>
                 <span>{property.bedrooms} beds</span>
               </motion.div>
-              <motion.div 
+              <motion.div
                 whileHover={{ y: -2, scale: 1.05 }}
                 className="flex items-center text-gray-700"
               >
@@ -275,7 +279,7 @@ export default function PropertyDetail() {
                 </svg>
                 <span>{property.bathrooms} baths</span>
               </motion.div>
-              <motion.div 
+              <motion.div
                 whileHover={{ y: -2, scale: 1.05 }}
                 className="flex items-center text-gray-700"
               >
@@ -286,7 +290,7 @@ export default function PropertyDetail() {
               </motion.div>
             </motion.div>
 
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7, type: "spring", stiffness: 100, damping: 15 }}
@@ -297,7 +301,7 @@ export default function PropertyDetail() {
             </motion.div>
 
             {property.amenities && property.amenities.length > 0 && (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.8, type: "spring", stiffness: 100, damping: 15 }}
@@ -306,7 +310,7 @@ export default function PropertyDetail() {
                 <h2 className="text-xl font-semibold text-gray-900 mb-3">Amenities</h2>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                   {property.amenities.map((amenity: string, index: number) => (
-                    <motion.div 
+                    <motion.div
                       key={index}
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
@@ -326,16 +330,16 @@ export default function PropertyDetail() {
           </motion.div>
 
           {/* Sidebar */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.5, duration: 0.6, type: "spring", stiffness: 100, damping: 15 }}
           >
-            <motion.div 
+            <motion.div
               whileHover={{ y: -4 }}
               className="bg-gray-50 rounded-2xl p-6 sticky top-24 shadow-lg border-b-4 border-amber-600"
             >
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6, type: "spring", stiffness: 100, damping: 15 }}
@@ -364,14 +368,14 @@ export default function PropertyDetail() {
 
               <hr className="my-4" />
 
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.7 }}
                 className="space-y-3"
               >
                 <h3 className="font-semibold text-gray-900">Landlord Information</h3>
-                <motion.div 
+                <motion.div
                   whileHover={{ x: 5 }}
                   transition={{ type: "spring", stiffness: 400, damping: 20 }}
                   className="flex items-center space-x-3"
@@ -386,7 +390,7 @@ export default function PropertyDetail() {
                     <p className="text-sm text-gray-500">Property Owner</p>
                   </div>
                 </motion.div>
-                
+
                 <motion.button
                   whileHover={{ x: 5 }}
                   whileTap={{ scale: 0.95 }}
@@ -399,7 +403,7 @@ export default function PropertyDetail() {
 
               <hr className="my-4" />
 
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.8 }}

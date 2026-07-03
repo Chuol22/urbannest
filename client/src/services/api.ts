@@ -1,4 +1,5 @@
-import axios, { AxiosInstance, AxiosRequestConfig, InternalAxiosRequestConfig, AxiosError } from 'axios';
+import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, InternalAxiosRequestConfig } from 'axios';
+
 import DOMPurify from 'dompurify';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
@@ -39,18 +40,18 @@ class ApiService {
         if (token && config.headers) {
           config.headers.Authorization = `Bearer ${token}`;
         }
-        
+
         // Add CSRF token if available (for extra security)
         const csrfToken = this.getCsrfToken();
         if (csrfToken && config.headers) {
           config.headers['X-CSRF-Token'] = csrfToken;
         }
-        
+
         // Sanitize request data if it's a POST/PUT/PATCH
         if (config.data && typeof config.data === 'object') {
           config.data = this.sanitizeData(config.data);
         }
-        
+
         return config;
       },
       (error) => {
@@ -74,7 +75,7 @@ class ApiService {
       },
       async (error: AxiosError) => {
         const originalRequest = error.config as any;
-        
+
         // Handle 401 Unauthorized errors (token expired)
         if (error.response?.status === 401 && !originalRequest._retry) {
           if (this.isRefreshing) {
@@ -85,10 +86,10 @@ class ApiService {
               .then(() => this.axiosInstance(originalRequest))
               .catch((err) => Promise.reject(err));
           }
-          
+
           originalRequest._retry = true;
           this.isRefreshing = true;
-          
+
           try {
             await this.refreshToken();
             this.processQueue(null);
@@ -105,7 +106,7 @@ class ApiService {
             this.isRefreshing = false;
           }
         }
-        
+
         // Log errors in development
         if (import.meta.env.DEV) {
           console.error('API Error:', {
@@ -116,7 +117,7 @@ class ApiService {
             message: error.message,
           });
         }
-        
+
         // Return formatted error response
         return {
           data: {
@@ -143,10 +144,10 @@ class ApiService {
     if (!refreshToken) {
       throw new Error('No refresh token available');
     }
-    
+
     const response = await this.axiosInstance.post('/auth/refresh', { refreshToken });
     const data = response.data as any;
-    
+
     if (data?.token) {
       this.setToken(data.token);
       if (data.refreshToken) {

@@ -1,9 +1,12 @@
 import { useState } from 'react';
+
 import { motion } from 'framer-motion';
+
 import { useTheme } from '../context/ThemeContext';
 import { useLocalStorage, useLocalStorageBoolean } from '../hooks/useLocalStorage';
-import { Button } from '../components/ui/Button';
+
 import { Alert } from '../components/ui/Alert';
+import { Button } from '../components/ui/Button';
 
 interface NotificationSettings {
   emailNotifications: boolean;

@@ -1,6 +1,7 @@
 // client/src/services/propertyService.ts
+
+import type { CreatePropertyData, Property, PropertyFilters, PaginatedResponse } from '../types';
 import { apiClient } from '../utils/apiClient';
-import { Property, PropertyFilters, CreatePropertyData, PaginatedResponse } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api/v1';
 
@@ -22,7 +23,7 @@ export const propertyService = {
         ...(filters.location && { location: filters.location }),
         ...(filters.amenities && filters.amenities.length > 0 && { amenities: filters.amenities.join(',') })
       });
-      
+
       const response = await apiClient.get(`${API_BASE_URL}/properties?${params}`);
       return response.data;
     } catch (error) {
@@ -171,7 +172,7 @@ export const propertyService = {
         page: page.toString(),
         limit: limit.toString()
       });
-      
+
       const response = await apiClient.get(`${API_BASE_URL}/properties/user?${params}`);
       return response.data;
     } catch (error) {

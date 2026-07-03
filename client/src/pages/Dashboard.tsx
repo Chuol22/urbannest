@@ -1,4 +1,4 @@
-import { Home, Users, Star, TrendingUp, Plus } from 'lucide-react';
+import { Home, Plus, Star, TrendingUp, Users } from 'lucide-react';
 
 const Dashboard = () => {
   const stats = [

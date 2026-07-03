@@ -1,12 +1,15 @@
 // src/components/layout/Layout.tsx
-import React, { useState, useEffect } from 'react';
+
+import React, { useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
+
 import { Helmet } from 'react-helmet-async';
-import Navbar from './Navbar';
-import Footer from './Footer';
-import ScrollToTop from './ScrollToTop';
-import ChatBot from '../ui/ChatBot';
+
 import { GoogleTranslateScript } from '../GoogleTranslateScript';
+import ChatBot from '../ui/ChatBot';
+import Footer from './Footer';
+import Navbar from './Navbar';
+import ScrollToTop from './ScrollToTop';
 
 interface LayoutProps {
   children?: React.ReactNode;

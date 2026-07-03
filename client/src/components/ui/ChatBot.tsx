@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import React, { useEffect, useRef, useState } from 'react';
 
 interface Message {
   id: string;
@@ -48,49 +48,49 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, onToggle }) => {
   // Bot responses based on user input
   const getBotResponse = (userMessage: string): { text: string; options?: string[] } => {
     const msg = userMessage.toLowerCase();
-    
+
     if (msg.includes('property') || msg.includes('find') || msg.includes('search')) {
       return {
         text: "Great! You can find properties by using our search bar on the home page. Would you like me to help you with:\n\n• Price range filters\n• Location-based search\n• Property type selection",
         options: ['Price Filters', 'Location Search', 'Property Types']
       };
     }
-    
+
     if (msg.includes('list') || msg.includes('sell') || msg.includes('rent out')) {
       return {
         text: "To list your property, click the 'List Your Property' button. You'll need to:\n\n1. Provide property details\n2. Upload photos\n3. Set price and availability\n\nWould you like a step-by-step guide?",
         options: ['Yes, guide me', 'Pricing help', 'Requirements']
       };
     }
-    
+
     if (msg.includes('book') || msg.includes('viewing') || msg.includes('schedule')) {
       return {
         text: "To schedule a viewing:\n\n1. Find your desired property\n2. Click 'Request Viewing'\n3. Choose a date and time\n4. Wait for owner confirmation\n\nWould you like to see available properties now?",
         options: ['Show Properties', 'Cancelation Policy', 'Contact Support']
       };
     }
-    
+
     if (msg.includes('price') || msg.includes('cost') || msg.includes('fee')) {
       return {
         text: "Our pricing is transparent:\n\n• Property listing: Free\n• Booking fee: 5% of first month's rent\n• Premium features: Starting from $9.99/month\n\nNeed specific pricing details?",
         options: ['Premium Features', 'Payment Methods', 'Discounts']
       };
     }
-    
+
     if (msg.includes('help') || msg.includes('support')) {
       return {
         text: "I'm here to help! You can:\n\n• Call us: +251-111-234-567\n• Email: support@urbannest.com\n• Live chat: Available 24/7\n\nWhat would you like assistance with?",
         options: ['Contact Support', 'FAQ', 'Report Issue']
       };
     }
-    
+
     if (msg.includes('hello') || msg.includes('hi') || msg.includes('hey')) {
       return {
         text: "Hello! 👋 Welcome to UrbanNEST. How can I assist you with your property needs today?",
         options: ['Find Properties', 'List Property', 'Booking Help', 'Pricing']
       };
     }
-    
+
     return {
       text: "Thank you for your message! Our team will get back to you shortly. In the meantime, you can:\n\n• Browse properties\n• Check our FAQ\n• Schedule a callback\n\nWould you like me to help with any of these?",
       options: ['Browse Properties', 'FAQ', 'Schedule Callback']
@@ -207,18 +207,17 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, onToggle }) => {
                 >
                   <div className={`max-w-[80%] ${message.sender === 'user' ? 'order-2' : 'order-1'}`}>
                     <div
-                      className={`rounded-2xl px-4 py-2 ${
-                        message.sender === 'user'
+                      className={`rounded-2xl px-4 py-2 ${message.sender === 'user'
                           ? 'bg-amber-600 text-white'
                           : 'bg-white border border-gray-200 text-gray-900'
-                      }`}
+                        }`}
                     >
                       <p className="text-sm whitespace-pre-wrap">{message.text}</p>
                     </div>
                     <div className={`text-xs text-gray-500 mt-1 ${message.sender === 'user' ? 'text-right' : 'text-left'}`}>
                       {formatTime(message.timestamp)}
                     </div>
-                    
+
                     {/* Quick Options */}
                     {message.options && message.options.length > 0 && (
                       <div className="flex flex-wrap gap-2 mt-2">
@@ -236,7 +235,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, onToggle }) => {
                   </div>
                 </motion.div>
               ))}
-              
+
               {/* Typing Indicator */}
               {isTyping && (
                 <motion.div
@@ -253,7 +252,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, onToggle }) => {
                   </div>
                 </motion.div>
               )}
-              
+
               <div ref={messagesEndRef} />
             </div>
 

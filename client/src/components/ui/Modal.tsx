@@ -1,4 +1,5 @@
 // src/components/ui/Modal.tsx
+
 import React, { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 
@@ -85,7 +86,7 @@ export default function Modal({
             )}
           </div>
         )}
-        
+
         <div className="modal-body">
           {children}
         </div>

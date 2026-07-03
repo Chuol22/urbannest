@@ -1,15 +1,22 @@
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+
+import { ArrowRight, ChevronRight, MapPin, Plus, Star } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useState, useEffect } from 'react';
-import { propertyService } from '../services/propertyService';
-import { Property } from '../types';
+
+import { useAuth } from '../context/AuthContext';
+
+import ChatBot from '../components/ui/ChatBot';
+import SearchBar from '../components/ui/SearchBar';
 import PropertyCard from '../components/property/PropertyCard';
 import { Button } from '../components/ui/Button';
-import SearchBar from '../components/ui/SearchBar';
-import ChatBot from '../components/ui/ChatBot';
-import homeBg from '../assets/images/h_photo.jpg';
+
+import { propertyService } from '../services/propertyService';
+
+import type { Property } from '../types';
+
 import ctaBg from '../assets/images/bg.jpg';
-import { MapPin, Star, ChevronRight, Plus, ArrowRight } from 'lucide-react';
+import homeBg from '../assets/images/h_photo.jpg';
 
 // Popular Locations Component (Integrated - Map Removed)
 const PopularLocations = () => {
@@ -244,7 +251,7 @@ const PopularLocations = () => {
 
 // Main Home Component
 export default function Home() {
-  const { isLoggedIn, user } = useAuth();
+  const { isLoggedIn } = useAuth();
   const navigate = useNavigate();
   const [showChat, setShowChat] = useState(false);
   const [featuredProperties, setFeaturedProperties] = useState<Property[]>([]);
@@ -515,7 +522,7 @@ export default function Home() {
           viewport={{ once: true }}
         >
           <h2 className="lg:text-3xl text-2xl font-bold leading-none tracking-tighter text-gray-900 lg:mb-10">What Are You Looking For?</h2>
-          <div className='w-20 h-1.5 bg-amber-600 rounded-full mt-2'></div>
+          <div className="w-20 h-1.5 bg-amber-600 rounded-full mt-2"></div>
         </motion.div>
 
         <div className="flex justify-center">
@@ -589,7 +596,7 @@ export default function Home() {
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">
               Why Choose UrbanNEST?
             </h2>
-            <div className='w-20 h-1.5 bg-amber-600 mx-auto rounded-full mb-4'></div>
+            <div className="w-20 h-1.5 bg-amber-600 mx-auto rounded-full mb-4"></div>
             <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
               Simple, fast, and reliable property solutions
             </p>
@@ -650,7 +657,7 @@ export default function Home() {
           >
             <div>
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">Featured Properties</h2>
-              <div className='w-20 h-1.5 bg-amber-600 rounded-full mt-2'></div>
+              <div className="w-20 h-1.5 bg-amber-600 rounded-full mt-2"></div>
               <p className="text-gray-600 dark:text-gray-300 mt-2">Hand-picked properties just for you</p>
             </div>
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
@@ -716,7 +723,7 @@ export default function Home() {
             className="text-center mb-12"
           >
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">What Our Clients Say</h2>
-            <div className='w-20 h-1.5 bg-amber-600 mx-auto rounded-full mb-4'></div>
+            <div className="w-20 h-1.5 bg-amber-600 mx-auto rounded-full mb-4"></div>
             <p className="text-xl text-gray-600 dark:text-gray-300">Real stories from real customers</p>
           </motion.div>
 

@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+
 import { useAuth } from '../hooks/useAuth';
+
+import { Alert } from '../components/ui/Alert';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
-import { Alert } from '../components/ui/Alert';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');

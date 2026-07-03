@@ -1,7 +1,9 @@
 import React from 'react';
+
+import { Crown, Eye, Heart, MessageCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { Eye, MessageCircle, Heart, Crown } from 'lucide-react';
-import { Subscription } from '../../types';
+
+import type { Subscription } from '../../types';
 import { Button } from '../ui/Button';
 
 interface AgentDashboardProps {

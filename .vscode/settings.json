@@ -8,5 +8,6 @@
     "files.exclude": {
         "**/.git": false
     },
-    "editor.formatOnPaste": true
+    "editor.formatOnPaste": true,
+    "typescript.autoClosingTags": false
 }

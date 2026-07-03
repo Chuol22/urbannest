@@ -1,30 +1,22 @@
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, useInView } from 'framer-motion';
-import { useRef, useState, useEffect } from 'react';
-import { Helmet } from 'react-helmet-async';
+
 import {
+  FaArrowRight,
+  FaBuilding,
+  FaChartLine,
+  FaCheckCircle,
+  FaGlobe,
+  FaHandshake,
+  FaHeadset,
+  FaHeart,
   FaHome,
   FaShieldAlt,
-  FaHeadset,
-  FaUsers,
-  FaHandshake,
-  FaGlobe,
-  FaCheckCircle,
-  FaArrowRight,
-  FaHeart,
   FaStar,
-  FaBuilding,
-  FaChartLine
+  FaUsers,
 } from 'react-icons/fa';
-import { Home as HomeIcon, Star, Info, Target, Users } from 'lucide-react';
-
-// Hero background images for rotation
-const heroImages = [
-  'https://images.unsplash.com/photo-1560518883-ce09059eeffc?w=1920&h=1080&fit=crop',
-  'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=1920&h=1080&fit=crop',
-  'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1920&h=1080&fit=crop',
-  'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1920&h=1080&fit=crop',
-];
+import { Helmet } from 'react-helmet-async';
+import { motion, useInView } from 'framer-motion';
 
 // Team members data
 const teamMembers = [
@@ -199,7 +191,7 @@ export default function About() {
                 initial={{ width: 0 }}
                 animate={{ width: '5rem' }}
                 transition={{ delay: 0.4, duration: 0.5, type: "spring", stiffness: 100, damping: 15 }}
-                className='h-1.5 mb-4 bg-amber-600 mx-auto rounded-full'
+                className="h-1.5 mb-4 bg-amber-600 mx-auto rounded-full"
               ></motion.div>
 
               <motion.p
@@ -258,7 +250,7 @@ export default function About() {
                       </motion.div>
                     </motion.div>
                     <div className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">
-                      {countedStats[index]}{stat.suffix}
+                      {stat.value}{stat.suffix}
                     </div>
                     <div className="text-sm text-gray-600 dark:text-gray-400 font-medium">{stat.label}</div>
                   </motion.div>
@@ -292,7 +284,7 @@ export default function About() {
                   <FaGlobe className="w-8 h-8 text-white" />
                 </motion.div>
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white ">Our Mission</h2>
-                <div className='w-20 h-2 mb-4 bg-amber-600 rounded-full'></div>
+                <div className="w-20 h-2 mb-4 bg-amber-600 rounded-full"></div>
                 <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-4">
                   At UrbanNEST, we're dedicated to helping individuals and families find their
                   perfect home or commercial space. We believe that everyone deserves a comfortable, safe, and
@@ -318,7 +310,7 @@ export default function About() {
                   <FaChartLine className="w-8 h-8 text-white" />
                 </motion.div>
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Our Vision</h2>
-                <div className='w-20 h-2 mb-4 bg-amber-600 rounded-full'></div>
+                <div className="w-20 h-2 mb-4 bg-amber-600 rounded-full"></div>
                 <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-4">
                   To revolutionize the real estate market by creating a transparent, efficient,
                   and user-friendly platform that makes finding and managing properties a seamless experience.

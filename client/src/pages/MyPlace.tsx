@@ -1,4 +1,5 @@
 import { Heart, Trash2 } from 'lucide-react';
+
 import { motion } from 'framer-motion';
 
 const MyPlace = () => {

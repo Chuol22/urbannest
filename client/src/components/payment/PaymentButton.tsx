@@ -1,8 +1,11 @@
 // client/src/components/payment/PaymentButton.tsx
+
 import React, { useState } from 'react';
-import paymentService, { PaymentData } from '../../services/paymentService';
-import { Loader2, CreditCard } from 'lucide-react';
+
+import { CreditCard, Loader2 } from 'lucide-react';
+
 import { useAuth } from '../../context/AuthContext';
+import { paymentService, type PaymentData } from '../../services/paymentService';
 
 interface PaymentButtonProps {
   amount: number;
@@ -27,18 +30,18 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
 }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [showPaymentForm, setShowPaymentForm] = useState(false);
-  
+
   // Get current user info from your auth context
   // This assumes you have a useAuth hook
   const { user } = useAuth(); // You'll need to import this
-  
+
   const handlePaymentClick = () => {
     setShowPaymentForm(true);
   };
-  
+
   const handleConfirmPayment = async () => {
     setIsProcessing(true);
-    
+
     // Prepare payment data
     const paymentData: PaymentData = {
       amount: amount,
@@ -49,20 +52,20 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
       title: title,
       description: description
     };
-    
+
     // Initialize payment
     const result = await paymentService.initializePayment(paymentData);
-    
+
     if (result.success && onSuccess) {
       onSuccess(result.transactionReference || '');
     } else if (!result.success && onFailure) {
       onFailure(result.error);
     }
-    
+
     setIsProcessing(false);
     setShowPaymentForm(false);
   };
-  
+
   // Listen for payment events
   React.useEffect(() => {
     const handlePaymentSuccess = (event: any) => {
@@ -71,23 +74,23 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
         onSuccess(event.detail.tx_ref);
       }
     };
-    
+
     const handlePaymentFailure = (event: any) => {
       console.log('Payment failure event received:', event.detail);
       if (onFailure) {
         onFailure(event.detail.error);
       }
     };
-    
+
     window.addEventListener('paymentSuccess', handlePaymentSuccess);
     window.addEventListener('paymentFailure', handlePaymentFailure);
-    
+
     return () => {
       window.removeEventListener('paymentSuccess', handlePaymentSuccess);
       window.removeEventListener('paymentFailure', handlePaymentFailure);
     };
   }, [onSuccess, onFailure]);
-  
+
   return (
     <>
       <button
@@ -110,7 +113,7 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
           </>
         )}
       </button>
-      
+
       {/* Payment Modal */}
       {showPaymentForm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -126,7 +129,7 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
                 ✕
               </button>
             </div>
-            
+
             <div className="mb-6">
               <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg mb-4">
                 <p className="text-sm text-gray-600 dark:text-gray-300">Amount to Pay</p>
@@ -134,11 +137,11 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
                   ETB {(amount ?? 0).toLocaleString()}
                 </p>
               </div>
-              
+
               <p className="text-gray-600 dark:text-gray-300 mb-4">
                 {description}
               </p>
-              
+
               <div className="bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg mb-4">
                 <p className="text-sm text-yellow-800 dark:text-yellow-300">
                   <strong>Available Payment Methods:</strong>
@@ -151,10 +154,10 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
                 </ul>
               </div>
             </div>
-            
+
             {/* Chapa payment container - The form will be injected here */}
             <div id="chapa-payment-container"></div>
-            
+
             <button
               onClick={handleConfirmPayment}
               disabled={isProcessing}

@@ -1,14 +1,17 @@
 // client/src/pages/CreateListing.tsx
+
 import React, { useState } from 'react';
-import ListingPricing from '../components/listings/ListingPricing';
-import SubscriptionPlans from '../components/subscriptions/SubscriptionPlans';
-import BoostOptions from '../components/boosts/BoostOptions';
-import AgentDashboard from '../components/subscriptions/AgentDashboard';
+
+import { useAuth } from '../context/AuthContext';
+
+import { paymentService } from '../services/paymentService';
+import { useBoosts } from '../hooks/useBoosts';
 import { useListings } from '../hooks/useListings';
 import { useSubscription } from '../hooks/useSubscription';
-import { useBoosts } from '../hooks/useBoosts';
-import { useAuth } from '../context/AuthContext';
-import { paymentService } from '../services/paymentService';
+import BoostOptions from '../components/boosts/BoostOptions';
+import AgentDashboard from '../components/subscriptions/AgentDashboard';
+import ListingPricing from '../components/listings/ListingPricing';
+import SubscriptionPlans from '../components/subscriptions/SubscriptionPlans';
 
 const CreateListing = () => {
   const [step, setStep] = useState(1);

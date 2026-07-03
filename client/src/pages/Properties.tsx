@@ -1,15 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import {
-  FaFilter, FaTh, FaList, FaMapMarkerAlt, FaBed, FaTimes,
-  FaChevronDown, FaChevronUp, FaHome, FaSortAmountDown,
-} from 'react-icons/fa';
-import { ChevronRight, Home as HomeIcon, Search, Filter } from 'lucide-react';
-import { type Variants } from 'framer-motion';
-import { PropertyGrid } from '../components/property/PropertyGrid';
-import { PropertyFilters } from '../components/property/PropertyFilters';
+
+import { AnimatePresence, type Variants, motion } from 'framer-motion';
+import { BedIcon, MapPin } from 'lucide-react';
+import { FaChevronDown, FaChevronUp, FaFilter, FaHome, FaList, FaSortAmountDown, FaTh, FaTimes } from 'react-icons/fa';
+
 import { useProperties } from '../hooks/useProperties';
+
+import { PropertyFilters } from '../components/property/PropertyFilters';
+import { PropertyGrid } from '../components/property/PropertyGrid';
 import { Loader } from '../components/ui/Loader';
 
 // ─── Animation variants ───────────────────────────────────────────────────────
@@ -25,19 +24,19 @@ const fadeUp: Variants = {
 
 // ─── Hero background images keyed by property type ───────────────────────────
 const HERO_IMAGES: Record<string, string> = {
-  Rent:     'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1600&q=80&fit=crop',
-  Sale:     'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1600&q=80&fit=crop',
+  Rent: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1600&q=80&fit=crop',
+  Sale: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1600&q=80&fit=crop',
   Commercial: 'https://images.unsplash.com/photo-1486325212027-8081e485255e?w=1600&q=80&fit=crop',
-  Luxury:   'https://images.unsplash.com/photo-1613977257363-707ba9348227?w=1600&q=80&fit=crop',
-  default:  'https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=1600&q=80&fit=crop',
+  Luxury: 'https://images.unsplash.com/photo-1613977257363-707ba9348227?w=1600&q=80&fit=crop',
+  default: 'https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=1600&q=80&fit=crop',
 };
 
 // ─── Quick-filter pill data ───────────────────────────────────────────────────
 const QUICK_FILTERS = [
-  { label: 'For Rent',    params: { listingType: 'rent' } },
-  { label: 'For Sale',    params: { listingType: 'sale' } },
-  { label: 'Commercial',  params: { category: 'commercial' } },
-  { label: 'Luxury',      params: { category: 'luxury' } },
+  { label: 'For Rent', params: { listingType: 'rent' } },
+  { label: 'For Sale', params: { listingType: 'sale' } },
+  { label: 'Commercial', params: { category: 'commercial' } },
+  { label: 'Luxury', params: { category: 'luxury' } },
 ];
 
 export default function Properties() {
@@ -55,30 +54,30 @@ export default function Properties() {
     isFavorite,
   } = useProperties({ autoFetch: false });
 
-  const [showFilters, setShowFilters]   = useState(false);
-  const [viewMode, setViewMode]         = useState<'grid' | 'list'>('grid');
-  const [initialLoad, setInitialLoad]   = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [initialLoad, setInitialLoad] = useState(true);
   const [showSortMenu, setShowSortMenu] = useState(false);
-  const [sortBy, setSortBy]             = useState('newest');
-  const [heroLoaded, setHeroLoaded]     = useState(false);
+  const [sortBy, setSortBy] = useState('newest');
+  const [heroLoaded, setHeroLoaded] = useState(false);
   const [headerHeight, setHeaderHeight] = useState(0);
 
   const sortOptions = [
-    { value: 'newest',     label: 'Newest First' },
-    { value: 'price_low',  label: 'Price: Low to High' },
+    { value: 'newest', label: 'Newest First' },
+    { value: 'price_low', label: 'Price: Low to High' },
     { value: 'price_high', label: 'Price: High to Low' },
-    { value: 'popular',    label: 'Most Popular' },
-    { value: 'rating',     label: 'Highest Rated' },
+    { value: 'popular', label: 'Most Popular' },
+    { value: 'rating', label: 'Highest Rated' },
   ];
 
   // ── URL → filters on first load ──────────────────────────────────────────
   const mapPropertyType = (type: string | null) => {
     switch (type) {
-      case 'rent':       return { listingType: 'rent' };
-      case 'sale':       return { listingType: 'sale' };
+      case 'rent': return { listingType: 'rent' };
+      case 'sale': return { listingType: 'sale' };
       case 'commercial': return { category: 'commercial' };
-      case 'luxury':     return { category: 'luxury' };
-      default:           return {};
+      case 'luxury': return { category: 'luxury' };
+      default: return {};
     }
   };
 
@@ -86,11 +85,11 @@ export default function Properties() {
     if (initialLoad) {
       const urlFilters: any = {
         ...mapPropertyType(searchParams.get('type')),
-        ...(searchParams.get('location')  && { location:  searchParams.get('location') }),
-        ...(searchParams.get('minPrice')  && { minPrice:  parseInt(searchParams.get('minPrice')!) }),
-        ...(searchParams.get('maxPrice')  && { maxPrice:  parseInt(searchParams.get('maxPrice')!) }),
-        ...(searchParams.get('bedrooms')  && { bedrooms:  parseInt(searchParams.get('bedrooms')!) }),
-        ...(searchParams.get('page')      && { page:      parseInt(searchParams.get('page')!) }),
+        ...(searchParams.get('location') && { location: searchParams.get('location') }),
+        ...(searchParams.get('minPrice') && { minPrice: parseInt(searchParams.get('minPrice')!) }),
+        ...(searchParams.get('maxPrice') && { maxPrice: parseInt(searchParams.get('maxPrice')!) }),
+        ...(searchParams.get('bedrooms') && { bedrooms: parseInt(searchParams.get('bedrooms')!) }),
+        ...(searchParams.get('page') && { page: parseInt(searchParams.get('page')!) }),
       };
       if (Object.keys(urlFilters).length > 0) setFilters(urlFilters);
       setInitialLoad(false);
@@ -101,14 +100,14 @@ export default function Properties() {
   useEffect(() => {
     if (!initialLoad) {
       const p: any = {};
-      if (filters.listingType)              p.type      = filters.listingType;
-      if (filters.category === 'commercial') p.type     = 'commercial';
-      if (filters.category === 'luxury')     p.type     = 'luxury';
-      if (filters.location)                  p.location  = filters.location;
-      if (filters.minPrice)                  p.minPrice  = filters.minPrice;
-      if (filters.maxPrice)                  p.maxPrice  = filters.maxPrice;
-      if (filters.bedrooms)                  p.bedrooms  = filters.bedrooms;
-      if (filters.page && filters.page > 1)  p.page      = filters.page;
+      if (filters.listingType) p.type = filters.listingType;
+      if (filters.category === 'commercial') p.type = 'commercial';
+      if (filters.category === 'luxury') p.type = 'luxury';
+      if (filters.location) p.location = filters.location;
+      if (filters.minPrice) p.minPrice = filters.minPrice;
+      if (filters.maxPrice) p.maxPrice = filters.maxPrice;
+      if (filters.bedrooms) p.bedrooms = filters.bedrooms;
+      if (filters.page && filters.page > 1) p.page = filters.page;
       setSearchParams(p, { replace: true });
     }
   }, [filters, setSearchParams, initialLoad]);
@@ -154,39 +153,39 @@ export default function Properties() {
 
   const getPageTitle = () => {
     const type = getCurrentPropertyType();
-    const loc  = filters.location;
+    const loc = filters.location;
     const labels: Record<string, string> = {
-      Rent:       'Rental Properties',
-      Sale:       'Properties for Sale',
+      Rent: 'Rental Properties',
+      Sale: 'Properties for Sale',
       Commercial: 'Commercial Spaces',
-      Luxury:     'Luxury Properties',
-      default:    'All Properties',
+      Luxury: 'Luxury Properties',
+      default: 'All Properties',
     };
     const label = labels[type] ?? labels.default;
     return loc ? `${label} in ${loc}` : `Find Your Perfect ${label === 'All Properties' ? 'Home' : label}`;
   };
 
   const getPageDescription = () => {
-    const type  = getCurrentPropertyType();
+    const type = getCurrentPropertyType();
     const total = pagination.total ?? 0;
     const map: Record<string, string> = {
-      Rent:       `${total.toLocaleString()} rental listings — from cozy studios to spacious family homes.`,
-      Sale:       `${total.toLocaleString()} properties for sale. Your dream home is waiting.`,
+      Rent: `${total.toLocaleString()} rental listings — from cozy studios to spacious family homes.`,
+      Sale: `${total.toLocaleString()} properties for sale. Your dream home is waiting.`,
       Commercial: `${total.toLocaleString()} commercial spaces in prime locations across Ethiopia.`,
-      Luxury:     `${total.toLocaleString()} premium properties. Elegance and comfort, redefined.`,
-      default:    `${total.toLocaleString()} verified listings. Discover your perfect space today.`,
+      Luxury: `${total.toLocaleString()} premium properties. Elegance and comfort, redefined.`,
+      default: `${total.toLocaleString()} verified listings. Discover your perfect space today.`,
     };
     return map[type] ?? map.default;
   };
 
   const getFilterCount = () => {
     let n = 0;
-    if (filters.listingType)  n++;
-    if (filters.category)     n++;
-    if (filters.location)     n++;
-    if (filters.minPrice)     n++;
-    if (filters.maxPrice)     n++;
-    if (filters.bedrooms)     n++;
+    if (filters.listingType) n++;
+    if (filters.category) n++;
+    if (filters.location) n++;
+    if (filters.minPrice) n++;
+    if (filters.maxPrice) n++;
+    if (filters.bedrooms) n++;
     if (filters.propertyType) n++;
     return n;
   };
@@ -216,9 +215,8 @@ export default function Properties() {
             <div className="absolute inset-0 bg-blue-600 animate-pulse" />
           )}
           <div
-            className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${
-              heroLoaded ? 'opacity-100' : 'opacity-0'
-            }`}
+            className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${heroLoaded ? 'opacity-100' : 'opacity-0'
+              }`}
             style={{
               backgroundImage: `url(${heroSrc})`,
               backgroundSize: 'cover',
@@ -249,7 +247,7 @@ export default function Properties() {
               {/* Category badge */}
               <motion.div variants={fadeUp} className="mb-6">
                 <span className="inline-flex items-center gap-2 px-6 py-2 rounded-2xl bg-white/10 border border-white/20 text-white text-sm font-bold backdrop-blur-md uppercase tracking-wider">
-                  
+
                   {activeType === 'default' ? 'UrbanNEST Listings' : activeType + ' Properties'}
                 </span>
               </motion.div>
@@ -279,18 +277,17 @@ export default function Properties() {
                 {QUICK_FILTERS.map((qf) => {
                   const isActive =
                     (qf.params as any).listingType === filters.listingType ||
-                    (qf.params as any).category    === filters.category;
+                    (qf.params as any).category === filters.category;
                   return (
                     <motion.button
                       key={qf.label}
                       whileHover={{ scale: 1.05, y: -4 }}
                       whileTap={{ scale: 0.97 }}
                       onClick={() => setFilters({ ...filters, ...(qf.params as any) })}
-                      className={`px-8 py-3 rounded-2xl text-sm font-bold transition-all duration-300 border ${
-                        isActive
-                          ? 'bg-amber-600 border-amber-600 text-white shadow-xl shadow-amber-600/30'
-                          : 'bg-white/10 border-white/20 text-white hover:bg-white/20 hover:border-white/40 backdrop-blur-md'
-                      }`}
+                      className={`px-8 py-3 rounded-2xl text-sm font-bold transition-all duration-300 border ${isActive
+                        ? 'bg-amber-600 border-amber-600 text-white shadow-xl shadow-amber-600/30'
+                        : 'bg-white/10 border-white/20 text-white hover:bg-white/20 hover:border-white/40 backdrop-blur-md'
+                        }`}
                     >
                       {qf.label}
                     </motion.button>
@@ -349,7 +346,7 @@ export default function Properties() {
                 {filters.location && (
                   <FilterBadge
                     color="blue"
-                    icon={<FaMapMarkerAlt size={10} />}
+                    icon={<MapPin size={10} />}
                     label={filters.location}
                     onRemove={() => setFilters({ ...filters, location: undefined })}
                   />
@@ -371,7 +368,7 @@ export default function Properties() {
                 {filters.bedrooms && (
                   <FilterBadge
                     color="indigo"
-                    icon={<FaBed size={10} />}
+                    icon={<BedIcon size={10} />}
                     label={`${filters.bedrooms}+ Beds`}
                     onRemove={() => setFilters({ ...filters, bedrooms: undefined })}
                   />
@@ -398,11 +395,10 @@ export default function Properties() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => setShowFilters(!showFilters)}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 ${
-                  showFilters
-                    ? 'bg-amber-600 text-white shadow-md shadow-amber-500/25'
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-amber-50 dark:hover:bg-gray-600 hover:text-amber-700 dark:hover:text-amber-400'
-                }`}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 ${showFilters
+                  ? 'bg-amber-600 text-white shadow-md shadow-amber-500/25'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-amber-50 dark:hover:bg-gray-600 hover:text-amber-700 dark:hover:text-amber-400'
+                  }`}
               >
                 <motion.div
                   animate={{ rotate: showFilters ? 180 : 0 }}
@@ -442,11 +438,10 @@ export default function Properties() {
                         <button
                           key={opt.value}
                           onClick={() => handleSortChange(opt.value)}
-                          className={`block w-full text-left px-4 py-2.5 text-sm transition-colors ${
-                            sortBy === opt.value
-                              ? 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 font-semibold'
-                              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
-                          }`}
+                          className={`block w-full text-left px-4 py-2.5 text-sm transition-colors ${sortBy === opt.value
+                            ? 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 font-semibold'
+                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                            }`}
                         >
                           {opt.label}
                         </button>
@@ -472,11 +467,10 @@ export default function Properties() {
                   whileTap={{ scale: 0.9 }}
                   onClick={() => setViewMode('grid')}
                   title="Grid view"
-                  className={`p-2 rounded-lg transition-all duration-200 ${
-                    viewMode === 'grid'
-                      ? 'bg-white dark:bg-gray-600 text-amber-600 dark:text-amber-400 shadow-sm'
-                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-                  }`}
+                  className={`p-2 rounded-lg transition-all duration-200 ${viewMode === 'grid'
+                    ? 'bg-white dark:bg-gray-600 text-amber-600 dark:text-amber-400 shadow-sm'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+                    }`}
                 >
                   <FaTh size={16} />
                 </motion.button>
@@ -485,11 +479,10 @@ export default function Properties() {
                   whileTap={{ scale: 0.9 }}
                   onClick={() => setViewMode('list')}
                   title="List view"
-                  className={`p-2 rounded-lg transition-all duration-200 ${
-                    viewMode === 'list'
-                      ? 'bg-white dark:bg-gray-600 text-amber-600 dark:text-amber-400 shadow-sm'
-                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-                  }`}
+                  className={`p-2 rounded-lg transition-all duration-200 ${viewMode === 'list'
+                    ? 'bg-white dark:bg-gray-600 text-amber-600 dark:text-amber-400 shadow-sm'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+                    }`}
                 >
                   <FaList size={16} />
                 </motion.button>
@@ -543,7 +536,7 @@ export default function Properties() {
             whileHover={{ y: -4 }}
             className="text-center py-20 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700"
           >
-            <motion.div 
+            <motion.div
               className="w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-5"
               animate={{ y: [0, -10, 0] }}
               transition={{ repeat: Infinity, duration: 2 }}
@@ -586,9 +579,9 @@ export default function Properties() {
 
 // ─── Reusable filter badge ────────────────────────────────────────────────────
 const COLOR_MAP: Record<string, string> = {
-  green:  'bg-amber-100  dark:bg-amber-900/40  text-amber-800  dark:text-amber-300  border-amber-200  dark:border-amber-700',
+  green: 'bg-amber-100  dark:bg-amber-900/40  text-amber-800  dark:text-amber-300  border-amber-200  dark:border-amber-700',
   purple: 'bg-gray-100 dark:bg-gray-800/40 text-gray-800 dark:text-gray-300 border-gray-200 dark:border-gray-700',
-  blue:   'bg-gray-100   dark:bg-gray-800/40   text-gray-800   dark:text-gray-300   border-gray-200   dark:border-gray-700',
+  blue: 'bg-gray-100   dark:bg-gray-800/40   text-gray-800   dark:text-gray-300   border-gray-200   dark:border-gray-700',
   orange: 'bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-700',
   indigo: 'bg-gray-100 dark:bg-gray-800/40 text-gray-800 dark:text-gray-300 border-gray-200 dark:border-gray-700',
 };

@@ -1,9 +1,13 @@
 // client/src/components/layout/Navbar.tsx
-import { useState, useRef } from 'react';
+
+import { useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+
 import { useDarkMode } from '../../context/DarkModeContext';
+import { useAuth } from '../../context/AuthContext';
+
 import { LanguageSelector } from '../LanguageSelector';
+
 import logo from '../../assets/images/tl.png';
 import logoDark from '../../assets/images/tl.png';
 

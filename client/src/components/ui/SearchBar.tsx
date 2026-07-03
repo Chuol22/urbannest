@@ -1,6 +1,8 @@
 // src/components/ui/SearchBar.tsx
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { Search, MapPin, Home, X, Loader, Building2, Map as MapIcon } from 'lucide-react';
+
+import { useCallback, useEffect, useRef, useState } from 'react';
+
+import { Building2, Home, Loader, Map as MapIcon, MapPin, Search, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 // Ethiopian Cities Data

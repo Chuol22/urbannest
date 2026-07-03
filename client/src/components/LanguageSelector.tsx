@@ -1,10 +1,11 @@
-"use client";
-
 // Language dropdown — switches site language via Google Translate
-import React, { useState, useRef } from "react";
-import { ChevronDown, Check } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import { useGoogleTranslate } from "../hooks/useGoogleTranslate";
+
+import React, { useState, useRef } from 'react';
+
+import { AnimatePresence, motion } from 'framer-motion';
+import { Check, ChevronDown } from 'lucide-react';
+
+import { useGoogleTranslate } from '../hooks/useGoogleTranslate';
 
 export const LanguageSelector: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);

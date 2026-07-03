@@ -1,5 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
+
 import { motion } from 'framer-motion';
+
 import { Button } from '../ui/Button';
 
 interface NotFoundProps {
@@ -42,9 +44,9 @@ export const NotFound: React.FC<NotFoundProps> = ({
               </Button>
             </Link>
           )}
-          
-          <Button 
-            variant="outline" 
+
+          <Button
+            variant="outline"
             fullWidth
             onClick={() => navigate(-1)}
           >

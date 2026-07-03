@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-// Import logo at the top
+
 import logo from '../../assets/images/tl.png';
 
 const Footer = () => {
@@ -12,9 +12,9 @@ const Footer = () => {
           <div>
             <div className="flex items-center space-x-2 mb-4">
               <div className="w-20 h-20 rounded-lg flex items-center justify-center overflow-hidden">
-                <img 
-                  src={logo} 
-                  alt="Tiiplongha Logo" 
+                <img
+                  src={logo}
+                  alt="Tiiplongha Logo"
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -23,7 +23,7 @@ const Footer = () => {
               Your perfect home finder solution. Find your dream home with Tiiplongha.
             </p>
           </div>
-          
+
           {/* Quick Links */}
           <div>
             <h4 className="font-semibold text-lg mb-4">Quick Links</h4>
@@ -50,7 +50,7 @@ const Footer = () => {
               </li>
             </ul>
           </div>
-          
+
           {/* Support */}
           <div>
             <h4 className="font-semibold text-lg mb-4">Support</h4>
@@ -77,7 +77,7 @@ const Footer = () => {
               </li>
             </ul>
           </div>
-          
+
           {/* Contact Info */}
           <div>
             <h4 className="font-semibold text-lg mb-4">Contact Us</h4>
@@ -102,7 +102,7 @@ const Footer = () => {
                 <span>123 street Bole Main Road, Addis  Ababa</span>
               </li>
             </ul>
-            
+
             {/* Social Media Links */}
             <div className="flex space-x-4 mt-4">
               <a href="#" className="text-gray-400 hover:text-[#ee9f0d] transition-colors">
@@ -123,7 +123,7 @@ const Footer = () => {
             </div>
           </div>
         </div>
-        
+
         {/* Copyright */}
         <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm">
           <p>&copy; {new Date().getFullYear()} UrbanNest. All rights reserved.</p>

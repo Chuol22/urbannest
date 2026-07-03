@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+
 import { Check, Star } from 'lucide-react';
+import { motion } from 'framer-motion';
+
 import { LISTING_PRICES, formatPrice } from '../../utils/pricing';
 
 interface ListingPricingProps {
@@ -31,8 +33,8 @@ const ListingPricing: React.FC<ListingPricingProps> = ({
         <motion.div
           whileHover={{ scale: 1.02 }}
           className={`relative p-6 rounded-2xl border-2 transition-all cursor-pointer ${selectedType === 'normal'
-              ? 'border-green-500 bg-green-50'
-              : 'border-gray-200 hover:border-green-300'
+            ? 'border-green-500 bg-green-50'
+            : 'border-gray-200 hover:border-green-300'
             }`}
           onClick={() => handleSelect('normal')}
         >
@@ -74,8 +76,8 @@ const ListingPricing: React.FC<ListingPricingProps> = ({
         <motion.div
           whileHover={{ scale: 1.02 }}
           className={`relative p-6 rounded-2xl border-2 transition-all cursor-pointer ${selectedType === 'featured'
-              ? 'border-yellow-500 bg-yellow-50'
-              : 'border-gray-200 hover:border-yellow-300'
+            ? 'border-yellow-500 bg-yellow-50'
+            : 'border-gray-200 hover:border-yellow-300'
             }`}
           onClick={() => handleSelect('featured')}
         >

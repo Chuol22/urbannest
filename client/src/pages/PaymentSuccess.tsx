@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+
 import { CheckCircle } from 'lucide-react';
-import { Link } from 'react-router-dom';
+
 import { paymentService } from '../services/paymentService';
 
 const PaymentSuccess: React.FC = () => {

@@ -1,5 +1,7 @@
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useEffect, useState } from 'react';
+
+import { AnimatePresence, motion } from 'framer-motion';
+
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 
@@ -28,7 +30,7 @@ const PROPERTY_TYPES = [
   { value: 'house', label: 'House' },
   { value: 'condo', label: 'Condo' },
   { value: 'studio', label: 'Studio' },
-  { valie: 'commercial', label: 'commerical building'},
+  { valie: 'commercial', label: 'commerical building' },
   { value: 'townhouse', label: 'Townhouse' },
 ];
 
@@ -73,7 +75,7 @@ export const PropertyFilters: React.FC<PropertyFiltersProps> = ({
   const handleChange = (key: keyof FilterOptions, value: any) => {
     const updatedFilters = { ...localFilters, [key]: value };
     setLocalFilters(updatedFilters);
-    
+
     // Auto-apply for basic filters
     if (!showAdvanced) {
       onFilterChange(updatedFilters);

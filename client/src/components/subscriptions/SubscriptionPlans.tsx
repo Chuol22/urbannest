@@ -1,8 +1,10 @@
 import React from 'react';
+
+import { Check, Crown, Shield, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { Check, Crown, Zap, Shield } from 'lucide-react';
-import { SUBSCRIPTION_PRICES, formatPrice } from '../../utils/pricing';
+
 import { Button } from '../ui/Button';
+import { SUBSCRIPTION_PRICES, formatPrice } from '../../utils/pricing';
 
 interface SubscriptionPlansProps {
   onSubscribe: (plan: 'basic' | 'pro' | 'premium', price: number) => void;

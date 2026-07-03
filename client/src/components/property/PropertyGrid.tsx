@@ -1,7 +1,8 @@
 // src/components/property/PropertyGrid.tsx
-import PropertyCard from './PropertyCard';
-import { Loader } from '../ui/Loader';
+
 import { Button } from '../ui/Button';
+import { Loader } from '../ui/Loader';
+import PropertyCard from './PropertyCard';
 
 interface Property {
   id: string;
@@ -98,7 +99,7 @@ export const PropertyGrid: React.FC<PropertyGridProps> = ({
             >
               Previous
             </Button>
-            
+
             <div className="flex items-center space-x-1">
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                 <button
@@ -116,7 +117,7 @@ export const PropertyGrid: React.FC<PropertyGridProps> = ({
                 </button>
               ))}
             </div>
-            
+
             <Button
               variant="outline"
               size="sm"
