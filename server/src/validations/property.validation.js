@@ -1,30 +1,40 @@
 import { body, param, query } from 'express-validator';
 
+const VALID_PROPERTY_TYPES = [
+  'apartment', 'house', 'office', 'land', 'warehouse',
+  'hotel', 'restaurant_space', 'shop_space', 'shopping_mall_space',
+  'factory_space', 'condo', 'townhouse', 'commercial', 'studio', 'other'
+];
+
+const VALID_PURPOSES = [
+  'sale', 'rent', 'lease', 'short_term_rental', 'long_term_rental', 'other'
+];
+
 // Create property validation schema
 export const createPropertySchema = [
   body('title')
     .notEmpty()
     .withMessage('Title is required')
-    .isLength({ min: 5, max: 200 })
-    .withMessage('Title must be between 5 and 200 characters'),
+    .isLength({ min: 3, max: 200 })
+    .withMessage('Title must be between 3 and 200 characters'),
   
   body('description')
     .notEmpty()
     .withMessage('Description is required')
-    .isLength({ min: 20, max: 5000 })
-    .withMessage('Description must be between 20 and 5000 characters'),
+    .isLength({ min: 5, max: 5000 })
+    .withMessage('Description must be between 5 and 5000 characters'),
   
   body('property_type')
     .notEmpty()
     .withMessage('Property type is required')
-    .isIn(['apartment', 'house', 'condo', 'townhouse', 'land', 'commercial', 'studio'])
+    .isIn(VALID_PROPERTY_TYPES)
     .withMessage('Invalid property type'),
   
   body('purpose')
     .notEmpty()
     .withMessage('Purpose is required')
-    .isIn(['rent', 'sale'])
-    .withMessage('Purpose must be either rent or sale'),
+    .isIn(VALID_PURPOSES)
+    .withMessage('Invalid property purpose'),
   
   body('price')
     .notEmpty()
@@ -39,41 +49,39 @@ export const createPropertySchema = [
   
   body('bathrooms')
     .optional()
+    .isFloat({ min: 0 })
+    .withMessage('Bathrooms must be a positive number'),
+
+  body('sitting_area')
+    .optional()
     .isInt({ min: 0 })
-    .withMessage('Bathrooms must be a positive integer'),
+    .withMessage('Sitting area must be a positive integer'),
+
+  body('kitchen')
+    .optional(),
+
+  body('currency')
+    .optional()
+    .isIn(['ETB', 'KES', 'UGX', 'SOS', 'NGN', 'USD', 'SSP', 'SDG', 'etc'])
+    .withMessage('Invalid currency'),
   
   body('area')
-    .notEmpty()
-    .withMessage('Area is required')
+    .optional()
     .isFloat({ min: 0 })
     .withMessage('Area must be a positive number'),
   
-  body('address')
-    .notEmpty()
-    .withMessage('Address is required')
-    .isObject()
-    .withMessage('Address must be an object'),
-  
-  body('address.street')
-    .notEmpty()
-    .withMessage('Street address is required'),
-  
-  body('address.city')
-    .notEmpty()
-    .withMessage('City is required'),
-  
-  body('address.state')
-    .notEmpty()
-    .withMessage('State is required'),
-  
-  body('address.country')
-    .notEmpty()
-    .withMessage('Country is required'),
-  
-  body('address.zip_code')
+  body('locationId')
+    .optional({ nullable: true, checkFalsy: true })
+    .isUUID()
+    .withMessage('Invalid location ID format'),
+
+  body('location')
     .optional()
-    .matches(/^[0-9]{5,10}$/)
-    .withMessage('Invalid zip code format'),
+    .isObject()
+    .withMessage('Location must be an object'),
+
+  body('address')
+    .optional(),
   
   body('coordinates')
     .optional()
@@ -91,19 +99,12 @@ export const createPropertySchema = [
     .withMessage('Invalid longitude'),
   
   body('amenities')
-    .optional()
-    .isArray()
-    .withMessage('Amenities must be an array'),
+    .optional(),
   
   body('images')
     .optional()
     .isArray()
     .withMessage('Images must be an array'),
-  
-  body('images.*.url')
-    .optional()
-    .isURL()
-    .withMessage('Invalid image URL'),
   
   body('features')
     .optional()
@@ -112,7 +113,7 @@ export const createPropertySchema = [
   
   body('status')
     .optional()
-    .isIn(['available', 'pending', 'sold', 'rented', 'off_market'])
+    .isIn(['available', 'pending', 'sold', 'rented', 'off_market', 'coming_soon', 'price_reduced', 'withdrawn', 'leased'])
     .withMessage('Invalid property status'),
   
   body('availability_date')
@@ -134,23 +135,28 @@ export const updatePropertySchema = [
   
   body('title')
     .optional()
-    .isLength({ min: 5, max: 200 })
-    .withMessage('Title must be between 5 and 200 characters'),
+    .isLength({ min: 3, max: 200 })
+    .withMessage('Title must be between 3 and 200 characters'),
   
   body('description')
     .optional()
-    .isLength({ min: 20, max: 5000 })
-    .withMessage('Description must be between 20 and 5000 characters'),
+    .isLength({ min: 5, max: 5000 })
+    .withMessage('Description must be between 5 and 5000 characters'),
   
   body('property_type')
     .optional()
-    .isIn(['apartment', 'house', 'condo', 'townhouse', 'land', 'commercial', 'studio'])
+    .isIn(VALID_PROPERTY_TYPES)
     .withMessage('Invalid property type'),
   
+  body('purpose')
+    .optional()
+    .isIn(VALID_PURPOSES)
+    .withMessage('Invalid property purpose'),
+
   body('listing_type')
     .optional()
-    .isIn(['rent', 'sale'])
-    .withMessage('Listing type must be either rent or sale'),
+    .isIn(VALID_PURPOSES)
+    .withMessage('Listing type must be a valid purpose'),
   
   body('price')
     .optional()
@@ -164,8 +170,13 @@ export const updatePropertySchema = [
   
   body('bathrooms')
     .optional()
+    .isFloat({ min: 0 })
+    .withMessage('Bathrooms must be a positive number'),
+
+  body('sitting_area')
+    .optional()
     .isInt({ min: 0 })
-    .withMessage('Bathrooms must be a positive integer'),
+    .withMessage('Sitting area must be a positive integer'),
   
   body('area')
     .optional()
@@ -173,13 +184,16 @@ export const updatePropertySchema = [
     .withMessage('Area must be a positive number'),
   
   body('address')
+    .optional(),
+
+  body('location')
     .optional()
     .isObject()
-    .withMessage('Address must be an object'),
+    .withMessage('Location must be an object'),
   
   body('status')
     .optional()
-    .isIn(['available', 'pending', 'sold', 'rented', 'off_market'])
+    .isIn(['available', 'pending', 'sold', 'rented', 'off_market', 'coming_soon', 'price_reduced', 'withdrawn', 'leased'])
     .withMessage('Invalid property status'),
   
   body('is_featured')
@@ -234,19 +248,24 @@ export const getPropertiesQuerySchema = [
   
   query('bathrooms')
     .optional()
-    .isInt({ min: 0 })
-    .withMessage('Bathrooms must be a positive integer')
-    .toInt(),
+    .isFloat({ min: 0 })
+    .withMessage('Bathrooms must be a positive number')
+    .toFloat(),
   
   query('property_type')
     .optional()
-    .isIn(['apartment', 'house', 'condo', 'townhouse', 'land', 'commercial', 'studio'])
+    .isIn(VALID_PROPERTY_TYPES)
     .withMessage('Invalid property type'),
   
+  query('purpose')
+    .optional()
+    .isIn(VALID_PURPOSES)
+    .withMessage('Invalid purpose'),
+
   query('listing_type')
     .optional()
-    .isIn(['rent', 'sale'])
-    .withMessage('Listing type must be either rent or sale'),
+    .isIn(VALID_PURPOSES)
+    .withMessage('Listing type must be a valid purpose'),
   
   query('city')
     .optional()

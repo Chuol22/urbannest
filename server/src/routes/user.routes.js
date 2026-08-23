@@ -36,7 +36,9 @@ try {
     getWrittenReviews: (req, res) => res.status(501).json({ success: false, message: 'Not implemented' }),
     blockUser: (req, res) => res.status(501).json({ success: false, message: 'Not implemented' }),
     unblockUser: (req, res) => res.status(501).json({ success: false, message: 'Not implemented' }),
-    getBlockedUsers: (req, res) => res.status(501).json({ success: false, message: 'Not implemented' })
+    getBlockedUsers: (req, res) => res.status(501).json({ success: false, message: 'Not implemented' }),
+    uploadVerificationDocument: (req, res) => res.status(501).json({ success: false, message: 'Not implemented' }),
+    getVerificationStatus: (req, res) => res.status(501).json({ success: false, message: 'Not implemented' }),
   };
 }
 
@@ -152,6 +154,27 @@ router.post('/avatar',
 router.delete('/avatar', 
   authMiddleware.verifyToken, 
   safeHandler(userController.removeAvatar)
+);
+
+// ==================== Verification Routes ====================
+
+/**
+ * @route POST /api/users/verification-documents
+ * Upload verification document for broker/landlord approval
+ */
+router.post('/verification-documents',
+  authMiddleware.verifyToken,
+  upload.single('document'),
+  safeHandler(userController.uploadVerificationDocument)
+);
+
+/**
+ * @route GET /api/users/verification-status
+ * Get current user's verification status
+ */
+router.get('/verification-status',
+  authMiddleware.verifyToken,
+  safeHandler(userController.getVerificationStatus)
 );
 
 /**

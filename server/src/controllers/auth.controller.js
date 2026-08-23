@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
 import crypto from 'crypto';
+import totpService from '../services/totp.service.js';
 
 const prisma = new PrismaClient();
 
@@ -48,7 +49,6 @@ class AuthController {
 
       // ========== VALIDATE ALL REQUIRED FIELDS ==========
       const missingFields = [];
-      if (!email) missingFields.push('email');
       if (!phone) missingFields.push('phone');
       if (!password) missingFields.push('password');
       if (!first_name) missingFields.push('first_name');
@@ -59,22 +59,23 @@ class AuthController {
         return res.status(400).json({
           success: false,
           message: `Missing required fields: ${missingFields.join(', ')}`,
-          required_fields: ['email', 'phone', 'password', 'first_name', 'last_name']
+          required_fields: ['phone', 'password', 'first_name', 'last_name']
         });
       }
 
       // Check if user exists
+      const emailQuery = email ? { email: email.toLowerCase() } : null;
       const existingUser = await prisma.user.findFirst({
         where: {
           OR: [
-            { email: email.toLowerCase() },
+            ...(emailQuery ? [emailQuery] : []),
             { phone: phone }
           ]
         }
       });
 
       if (existingUser) {
-        console.log('User already exists:', email);
+        console.log('User already exists');
         return res.status(409).json({
           success: false,
           message: 'User with this email or phone already exists'
@@ -91,7 +92,7 @@ class AuthController {
       // Create user with ALL required fields
       const user = await prisma.user.create({
         data: {
-          email: email.toLowerCase(),
+          email: email ? email.toLowerCase() : null,
           phone: phone,  // REQUIRED field
           password_hash: hashedPassword,
           first_name: first_name,  // REQUIRED field
@@ -223,6 +224,28 @@ class AuthController {
 
       console.log('✅ Password validated');
 
+      // Check 2FA requirement
+      const totpCode = req.body.two_factor_code || req.body.code || req.body.twoFactorCode;
+
+      if (user.two_factor_enabled) {
+        if (!totpCode) {
+          return res.status(200).json({
+            success: true,
+            requires2FA: true,
+            userId: user.id,
+            message: 'Two-factor authentication code required'
+          });
+        }
+
+        const isTotpValid = totpService.verify(user.two_factor_secret, totpCode);
+        if (!isTotpValid) {
+          return res.status(400).json({
+            success: false,
+            message: 'Invalid authentication code'
+          });
+        }
+      }
+
       // Update last login
       try {
         await prisma.user.update({
@@ -240,7 +263,7 @@ class AuthController {
       const refreshToken = this.generateRefreshToken(user);
 
       // Remove sensitive data
-      const { password_hash, ...userWithoutPassword } = user;
+      const { password_hash, two_factor_secret, ...userWithoutPassword } = user;
 
       res.json({
         success: true,

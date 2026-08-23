@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import { uploadToCloudinary } from '../middleware/upload.cloudinary.js';
 
 const prisma = new PrismaClient();
 
@@ -127,6 +128,11 @@ class UserController {
    * @route POST /api/users/avatar
    * @access Private
    */
+  /**
+   * Upload avatar
+   * @route POST /api/users/avatar
+   * @access Private
+   */
   async uploadAvatar(req, res) {
     try {
       const { id } = req.user;
@@ -138,8 +144,20 @@ class UserController {
         });
       }
 
-      // Assuming you're using a file upload service like Cloudinary
-      const avatarUrl = req.file.path || req.file.location;
+      let avatarUrl = req.file.path || req.file.location;
+      if (!avatarUrl && req.file.buffer) {
+        try {
+          if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY) {
+            const uploaded = await uploadToCloudinary(req.file.buffer, 'avatars');
+            avatarUrl = uploaded.secure_url;
+          } else {
+            avatarUrl = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+          }
+        } catch (uploadErr) {
+          console.warn('Cloudinary upload fallback to data URI:', uploadErr.message);
+          avatarUrl = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+        }
+      }
 
       const user = await prisma.user.update({
         where: { id },
@@ -164,6 +182,114 @@ class UserController {
         success: false,
         message: 'An error occurred uploading avatar'
       });
+    }
+  }
+
+  /**
+   * Upload verification document
+   * @route POST /api/users/verification-documents
+   * @access Private (owner/agent only)
+   */
+  async uploadVerificationDocument(req, res) {
+    try {
+      const { id } = req.user;
+
+      if (!req.file) {
+        return res.status(400).json({
+          success: false,
+          message: 'No document file uploaded'
+        });
+      }
+
+      const user = await prisma.user.findUnique({ where: { id } });
+      if (!user) {
+        return res.status(404).json({ success: false, message: 'User not found' });
+      }
+
+      if (!['owner', 'agent'].includes(user.role)) {
+        return res.status(403).json({
+          success: false,
+          message: 'Only brokers and landlords can upload verification documents'
+        });
+      }
+
+      let documentUrl = req.file.path || req.file.location;
+      if (!documentUrl && req.file.buffer) {
+        try {
+          if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY) {
+            const uploaded = await uploadToCloudinary(req.file.buffer, 'documents', 'auto');
+            documentUrl = uploaded.secure_url;
+          } else {
+            documentUrl = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+          }
+        } catch (uploadErr) {
+          console.warn('Cloudinary upload fallback to data URI:', uploadErr.message);
+          documentUrl = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+        }
+      }
+
+      const updatedUser = await prisma.user.update({
+        where: { id },
+        data: {
+          verification_document_url: documentUrl,
+          verification_status: 'pending_review',
+          is_verified: false, // Reset to false while pending re-review
+          verification_rejection_reason: null
+        },
+        select: {
+          id: true,
+          first_name: true,
+          last_name: true,
+          email: true,
+          verification_status: true,
+          verification_document_url: true
+        }
+      });
+
+      res.json({
+        success: true,
+        message: 'Verification document uploaded successfully. Your account is pending admin review.',
+        data: updatedUser
+      });
+
+    } catch (error) {
+      console.error('Upload verification document error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'An error occurred uploading verification document'
+      });
+    }
+  }
+
+  /**
+   * Get broker verification status
+   * @route GET /api/users/verification-status
+   * @access Private
+   */
+  async getVerificationStatus(req, res) {
+    try {
+      const { id } = req.user;
+
+      const user = await prisma.user.findUnique({
+        where: { id },
+        select: {
+          id: true,
+          is_verified: true,
+          verification_status: true,
+          verification_document_url: true,
+          verification_rejection_reason: true,
+          role: true
+        }
+      });
+
+      if (!user) {
+        return res.status(404).json({ success: false, message: 'User not found' });
+      }
+
+      res.json({ success: true, data: user });
+    } catch (error) {
+      console.error('Get verification status error:', error);
+      res.status(500).json({ success: false, message: 'Failed to get verification status' });
     }
   }
 

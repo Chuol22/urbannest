@@ -16,11 +16,11 @@ const storage = multer.memoryStorage();
 
 // File filter
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg', 'application/pdf'];
   if (allowedTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new Error('Invalid file type. Only JPEG, PNG, and WEBP are allowed.'), false);
+    cb(new Error('Invalid file type. Only PDF, JPEG, PNG, and WEBP are allowed.'), false);
   }
 };
 
@@ -32,17 +32,24 @@ const upload = multer({
 });
 
 // Helper function to upload buffer to Cloudinary
-const uploadToCloudinary = async (fileBuffer, folder = 'properties') => {
+const uploadToCloudinary = async (fileBuffer, folder = 'properties', resourceType = 'auto') => {
   return new Promise((resolve, reject) => {
+    const uploadOptions = {
+      folder: `urbannest/${folder}`,
+      resource_type: resourceType,
+      public_id: `${Date.now()}_${uuidv4()}`
+    };
+
+    // Only apply image transformations if not raw/pdf or auto
+    if (folder === 'properties' || folder === 'avatars') {
+      uploadOptions.transformation = [
+        { width: 1200, height: 800, crop: 'limit', quality: 'auto' },
+        { fetch_format: 'auto' }
+      ];
+    }
+
     const uploadStream = cloudinary.uploader.upload_stream(
-      {
-        folder: `urbannest/${folder}`,
-        transformation: [
-          { width: 1200, height: 800, crop: 'limit', quality: 'auto' },
-          { fetch_format: 'auto' }
-        ],
-        public_id: `${Date.now()}_${uuidv4()}`
-      },
+      uploadOptions,
       (error, result) => {
         if (error) {
           reject(error);

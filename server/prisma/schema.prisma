@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 // ==================== ENUMS ====================
@@ -14,6 +15,12 @@ enum Role {
   owner
   agent
   admin
+}
+
+enum VerificationStatus {
+  pending_review
+  approved
+  rejected
 }
 
 enum PropertyType {
@@ -172,7 +179,9 @@ model User {
   first_name                   String                 @db.VarChar(100)
   last_name                    String                 @db.VarChar(100)
   is_verified                  Boolean                @default(false)
+  verification_status          VerificationStatus     @default(pending_review)
   verification_document_url    String?
+  verification_rejection_reason String?
   avatar_url                   String?
   created_at                   DateTime               @default(now())
   updated_at                   DateTime               @updatedAt
@@ -180,14 +189,19 @@ model User {
   is_active                    Boolean                @default(true)
   role                         Role                   @default(seeker)
 
+  // Two-Factor Authentication fields
+  two_factor_enabled           Boolean                @default(false) @map("two_factor_enabled")
+  two_factor_secret            String?                @map("two_factor_secret") @db.VarChar(255)
   
   // Relations
+  audit_logs                   AuditLog[]             @relation("AdminActions")
   booking_messages             BookingMessage[]
   host_bookings                Booking[]              @relation("HostBookings")
   seeker_bookings              Booking[]              @relation("SeekerBookings")
   owner_conversations          Conversation[]         @relation("OwnerConversations")
   seeker_conversations         Conversation[]         @relation("SeekerConversations")
   favorite_properties          FavoriteProperty[]
+  listing_fee_payments         ListingFeePayment[]
   messages                     Message[]
   payment_methods              PaymentMethodDetail[]
   properties                   Property[]
@@ -208,6 +222,7 @@ model User {
   @@index([phone])
   @@index([is_active])
   @@index([role])
+  @@index([two_factor_enabled])
   @@map("users")
 }
 
@@ -227,10 +242,12 @@ model Property {
   locationId      String?            @db.Uuid
   sitting_area    Int
   currency        Currency           @default(ETB)
-  status          PropertyStatus     @default(available)
+  status          PropertyStatus     @default(pending)
 
   // Additional fields
   is_featured     Boolean            @default(false)
+  listing_fee_paid Boolean           @default(false)
+  listing_rejection_reason String?
   deleted_at      DateTime?
 
   // REMOVED: searchVector (Unsupported type no longer available)
@@ -240,6 +257,7 @@ model Property {
   bookings        Booking[]
   conversations   Conversation[]
   favorited_by    FavoriteProperty[]
+  listing_fee_payments ListingFeePayment[]
   location        Location?          @relation(fields: [locationId], references: [id])
   user            User               @relation(fields: [user_id], references: [id], onDelete: Cascade)
   amenities       PropertyAmenity[]
@@ -256,6 +274,28 @@ model Property {
   @@index([created_at])
   @@index([is_featured])
   @@map("properties")
+}
+
+model ListingFeePayment {
+  id                   String    @id @default(uuid()) @db.Uuid
+  propertyId           String    @map("property_id") @db.Uuid
+  userId               String    @map("user_id") @db.Uuid
+  amount               Float
+  currency             Currency  @default(ETB)
+  chapaTransactionRef  String?   @unique @map("chapa_transaction_ref")
+  chapaCheckoutUrl     String?   @map("chapa_checkout_url")
+  status               String    @default("PENDING") // PENDING | COMPLETED | FAILED
+  paidAt               DateTime? @map("paid_at")
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @updatedAt @map("updated_at")
+
+  property             Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([propertyId])
+  @@index([userId])
+  @@index([status])
+  @@map("listing_fee_payments")
 }
 
 model PropertyPhoto {
@@ -772,4 +812,28 @@ model ReviewSummary {
   @@index([ownerId])
   @@index([customerId])
   @@map("review_summaries")
+}
+
+
+// ==================== AUDIT LOG MODEL ====================
+
+model AuditLog {
+  id              String    @id @default(uuid()) @db.Uuid
+  admin_id        String    @map("admin_id") @db.Uuid
+  action_type     String    @db.VarChar(50)
+  target_resource String    @db.VarChar(50)
+  target_id       String?   @db.Uuid
+  ip_address      String?   @db.VarChar(45)
+  user_agent      String?   @db.VarChar(255)
+  metadata        Json?
+  created_at      DateTime  @default(now()) @map("created_at")
+  
+  admin           User      @relation("AdminActions", fields: [admin_id], references: [id], onDelete: Cascade)
+  
+  @@index([admin_id])
+  @@index([action_type])
+  @@index([target_resource])
+  @@index([target_id])
+  @@index([created_at])
+  @@map("audit_logs")
 }

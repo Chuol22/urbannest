@@ -30,17 +30,20 @@
     "multer": "^2.1.1",
     "nodemailer": "^8.0.3",
     "prisma": "^6.19.3",
+    "qrcode": "^1.5.4",
     "redis": "^5.11.0",
     "sharp": "^0.34.5",
     "socket.io": "^4.8.3",
+    "speakeasy": "^2.0.0",
     "undici-types": "^7.18.2",
     "uuid": "^13.0.0",
     "winston": "^3.19.0",
     "xss-clean": "^0.1.4"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "node server.js"
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "dev": "node server.js",
+    "setup:admin": "node scripts/setupAdmin.js"
   },
   "keywords": [],
   "author": "",

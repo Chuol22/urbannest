@@ -29,14 +29,14 @@ const authMiddleware = {
       // Get token from header or cookie
       const authHeader = req.headers.authorization;
       let token = null;
-      
+
       if (authHeader && authHeader.startsWith('Bearer ')) {
         token = authHeader.split(' ')[1];
       } else if (req.cookies?.accessToken) {
         // Also support cookie-based tokens
         token = req.cookies.accessToken;
       }
-      
+
       if (!token) {
         return res.status(401).json({
           success: false,
@@ -104,6 +104,10 @@ const authMiddleware = {
         });
       }
 
+      // Attach userId and userRole from JWT payload for quick access
+      req.userId = decoded.id;
+      req.userRole = decoded.role;
+
       // Attach complete user info to request
       req.user = {
         id: user.id,
@@ -112,10 +116,10 @@ const authMiddleware = {
         is_verified: user.is_verified,
         is_active: user.is_active
       };
-      
+
       // Attach token for potential refresh
       req.token = token;
-      
+
       next();
 
     } catch (error) {
@@ -167,7 +171,7 @@ const authMiddleware = {
   async refreshToken(req, res) {
     try {
       const { refreshToken } = req.body;
-      
+
       if (!refreshToken) {
         return res.status(401).json({
           success: false,
@@ -270,26 +274,70 @@ const authMiddleware = {
 
   /**
    * Check if user has required roles
+   * Loads fresh user data from database to verify is_active status
    * @param {Array} allowedRoles - Array of allowed roles
    * @returns {Function} Middleware function
    */
   checkRole(allowedRoles) {
-    return (req, res, next) => {
-      if (!req.user) {
-        return res.status(401).json({
+    return async (req, res, next) => {
+      try {
+        // Ensure userId is available from verifyToken middleware
+        if (!req.user || !req.user.id) {
+          return res.status(401).json({
+            success: false,
+            message: 'Access denied. No token provided.'
+          });
+        }
+
+        // Load fresh user data from database to check is_active status
+        const user = await prisma.user.findUnique({
+          where: { id: req.user.id },
+          select: {
+            id: true,
+            role: true,
+            is_active: true,
+            first_name: true,
+            last_name: true,
+            email: true,
+            phone: true,
+            is_verified: true,
+            two_factor_enabled: true
+          }
+        });
+
+        if (!user) {
+          return res.status(401).json({
+            success: false,
+            message: 'User not found.'
+          });
+        }
+
+        // Check if account is deactivated
+        if (!user.is_active) {
+          return res.status(403).json({
+            success: false,
+            message: 'Account is deactivated.'
+          });
+        }
+
+        // Verify user role matches allowed roles
+        if (!allowedRoles.includes(user.role)) {
+          return res.status(403).json({
+            success: false,
+            message: 'Access denied. Admin role required.'
+          });
+        }
+
+        // Attach full user object to req.user
+        req.user = user;
+        next();
+      } catch (error) {
+        console.error('Role check error:', error);
+        return res.status(500).json({
           success: false,
-          message: 'Unauthorized. Please login.'
+          message: 'Authorization check failed.'
         });
       }
-
-      if (!allowedRoles.includes(req.user.role)) {
-        return res.status(403).json({
-          success: false,
-          message: `Access denied. Required role: ${allowedRoles.join(', ')}`
-        });
-      }
-
-      next();
     };
   },
 
@@ -309,7 +357,7 @@ const authMiddleware = {
         }
 
         const ownerId = await getOwnerId(req);
-        
+
         if (req.user.id !== ownerId && req.user.role !== 'admin') {
           return res.status(403).json({
             success: false,
@@ -412,21 +460,21 @@ const authMiddleware = {
    */
   rateLimit(maxAttempts = 5, windowMs = 15 * 60 * 1000) {
     const attempts = new Map();
-    
+
     return (req, res, next) => {
       const key = req.ip + (req.user?.id || '');
       const now = Date.now();
-      
+
       if (!attempts.has(key)) {
         attempts.set(key, []);
       }
-      
+
       const userAttempts = attempts.get(key);
       // Remove old attempts outside window
       while (userAttempts.length && userAttempts[0] < now - windowMs) {
         userAttempts.shift();
       }
-      
+
       if (userAttempts.length >= maxAttempts) {
         return res.status(429).json({
           success: false,
@@ -434,7 +482,7 @@ const authMiddleware = {
           retryAfter: Math.ceil((userAttempts[0] + windowMs - now) / 1000)
         });
       }
-      
+
       userAttempts.push(now);
       next();
     };

@@ -69,4 +69,18 @@ router.get('/:id/photos', propertyController.getPropertyPhotos.bind(propertyCont
 router.delete('/:propertyId/photos/:photoId', authMiddleware.verifyToken, propertyController.deletePropertyPhoto.bind(propertyController));
 router.put('/:propertyId/photos/:photoId/primary', authMiddleware.verifyToken, propertyController.setPrimaryPhoto.bind(propertyController));
 
+// ==================== Listing Fee (Chapa Payment) ====================
+
+// Initialize Chapa payment for listing fee
+router.post('/:id/listing-fee',
+  authMiddleware.verifyToken,
+  propertyController.initializeListingFeePayment.bind(propertyController)
+);
+
+// Verify Chapa payment after redirect
+router.post('/:id/listing-fee/verify',
+  authMiddleware.verifyToken,
+  propertyController.verifyListingFeePayment.bind(propertyController)
+);
+
 export default router;

@@ -56,20 +56,19 @@ const getClientIp = (req) => {
 // ==================== CORS Configuration (MUST BE FIRST) ====================
 const allowedOrigins = (() => {
   const origins = [];
-  
-  if (NODE_ENV !== 'production') {
-    origins.push(
-      'http://localhost:3000',
-      'http://localhost:3001',
-      'http://127.0.0.1:3000',
-      'http://127.0.0.1:5500',
-      'http://localhost:8080',
-      'http://localhost:5173',
-      'http://localhost:5174',
-      'http://127.0.0.1:5173',
-      'http://127.0.0.1:5174'
-    );
-  }
+    if (NODE_ENV !== 'production') {
+      origins.push(
+        'http://localhost:3000',
+        'http://localhost:3001',
+        'http://127.0.0.1:3000',
+        'http://127.0.0.1:5500',
+        'http://localhost:8080',
+        'http://localhost:5173',
+        'http://localhost:5174',
+        'http://127.0.0.1:5173',
+        'http://127.0.0.1:5174'
+      );
+    }
   
   if (process.env.FRONTEND_URL) {
     origins.push(process.env.FRONTEND_URL);
@@ -244,6 +243,7 @@ import favoriteRoutes from './src/routes/favorite.routes.js';
 import paymentRoutes from './src/routes/payment.routes.js';
 import healthRoutes from './src/routes/health.routes.js';
 import searchRoutes from './src/routes/search.routes.js';
+import adminRoutes from './src/routes/admin.routes.js';
 
 // ==================== Health Check Routes ====================
 app.get('/health', (req, res) => {
@@ -297,6 +297,8 @@ app.use(`${API_PREFIX}/favorites`, favoriteRoutes);
 app.use(`${API_PREFIX}/payments`, paymentRoutes);
 app.use(`${API_PREFIX}/health`, healthRoutes);
 app.use(`${API_PREFIX}/search`, searchRoutes);
+app.use(`${API_PREFIX}/admin`, adminRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.get(`${API_PREFIX}/info`, (req, res) => {
   res.json({

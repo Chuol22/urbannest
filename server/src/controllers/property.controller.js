@@ -244,7 +244,7 @@ class PropertyController {
   async getFeaturedProperties(req, res) {
     try {
       const properties = await prisma.property.findMany({
-        where: { status: 'available', isFeatured: true },
+        where: { status: 'available', is_featured: true },
         include: {
           photos: { where: { isPrimary: true }, take: 1 },
           location: true
@@ -706,37 +706,259 @@ class PropertyController {
    */
   async createProperty(req, res) {
     try {
-      const { id: userId } = req.user;
+      const { id: userId, role } = req.user;
       const {
         title, description, property_type, purpose, price,
         bedrooms, bathrooms, sitting_area, kitchen, currency,
-        locationId
+        locationId, location, address
       } = req.body;
-      
+
+      // Only verified brokers/landlords can create listings
+      if (role !== 'admin') {
+        const user = await prisma.user.findUnique({
+          where: { id: userId },
+          select: { is_verified: true, verification_status: true, role: true }
+        });
+
+        if (!user) {
+          return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        if (!user.is_verified || user.verification_status !== 'approved') {
+          return res.status(403).json({
+            success: false,
+            message: 'Your account must be verified by admin before you can create listings.',
+            verification_status: user.verification_status
+          });
+        }
+      }
+
+      // Handle location creation or linking
+      let finalLocationId = locationId || null;
+      const locData = location || (typeof address === 'object' ? address : null);
+
+      if (!finalLocationId && locData) {
+        const createdLoc = await prisma.location.create({
+          data: {
+            country: locData.country || 'Ethiopia',
+            region: locData.region || locData.state || null,
+            city: locData.city || 'Addis Ababa',
+            subCity: locData.subCity || locData.sub_city || null,
+            address: locData.address || locData.street || (typeof address === 'string' ? address : 'Addis Ababa'),
+            latitude: parseFloat(locData.latitude || locData.lat || 9.0054),
+            longitude: parseFloat(locData.longitude || locData.lng || 38.7636)
+          }
+        });
+        finalLocationId = createdLoc.id;
+      } else if (!finalLocationId && typeof address === 'string' && address.trim()) {
+        const createdLoc = await prisma.location.create({
+          data: {
+            country: 'Ethiopia',
+            city: 'Addis Ababa',
+            address: address.trim(),
+            latitude: 9.0054,
+            longitude: 38.7636
+          }
+        });
+        finalLocationId = createdLoc.id;
+      }
+
       const property = await prisma.property.create({
         data: {
           title,
-          description,
-          property_type,
-          purpose,
-          price: parseFloat(price),
-          bedrooms: parseInt(bedrooms),
-          bathrooms: parseFloat(bathrooms),
+          description: description || '',
+          property_type: property_type || 'apartment',
+          purpose: purpose || 'rent',
+          price: parseFloat(price) || 0,
+          bedrooms: parseInt(bedrooms) || 0,
+          bathrooms: Math.round(parseFloat(bathrooms)) || 0,
           sitting_area: sitting_area ? parseInt(sitting_area) : 0,
           kitchen: kitchen === 'true' || kitchen === true,
           currency: currency || 'ETB',
-          status: 'available',
+          status: 'pending',        // Always pending until listing fee paid + admin approved
+          listing_fee_paid: false,
           user_id: userId,
-          locationId
+          locationId: finalLocationId
         },
         include: { location: true, photos: true }
       });
-      
-      res.status(201).json({ success: true, message: 'Property created successfully', data: property });
-      
+
+      res.status(201).json({
+        success: true,
+        message: 'Property created. Please pay the listing fee to submit for review.',
+        data: property
+      });
+
     } catch (error) {
       console.error('Create property error:', error);
-      res.status(500).json({ success: false, message: 'An error occurred creating property' });
+      res.status(500).json({ success: false, message: 'An error occurred creating property', error: error.message });
+    }
+  }
+
+  /**
+   * Initialize Chapa listing fee payment
+   * @route POST /api/properties/:id/listing-fee
+   * Fees: ETB 100 (for sale/lease), ETB 50 (for rent)
+   */
+  async initializeListingFeePayment(req, res) {
+    try {
+      const { id: propertyId } = req.params;
+      const { id: userId, email, first_name, last_name, phone } = req.user;
+
+      const property = await prisma.property.findUnique({
+        where: { id: propertyId },
+        include: { listing_fee_payments: { where: { status: 'COMPLETED' } } }
+      });
+
+      if (!property) {
+        return res.status(404).json({ success: false, message: 'Property not found' });
+      }
+      if (property.user_id !== userId) {
+        return res.status(403).json({ success: false, message: 'You do not own this property' });
+      }
+      if (property.listing_fee_paid) {
+        return res.status(400).json({ success: false, message: 'Listing fee already paid for this property' });
+      }
+
+      // Determine fee based on purpose
+      const isRent = ['rent', 'short_term_rental', 'long_term_rental'].includes(property.purpose);
+      const amount = isRent ? 50 : 100; // ETB 50 for rent, ETB 100 for sale/lease
+
+      // Unique transaction reference
+      const txRef = `UN-LISTING-${propertyId}-${Date.now()}`;
+
+      // Call Chapa API
+      const chapaResponse = await fetch('https://api.chapa.co/v1/transaction/initialize', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.CHAPA_SECRET_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          amount: amount.toString(),
+          currency: 'ETB',
+          email: email || `${phone}@urbannest.com`,
+          first_name: first_name || 'Broker',
+          last_name: last_name || 'User',
+          phone_number: phone,
+          tx_ref: txRef,
+          return_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/dashboard?payment=success&property=${propertyId}`,
+          description: `Listing fee for: ${property.title} (${isRent ? 'For Rent' : 'For Sale'})`,
+          customization: {
+            title: 'UrbanNEST Listing Fee',
+            description: `Pay ETB ${amount} to publish your property listing`
+          }
+        })
+      });
+
+      const chapaData = await chapaResponse.json();
+
+      if (!chapaResponse.ok || chapaData.status !== 'success') {
+        console.error('Chapa initialization failed:', chapaData);
+        return res.status(502).json({
+          success: false,
+          message: 'Payment initialization failed. Please try again.',
+          error: chapaData?.message
+        });
+      }
+
+      // Record the pending payment in DB
+      await prisma.listingFeePayment.upsert({
+        where: { chapaTransactionRef: txRef },
+        create: {
+          propertyId,
+          userId,
+          amount,
+          currency: 'ETB',
+          chapaTransactionRef: txRef,
+          chapaCheckoutUrl: chapaData.data?.checkout_url,
+          status: 'PENDING'
+        },
+        update: {
+          chapaCheckoutUrl: chapaData.data?.checkout_url,
+          status: 'PENDING'
+        }
+      });
+
+      res.json({
+        success: true,
+        message: 'Payment initialized',
+        data: {
+          checkout_url: chapaData.data?.checkout_url,
+          tx_ref: txRef,
+          amount,
+          currency: 'ETB',
+          property_id: propertyId
+        }
+      });
+
+    } catch (error) {
+      console.error('Initialize listing fee error:', error);
+      res.status(500).json({ success: false, message: 'Failed to initialize payment' });
+    }
+  }
+
+  /**
+   * Verify Chapa listing fee payment (webhook + manual verify)
+   * @route POST /api/properties/:id/listing-fee/verify
+   */
+  async verifyListingFeePayment(req, res) {
+    try {
+      const { id: propertyId } = req.params;
+      const { tx_ref } = req.body;
+
+      if (!tx_ref) {
+        return res.status(400).json({ success: false, message: 'Transaction reference required' });
+      }
+
+      // Verify with Chapa
+      const verifyResponse = await fetch(`https://api.chapa.co/v1/transaction/verify/${tx_ref}`, {
+        headers: { 'Authorization': `Bearer ${process.env.CHAPA_SECRET_KEY}` }
+      });
+
+      const verifyData = await verifyResponse.json();
+
+      if (!verifyResponse.ok || verifyData.status !== 'success' || verifyData.data?.status !== 'success') {
+        return res.status(400).json({
+          success: false,
+          message: 'Payment not confirmed by Chapa',
+          chapa_status: verifyData.data?.status
+        });
+      }
+
+      // Update payment record and mark property fee as paid
+      const [updatedPayment, updatedProperty] = await prisma.$transaction([
+        prisma.listingFeePayment.update({
+          where: { chapaTransactionRef: tx_ref },
+          data: { status: 'COMPLETED', paidAt: new Date() }
+        }),
+        // Ensure status is 'pending' so admins see it in their review queue
+        prisma.property.update({
+          where: { id: propertyId },
+          data: {
+            listing_fee_paid: true,
+            status: 'pending', // Moves into admin review queue
+          }
+        })
+      ]);
+
+      res.json({
+        success: true,
+        message: 'Payment verified! Your listing has been submitted for admin review.',
+        data: {
+          property_id: propertyId,
+          tx_ref,
+          amount_paid: updatedPayment.amount,
+          currency: 'ETB',
+          paid_at: updatedPayment.paidAt,
+          property_title: updatedProperty.title,
+          property_status: updatedProperty.status,
+        }
+      });
+
+    } catch (error) {
+      console.error('Verify listing fee error:', error);
+      res.status(500).json({ success: false, message: 'Failed to verify payment' });
     }
   }
 
