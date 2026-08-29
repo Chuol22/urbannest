@@ -12,7 +12,7 @@ class PaginationHelper {
     const totalPages = Math.ceil(total / limit);
     const hasNextPage = page < totalPages;
     const hasPrevPage = page > 1;
-    
+
     return {
       page,
       limit,
@@ -33,15 +33,15 @@ class PaginationHelper {
       first: `${baseUrl}?page=1&limit=${limit}${this.buildQueryString(queryParams)}`,
       last: `${baseUrl}?page=${totalPages}&limit=${limit}${this.buildQueryString(queryParams)}`
     };
-    
+
     if (page > 1) {
       links.prev = `${baseUrl}?page=${page - 1}&limit=${limit}${this.buildQueryString(queryParams)}`;
     }
-    
+
     if (page < totalPages) {
       links.next = `${baseUrl}?page=${page + 1}&limit=${limit}${this.buildQueryString(queryParams)}`;
     }
-    
+
     return links;
   }
 
@@ -50,7 +50,7 @@ class PaginationHelper {
       .filter(([_, value]) => value !== undefined && value !== null)
       .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
       .join('&');
-    
+
     return query ? `&${query}` : '';
   }
 }
@@ -66,10 +66,10 @@ class PropertyController {
       const page = Math.max(1, parseInt(req.query.page) || 1);
       const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 10));
       const skip = (page - 1) * limit;
-      
+
       const cursor = req.query.cursor;
       const useCursorPagination = req.query.useCursor === 'true';
-      
+
       const {
         q, type, purpose, status = 'available',
         minPrice, maxPrice, bedrooms, bathrooms,
@@ -77,17 +77,17 @@ class PropertyController {
         sortBy = 'created_at', sortOrder = 'desc',
         includeInactive = false, userId
       } = req.query;
-      
+
       const where = {};
-      
+
       if (!includeInactive) {
         where.status = status === 'all' ? { not: 'off_market' } : status;
       } else if (status !== 'all') {
         where.status = status;
       }
-      
+
       if (userId) where.user_id = userId;
-      
+
       if (q && q.length >= 2) {
         where.OR = [
           { title: { contains: q, mode: 'insensitive' } },
@@ -95,20 +95,20 @@ class PropertyController {
           { location: { city: { contains: q, mode: 'insensitive' } } }
         ];
       }
-      
+
       if (type) where.property_type = type;
       if (purpose) where.purpose = purpose;
-      
+
       if (minPrice || maxPrice) {
         where.price = {};
         if (minPrice) where.price.gte = parseFloat(minPrice);
         if (maxPrice) where.price.lte = parseFloat(maxPrice);
       }
-      
+
       if (bedrooms) where.bedrooms = { gte: parseInt(bedrooms) };
       if (bathrooms) where.bathrooms = { gte: parseFloat(bathrooms) };
       if (city) where.location = { city: { contains: city, mode: 'insensitive' } };
-      
+
       let orderBy = {};
       switch (sortBy) {
         case 'price':
@@ -123,10 +123,10 @@ class PropertyController {
         default:
           orderBy = { created_at: sortOrder === 'asc' ? 'asc' : 'desc' };
       }
-      
+
       let properties = [];
       let total = 0;
-      
+
       if (latitude && longitude) {
         const results = await prisma.$queryRaw`
           SELECT 
@@ -151,7 +151,7 @@ class PropertyController {
           OFFSET ${skip}
         `;
         properties = results;
-        
+
         const countResult = await prisma.$queryRaw`
           SELECT COUNT(*)::int as total
           FROM properties p
@@ -191,7 +191,7 @@ class PropertyController {
           },
           orderBy
         };
-        
+
         if (useCursorPagination && cursor) {
           queryOptions.cursor = { id: cursor };
           queryOptions.skip = 1;
@@ -199,15 +199,15 @@ class PropertyController {
           queryOptions.skip = skip;
           queryOptions.take = limit;
         }
-        
+
         if (!useCursorPagination) queryOptions.take = limit;
-        
+
         [properties, total] = await Promise.all([
           prisma.property.findMany(queryOptions),
           prisma.property.count({ where })
         ]);
       }
-      
+
       const enrichedProperties = properties.map(property => ({
         ...property,
         isNew: (new Date() - new Date(property.created_at)) < 7 * 24 * 60 * 60 * 1000,
@@ -215,11 +215,11 @@ class PropertyController {
         mainPhoto: property.photos?.[0]?.photo_url || property.photos?.[0]?.thumbnailUrl || '/images/default-property.jpg',
         distance: property.distance ? `${(property.distance / 1000).toFixed(1)}km` : null
       }));
-      
+
       const paginationMeta = PaginationHelper.getPaginationMeta(page, limit, total);
       const baseUrl = `${req.protocol}://${req.get('host')}${req.baseUrl}${req.path}`;
       const links = PaginationHelper.getPaginationLinks(baseUrl, page, limit, paginationMeta.totalPages, req.query);
-      
+
       res.json({
         success: true,
         data: enrichedProperties,
@@ -227,7 +227,7 @@ class PropertyController {
         links,
         timestamp: new Date().toISOString()
       });
-      
+
     } catch (error) {
       console.error('Get properties error:', error);
       res.status(500).json({
@@ -252,7 +252,7 @@ class PropertyController {
         take: 6,
         orderBy: { created_at: 'desc' }
       });
-      
+
       res.json({
         success: true,
         data: properties
@@ -269,11 +269,11 @@ class PropertyController {
   async searchProperties(req, res) {
     try {
       const { q, limit = 10 } = req.query;
-      
+
       if (!q || q.length < 2) {
         return res.status(400).json({ success: false, message: 'Search query must be at least 2 characters' });
       }
-      
+
       const properties = await prisma.property.findMany({
         where: {
           status: 'available',
@@ -290,7 +290,7 @@ class PropertyController {
         },
         take: parseInt(limit)
       });
-      
+
       res.json({
         success: true,
         data: properties,
@@ -311,7 +311,7 @@ class PropertyController {
       const reviewPage = Math.max(1, parseInt(req.query.reviewPage) || 1);
       const reviewLimit = Math.min(20, parseInt(req.query.reviewLimit) || 5);
       const reviewSkip = (reviewPage - 1) * reviewLimit;
-      
+
       const property = await prisma.property.findUnique({
         where: { id },
         include: {
@@ -328,11 +328,11 @@ class PropertyController {
           _count: { select: { favorited_by: true, bookings: { where: { status: 'COMPLETED' } } } }
         }
       });
-      
+
       if (!property) {
         return res.status(404).json({ success: false, message: 'Property not found' });
       }
-      
+
       // Add responsive Cloudinary URLs if photos have publicId
       const photosWithResponsive = property.photos.map(photo => ({
         ...photo,
@@ -345,7 +345,7 @@ class PropertyController {
           webp: cloudinary.getOptimizedUrl(photo.publicId, { format: 'webp' })
         } : null
       }));
-      
+
       const [reviews, totalReviews, ratingStats, ratingDistribution] = await Promise.all([
         prisma.review.findMany({
           where: { propertyId: id, status: 'PUBLISHED' },
@@ -371,10 +371,10 @@ class PropertyController {
           _count: true
         })
       ]);
-      
+
       const distribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
       ratingDistribution.forEach(item => { distribution[item.rating] = item._count; });
-      
+
       const similarProperties = await prisma.property.findMany({
         where: {
           id: { not: id },
@@ -387,7 +387,7 @@ class PropertyController {
         take: 6,
         orderBy: { created_at: 'desc' }
       });
-      
+
       res.json({
         success: true,
         data: {
@@ -419,7 +419,7 @@ class PropertyController {
         },
         timestamp: new Date().toISOString()
       });
-      
+
     } catch (error) {
       console.error('Get property by ID error:', error);
       res.status(500).json({ success: false, message: 'An error occurred fetching property' });
@@ -431,16 +431,38 @@ class PropertyController {
    */
   async getUserProperties(req, res) {
     try {
+      console.log('[GET USER PROPERTIES] Request from user:', req.user?.id);
+
       const { id: userId } = req.user;
+
+      if (!userId) {
+        console.error('[GET USER PROPERTIES] No user ID found in request');
+        return res.status(401).json({
+          success: false,
+          message: 'User not authenticated'
+        });
+      }
+
       const page = parseInt(req.query.page) || 1;
       const limit = parseInt(req.query.limit) || 10;
       const skip = (page - 1) * limit;
-      
+
+      console.log('[GET USER PROPERTIES] Pagination - page:', page, 'limit:', limit, 'skip:', skip);
+      console.log('[GET USER PROPERTIES] Fetching properties for user:', userId);
+
       const [properties, total] = await Promise.all([
         prisma.property.findMany({
           where: { user_id: userId },
           include: {
-            photos: { where: { isPrimary: true }, take: 1 },
+            photos: {
+              where: { isPrimary: true },
+              take: 1,
+              select: {
+                id: true,
+                photoUrl: true,
+                isPrimary: true
+              }
+            },
             location: true,
             _count: { select: { favorited_by: true, bookings: true } }
           },
@@ -450,17 +472,24 @@ class PropertyController {
         }),
         prisma.property.count({ where: { user_id: userId } })
       ]);
-      
+
+      console.log('[GET USER PROPERTIES] Found', total, 'total properties,', properties.length, 'on this page');
+
       const paginationMeta = PaginationHelper.getPaginationMeta(page, limit, total);
-      
+
       res.json({
         success: true,
         data: properties,
         pagination: paginationMeta
       });
     } catch (error) {
-      console.error('Get user properties error:', error);
-      res.status(500).json({ success: false, message: 'An error occurred fetching your properties' });
+      console.error('[GET USER PROPERTIES] Error:', error);
+      console.error('[GET USER PROPERTIES] Error stack:', error.stack);
+      res.status(500).json({
+        success: false,
+        message: 'An error occurred fetching your properties',
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      });
     }
   }
 
@@ -471,33 +500,33 @@ class PropertyController {
     try {
       const { id: propertyId } = req.params;
       const { id: userId, role } = req.user;
-      
+
       const property = await prisma.property.findUnique({
         where: { id: propertyId },
         include: { photos: true }
       });
-      
+
       if (!property) {
         return res.status(404).json({ success: false, message: 'Property not found' });
       }
-      
+
       if (property.user_id !== userId && role !== 'admin') {
         return res.status(403).json({ success: false, message: 'You don\'t own this property' });
       }
-      
+
       const files = req.files;
       if (!files || files.length === 0) {
         return res.status(400).json({ success: false, message: 'No files uploaded' });
       }
-      
+
       // Upload to Cloudinary directly from memory buffer
       const uploadResults = await uploadMultipleToCloudinary(files, 'properties');
-      
+
       const savedPhotos = [];
       for (let i = 0; i < uploadResults.length; i++) {
         const result = uploadResults[i];
         const isPrimary = property.photos.length === 0 && i === 0;
-        
+
         const photo = await prisma.propertyPhoto.create({
           data: {
             propertyId: propertyId,
@@ -511,16 +540,16 @@ class PropertyController {
             uploadedById: userId
           }
         });
-        
+
         savedPhotos.push(photo);
       }
-      
+
       res.status(201).json({
         success: true,
         message: `${savedPhotos.length} photos uploaded successfully`,
         data: savedPhotos
       });
-      
+
     } catch (error) {
       console.error('Upload photos error:', error);
       res.status(500).json({
@@ -537,17 +566,17 @@ class PropertyController {
   async getPropertyPhotos(req, res) {
     try {
       const { id: propertyId } = req.params;
-      
+
       const photos = await prisma.propertyPhoto.findMany({
         where: { propertyId },
         orderBy: { displayOrder: 'asc' }
       });
-      
+
       const photosWithResponsive = photos.map(photo => {
         if (!photo.publicId) {
           return photo;
         }
-        
+
         return {
           ...photo,
           responsive: {
@@ -561,12 +590,12 @@ class PropertyController {
           }
         };
       });
-      
+
       res.json({
         success: true,
         data: photosWithResponsive
       });
-      
+
     } catch (error) {
       console.error('Get photos error:', error);
       res.status(500).json({ success: false, message: 'Failed to fetch photos' });
@@ -580,42 +609,42 @@ class PropertyController {
     try {
       const { propertyId, photoId } = req.params;
       const { id: userId, role } = req.user;
-      
+
       const property = await prisma.property.findUnique({ where: { id: propertyId } });
       if (!property) {
         return res.status(404).json({ success: false, message: 'Property not found' });
       }
-      
+
       if (property.user_id !== userId && role !== 'admin') {
         return res.status(403).json({ success: false, message: 'Unauthorized' });
       }
-      
+
       const photo = await prisma.propertyPhoto.findUnique({ where: { id: photoId } });
       if (!photo) {
         return res.status(404).json({ success: false, message: 'Photo not found' });
       }
-      
+
       // Delete from Cloudinary
       if (photo.publicId) {
         await cloudinary.deleteImage(photo.publicId);
       }
-      
+
       // Delete from database
       await prisma.propertyPhoto.delete({ where: { id: photoId } });
-      
+
       // Reorder remaining photos
       const remainingPhotos = await prisma.propertyPhoto.findMany({
         where: { propertyId },
         orderBy: { displayOrder: 'asc' }
       });
-      
+
       for (let i = 0; i < remainingPhotos.length; i++) {
         await prisma.propertyPhoto.update({
           where: { id: remainingPhotos[i].id },
           data: { displayOrder: i }
         });
       }
-      
+
       // If deleted photo was primary, set new primary
       if (photo.isPrimary && remainingPhotos.length > 0) {
         await prisma.propertyPhoto.update({
@@ -623,9 +652,9 @@ class PropertyController {
           data: { isPrimary: true }
         });
       }
-      
+
       res.json({ success: true, message: 'Photo deleted successfully' });
-      
+
     } catch (error) {
       console.error('Delete photo error:', error);
       res.status(500).json({ success: false, message: 'Failed to delete photo' });
@@ -639,28 +668,28 @@ class PropertyController {
     try {
       const { propertyId, photoId } = req.params;
       const { id: userId, role } = req.user;
-      
+
       const property = await prisma.property.findUnique({ where: { id: propertyId } });
       if (!property) {
         return res.status(404).json({ success: false, message: 'Property not found' });
       }
-      
+
       if (property.user_id !== userId && role !== 'admin') {
         return res.status(403).json({ success: false, message: 'Unauthorized' });
       }
-      
+
       await prisma.propertyPhoto.updateMany({
         where: { propertyId },
         data: { isPrimary: false }
       });
-      
+
       await prisma.propertyPhoto.update({
         where: { id: photoId },
         data: { isPrimary: true }
       });
-      
+
       res.json({ success: true, message: 'Primary photo updated' });
-      
+
     } catch (error) {
       console.error('Set primary photo error:', error);
       res.status(500).json({ success: false, message: 'Failed to update primary photo' });
@@ -681,7 +710,7 @@ class PropertyController {
       orderBy: { requestedDate: 'asc' },
       take: 90
     });
-    
+
     return bookings.map(booking => ({
       date: booking.requestedDate,
       status: booking.status === 'CONFIRMED' ? 'booked' : 'pending'
@@ -706,6 +735,9 @@ class PropertyController {
    */
   async createProperty(req, res) {
     try {
+      console.log('[CREATE PROPERTY] Request from user:', req.user?.id);
+      console.log('[CREATE PROPERTY] Request body:', JSON.stringify(req.body, null, 2));
+
       const { id: userId, role } = req.user;
       const {
         title, description, property_type, purpose, price,
@@ -713,18 +745,41 @@ class PropertyController {
         locationId, location, address
       } = req.body;
 
+      // Validation
+      if (!title || !title.trim()) {
+        console.error('[CREATE PROPERTY] Missing title');
+        return res.status(400).json({
+          success: false,
+          message: 'Property title is required'
+        });
+      }
+
+      if (!price || parseFloat(price) <= 0) {
+        console.error('[CREATE PROPERTY] Invalid price:', price);
+        return res.status(400).json({
+          success: false,
+          message: 'Valid property price is required'
+        });
+      }
+
       // Only verified brokers/landlords can create listings
       if (role !== 'admin') {
+        console.log('[CREATE PROPERTY] Checking verification status for user:', userId);
+
         const user = await prisma.user.findUnique({
           where: { id: userId },
           select: { is_verified: true, verification_status: true, role: true }
         });
 
         if (!user) {
+          console.error('[CREATE PROPERTY] User not found:', userId);
           return res.status(404).json({ success: false, message: 'User not found' });
         }
 
-        if (!user.is_verified || user.verification_status !== 'approved') {
+        console.log('[CREATE PROPERTY] User verification status:', user.verification_status);
+
+        if (!user.is_verified && user.verification_status !== 'approved') {
+          console.error('[CREATE PROPERTY] User not verified:', userId, user.verification_status, 'is_verified:', user.is_verified);
           return res.status(403).json({
             success: false,
             message: 'Your account must be verified by admin before you can create listings.',
@@ -737,51 +792,77 @@ class PropertyController {
       let finalLocationId = locationId || null;
       const locData = location || (typeof address === 'object' ? address : null);
 
+      console.log('[CREATE PROPERTY] Location data:', { locationId, locData, address });
+
       if (!finalLocationId && locData) {
-        const createdLoc = await prisma.location.create({
-          data: {
-            country: locData.country || 'Ethiopia',
-            region: locData.region || locData.state || null,
-            city: locData.city || 'Addis Ababa',
-            subCity: locData.subCity || locData.sub_city || null,
-            address: locData.address || locData.street || (typeof address === 'string' ? address : 'Addis Ababa'),
-            latitude: parseFloat(locData.latitude || locData.lat || 9.0054),
-            longitude: parseFloat(locData.longitude || locData.lng || 38.7636)
-          }
-        });
-        finalLocationId = createdLoc.id;
+        console.log('[CREATE PROPERTY] Creating new location from locData');
+
+        try {
+          const createdLoc = await prisma.location.create({
+            data: {
+              country: locData.country || 'Ethiopia',
+              region: locData.region || locData.state || null,
+              city: locData.city || 'Addis Ababa',
+              subCity: locData.subCity || locData.sub_city || null,
+              address: locData.address || locData.street || (typeof address === 'string' ? address : 'Addis Ababa'),
+              latitude: parseFloat(locData.latitude || locData.lat || 9.0054),
+              longitude: parseFloat(locData.longitude || locData.lng || 38.7636)
+            }
+          });
+          finalLocationId = createdLoc.id;
+          console.log('[CREATE PROPERTY] Created location:', finalLocationId);
+        } catch (locError) {
+          console.error('[CREATE PROPERTY] Error creating location:', locError);
+          throw new Error('Failed to create property location: ' + locError.message);
+        }
       } else if (!finalLocationId && typeof address === 'string' && address.trim()) {
-        const createdLoc = await prisma.location.create({
-          data: {
-            country: 'Ethiopia',
-            city: 'Addis Ababa',
-            address: address.trim(),
-            latitude: 9.0054,
-            longitude: 38.7636
-          }
-        });
-        finalLocationId = createdLoc.id;
+        console.log('[CREATE PROPERTY] Creating new location from address string');
+
+        try {
+          const createdLoc = await prisma.location.create({
+            data: {
+              country: 'Ethiopia',
+              city: 'Addis Ababa',
+              address: address.trim(),
+              latitude: 9.0054,
+              longitude: 38.7636
+            }
+          });
+          finalLocationId = createdLoc.id;
+          console.log('[CREATE PROPERTY] Created location:', finalLocationId);
+        } catch (locError) {
+          console.error('[CREATE PROPERTY] Error creating location:', locError);
+          throw new Error('Failed to create property location: ' + locError.message);
+        }
       }
 
+      console.log('[CREATE PROPERTY] Creating property with locationId:', finalLocationId);
+
+      const propertyData = {
+        title: title.trim(),
+        description: description?.trim() || '',
+        property_type: property_type || 'apartment',
+        purpose: purpose || 'rent',
+        price: parseFloat(price) || 0,
+        bedrooms: parseInt(bedrooms) || 0,
+        bathrooms: Math.round(parseFloat(bathrooms)) || 0,
+        sitting_area: sitting_area ? parseInt(sitting_area) : 0,
+        kitchen: kitchen === 'true' || kitchen === true,
+        currency: currency || 'ETB',
+        status: 'pending',        // Always pending until listing fee paid + admin approved
+        listing_fee_paid: false,
+        user_id: userId,
+        locationId: finalLocationId
+      };
+
+      console.log('[CREATE PROPERTY] Property data:', propertyData);
+
       const property = await prisma.property.create({
-        data: {
-          title,
-          description: description || '',
-          property_type: property_type || 'apartment',
-          purpose: purpose || 'rent',
-          price: parseFloat(price) || 0,
-          bedrooms: parseInt(bedrooms) || 0,
-          bathrooms: Math.round(parseFloat(bathrooms)) || 0,
-          sitting_area: sitting_area ? parseInt(sitting_area) : 0,
-          kitchen: kitchen === 'true' || kitchen === true,
-          currency: currency || 'ETB',
-          status: 'pending',        // Always pending until listing fee paid + admin approved
-          listing_fee_paid: false,
-          user_id: userId,
-          locationId: finalLocationId
-        },
+        data: propertyData,
         include: { location: true, photos: true }
       });
+
+      console.log('[CREATE PROPERTY] Property created successfully:', property.id);
 
       res.status(201).json({
         success: true,
@@ -790,20 +871,49 @@ class PropertyController {
       });
 
     } catch (error) {
-      console.error('Create property error:', error);
-      res.status(500).json({ success: false, message: 'An error occurred creating property', error: error.message });
+      console.error('[CREATE PROPERTY] Error:', error);
+      console.error('[CREATE PROPERTY] Error stack:', error.stack);
+
+      // Provide more specific error messages
+      let errorMessage = 'An error occurred creating property';
+
+      if (error.message) {
+        errorMessage = error.message;
+      }
+
+      if (error.code === 'P2002') {
+        errorMessage = 'A property with this information already exists';
+      } else if (error.code === 'P2003') {
+        errorMessage = 'Invalid location reference';
+      } else if (error.code === 'P2025') {
+        errorMessage = 'Related record not found';
+      }
+
+      res.status(500).json({
+        success: false,
+        message: errorMessage,
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      });
     }
   }
 
   /**
    * Initialize Chapa listing fee payment
    * @route POST /api/properties/:id/listing-fee
-   * Fees: ETB 100 (for sale/lease), ETB 50 (for rent)
+   * @body { tier: 'standard' | 'premium' }
+   * Fees: Standard - ETB 50 (rent), ETB 100 (sale/lease)
+   *       Premium - ETB 100 (rent), ETB 200 (sale/lease)
    */
   async initializeListingFeePayment(req, res) {
     try {
       const { id: propertyId } = req.params;
+      const { tier = 'standard' } = req.body;
       const { id: userId, email, first_name, last_name, phone } = req.user;
+
+      // Validate tier
+      if (!['standard', 'premium'].includes(tier)) {
+        return res.status(400).json({ success: false, message: 'Invalid tier. Must be "standard" or "premium".' });
+      }
 
       const property = await prisma.property.findUnique({
         where: { id: propertyId },
@@ -820,9 +930,13 @@ class PropertyController {
         return res.status(400).json({ success: false, message: 'Listing fee already paid for this property' });
       }
 
-      // Determine fee based on purpose
+      // Determine fee based on purpose and tier
       const isRent = ['rent', 'short_term_rental', 'long_term_rental'].includes(property.purpose);
-      const amount = isRent ? 50 : 100; // ETB 50 for rent, ETB 100 for sale/lease
+      const fees = {
+        standard: isRent ? 50 : 100,
+        premium: isRent ? 100 : 200
+      };
+      const amount = fees[tier];
 
       // Unique transaction reference
       const txRef = `UN-LISTING-${propertyId}-${Date.now()}`;
@@ -843,10 +957,10 @@ class PropertyController {
           phone_number: phone,
           tx_ref: txRef,
           return_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/dashboard?payment=success&property=${propertyId}`,
-          description: `Listing fee for: ${property.title} (${isRent ? 'For Rent' : 'For Sale'})`,
+          description: `${tier === 'premium' ? 'Premium' : 'Standard'} listing fee for: ${property.title}`,
           customization: {
-            title: 'UrbanNEST Listing Fee',
-            description: `Pay ETB ${amount} to publish your property listing`
+            title: `UrbanNEST ${tier === 'premium' ? 'Premium' : 'Standard'} Listing`,
+            description: `Pay ETB ${amount} to publish your property listing${tier === 'premium' ? ' with premium features' : ''}`
           }
         })
       });
@@ -862,19 +976,21 @@ class PropertyController {
         });
       }
 
-      // Record the pending payment in DB
+      // Record the pending payment in DB with tier
       await prisma.listingFeePayment.upsert({
         where: { chapaTransactionRef: txRef },
         create: {
           propertyId,
           userId,
           amount,
+          tier,
           currency: 'ETB',
           chapaTransactionRef: txRef,
           chapaCheckoutUrl: chapaData.data?.checkout_url,
           status: 'PENDING'
         },
         update: {
+          tier,
           chapaCheckoutUrl: chapaData.data?.checkout_url,
           status: 'PENDING'
         }
@@ -887,6 +1003,7 @@ class PropertyController {
           checkout_url: chapaData.data?.checkout_url,
           tx_ref: txRef,
           amount,
+          tier,
           currency: 'ETB',
           property_id: propertyId
         }
@@ -911,6 +1028,15 @@ class PropertyController {
         return res.status(400).json({ success: false, message: 'Transaction reference required' });
       }
 
+      // Get the payment record to check tier
+      const paymentRecord = await prisma.listingFeePayment.findUnique({
+        where: { chapaTransactionRef: tx_ref }
+      });
+
+      if (!paymentRecord) {
+        return res.status(404).json({ success: false, message: 'Payment record not found' });
+      }
+
       // Verify with Chapa
       const verifyResponse = await fetch(`https://api.chapa.co/v1/transaction/verify/${tx_ref}`, {
         headers: { 'Authorization': `Bearer ${process.env.CHAPA_SECRET_KEY}` }
@@ -919,6 +1045,12 @@ class PropertyController {
       const verifyData = await verifyResponse.json();
 
       if (!verifyResponse.ok || verifyData.status !== 'success' || verifyData.data?.status !== 'success') {
+        // Update payment status to FAILED if verification failed
+        await prisma.listingFeePayment.update({
+          where: { chapaTransactionRef: tx_ref },
+          data: { status: 'FAILED' }
+        });
+
         return res.status(400).json({
           success: false,
           message: 'Payment not confirmed by Chapa',
@@ -926,17 +1058,25 @@ class PropertyController {
         });
       }
 
-      // Update payment record and mark property fee as paid
+      // Calculate listing expiry based on tier
+      const tier = paymentRecord.tier || 'standard';
+      const listingDays = tier === 'premium' ? 60 : 30;
+      const listingExpiresAt = new Date();
+      listingExpiresAt.setDate(listingExpiresAt.getDate() + listingDays);
+
+      // Update payment record and mark property fee as paid with tier benefits
       const [updatedPayment, updatedProperty] = await prisma.$transaction([
         prisma.listingFeePayment.update({
           where: { chapaTransactionRef: tx_ref },
           data: { status: 'COMPLETED', paidAt: new Date() }
         }),
-        // Ensure status is 'pending' so admins see it in their review queue
         prisma.property.update({
           where: { id: propertyId },
           data: {
             listing_fee_paid: true,
+            listing_tier: tier,
+            listing_expires_at: listingExpiresAt,
+            is_featured: tier === 'premium', // Premium listings get featured badge
             status: 'pending', // Moves into admin review queue
           }
         })
@@ -944,15 +1084,18 @@ class PropertyController {
 
       res.json({
         success: true,
-        message: 'Payment verified! Your listing has been submitted for admin review.',
+        message: `Payment verified! Your ${tier} listing has been submitted for admin review.`,
         data: {
           property_id: propertyId,
           tx_ref,
+          tier,
           amount_paid: updatedPayment.amount,
           currency: 'ETB',
           paid_at: updatedPayment.paidAt,
           property_title: updatedProperty.title,
           property_status: updatedProperty.status,
+          listing_expires_at: listingExpiresAt,
+          is_featured: updatedProperty.is_featured
         }
       });
 
@@ -970,16 +1113,16 @@ class PropertyController {
       const { id } = req.params;
       const { id: userId, role } = req.user;
       const updateData = req.body;
-      
+
       const property = await prisma.property.findUnique({ where: { id } });
       if (!property) {
         return res.status(404).json({ success: false, message: 'Property not found' });
       }
-      
+
       if (property.user_id !== userId && role !== 'admin') {
         return res.status(403).json({ success: false, message: 'Unauthorized' });
       }
-      
+
       const updatedProperty = await prisma.property.update({
         where: { id },
         data: {
@@ -991,9 +1134,9 @@ class PropertyController {
         },
         include: { location: true, photos: true }
       });
-      
+
       res.json({ success: true, message: 'Property updated successfully', data: updatedProperty });
-      
+
     } catch (error) {
       console.error('Update property error:', error);
       res.status(500).json({ success: false, message: 'An error occurred updating property' });
@@ -1007,23 +1150,23 @@ class PropertyController {
     try {
       const { id } = req.params;
       const { id: userId, role } = req.user;
-      
+
       const property = await prisma.property.findUnique({ where: { id } });
       if (!property) {
         return res.status(404).json({ success: false, message: 'Property not found' });
       }
-      
+
       if (property.user_id !== userId && role !== 'admin') {
         return res.status(403).json({ success: false, message: 'Unauthorized' });
       }
-      
+
       await prisma.property.update({
         where: { id },
         data: { status: 'off_market', deleted_at: new Date() }
       });
-      
+
       res.json({ success: true, message: 'Property deleted successfully' });
-      
+
     } catch (error) {
       console.error('Delete property error:', error);
       res.status(500).json({ success: false, message: 'An error occurred deleting property' });

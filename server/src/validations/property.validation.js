@@ -15,38 +15,39 @@ export const createPropertySchema = [
   body('title')
     .notEmpty()
     .withMessage('Title is required')
+    .trim()
     .isLength({ min: 3, max: 200 })
     .withMessage('Title must be between 3 and 200 characters'),
-  
+
   body('description')
-    .notEmpty()
-    .withMessage('Description is required')
+    .optional({ checkFalsy: true })
+    .trim()
     .isLength({ min: 5, max: 5000 })
     .withMessage('Description must be between 5 and 5000 characters'),
-  
+
   body('property_type')
     .notEmpty()
     .withMessage('Property type is required')
     .isIn(VALID_PROPERTY_TYPES)
     .withMessage('Invalid property type'),
-  
+
   body('purpose')
     .notEmpty()
     .withMessage('Purpose is required')
     .isIn(VALID_PURPOSES)
     .withMessage('Invalid property purpose'),
-  
+
   body('price')
     .notEmpty()
     .withMessage('Price is required')
-    .isFloat({ min: 0 })
-    .withMessage('Price must be a positive number'),
-  
+    .isFloat({ min: 0.01 })
+    .withMessage('Price must be a positive number greater than 0'),
+
   body('bedrooms')
     .optional()
     .isInt({ min: 0 })
     .withMessage('Bedrooms must be a positive integer'),
-  
+
   body('bathrooms')
     .optional()
     .isFloat({ min: 0 })
@@ -64,63 +65,88 @@ export const createPropertySchema = [
     .optional()
     .isIn(['ETB', 'KES', 'UGX', 'SOS', 'NGN', 'USD', 'SSP', 'SDG', 'etc'])
     .withMessage('Invalid currency'),
-  
+
   body('area')
     .optional()
     .isFloat({ min: 0 })
     .withMessage('Area must be a positive number'),
-  
+
   body('locationId')
     .optional({ nullable: true, checkFalsy: true })
-    .isUUID()
-    .withMessage('Invalid location ID format'),
+    .custom(value => {
+      // Allow empty string, null, undefined
+      if (!value) return true;
+      // Otherwise validate as UUID
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (!uuidRegex.test(value)) {
+        throw new Error('Invalid location ID format');
+      }
+      return true;
+    }),
 
   body('location')
     .optional()
-    .isObject()
-    .withMessage('Location must be an object'),
+    .custom(value => {
+      // Allow any object structure for location
+      if (value && typeof value !== 'object') {
+        throw new Error('Location must be an object');
+      }
+      return true;
+    }),
+
+  body('location.city')
+    .optional()
+    .trim()
+    .notEmpty()
+    .withMessage('Location city cannot be empty if provided'),
+
+  body('location.address')
+    .optional()
+    .trim()
+    .notEmpty()
+    .withMessage('Location address cannot be empty if provided'),
 
   body('address')
     .optional(),
-  
+
   body('coordinates')
     .optional()
     .isObject()
     .withMessage('Coordinates must be an object'),
-  
+
   body('coordinates.lat')
     .optional()
     .isFloat({ min: -90, max: 90 })
     .withMessage('Invalid latitude'),
-  
+
   body('coordinates.lng')
     .optional()
     .isFloat({ min: -180, max: 180 })
     .withMessage('Invalid longitude'),
-  
+
   body('amenities')
     .optional(),
-  
+
   body('images')
     .optional()
     .isArray()
     .withMessage('Images must be an array'),
-  
+
   body('features')
     .optional()
     .isArray()
     .withMessage('Features must be an array'),
-  
+
   body('status')
     .optional()
     .isIn(['available', 'pending', 'sold', 'rented', 'off_market', 'coming_soon', 'price_reduced', 'withdrawn', 'leased'])
     .withMessage('Invalid property status'),
-  
+
   body('availability_date')
     .optional()
     .isISO8601()
     .withMessage('Invalid date format'),
-  
+
   body('is_featured')
     .optional()
     .isBoolean()
@@ -132,22 +158,22 @@ export const updatePropertySchema = [
   param('id')
     .isUUID()
     .withMessage('Invalid property ID format'),
-  
+
   body('title')
     .optional()
     .isLength({ min: 3, max: 200 })
     .withMessage('Title must be between 3 and 200 characters'),
-  
+
   body('description')
     .optional()
     .isLength({ min: 5, max: 5000 })
     .withMessage('Description must be between 5 and 5000 characters'),
-  
+
   body('property_type')
     .optional()
     .isIn(VALID_PROPERTY_TYPES)
     .withMessage('Invalid property type'),
-  
+
   body('purpose')
     .optional()
     .isIn(VALID_PURPOSES)
@@ -157,17 +183,17 @@ export const updatePropertySchema = [
     .optional()
     .isIn(VALID_PURPOSES)
     .withMessage('Listing type must be a valid purpose'),
-  
+
   body('price')
     .optional()
     .isFloat({ min: 0 })
     .withMessage('Price must be a positive number'),
-  
+
   body('bedrooms')
     .optional()
     .isInt({ min: 0 })
     .withMessage('Bedrooms must be a positive integer'),
-  
+
   body('bathrooms')
     .optional()
     .isFloat({ min: 0 })
@@ -177,12 +203,12 @@ export const updatePropertySchema = [
     .optional()
     .isInt({ min: 0 })
     .withMessage('Sitting area must be a positive integer'),
-  
+
   body('area')
     .optional()
     .isFloat({ min: 0 })
     .withMessage('Area must be a positive number'),
-  
+
   body('address')
     .optional(),
 
@@ -190,12 +216,12 @@ export const updatePropertySchema = [
     .optional()
     .isObject()
     .withMessage('Location must be an object'),
-  
+
   body('status')
     .optional()
     .isIn(['available', 'pending', 'sold', 'rented', 'off_market', 'coming_soon', 'price_reduced', 'withdrawn', 'leased'])
     .withMessage('Invalid property status'),
-  
+
   body('is_featured')
     .optional()
     .isBoolean()
@@ -209,54 +235,54 @@ export const getPropertiesQuerySchema = [
     .isInt({ min: 1 })
     .withMessage('Page must be a positive integer')
     .toInt(),
-  
+
   query('limit')
     .optional()
     .isInt({ min: 1, max: 100 })
     .withMessage('Limit must be between 1 and 100')
     .toInt(),
-  
+
   query('min_price')
     .optional()
     .isFloat({ min: 0 })
     .withMessage('Minimum price must be a positive number')
     .toFloat(),
-  
+
   query('max_price')
     .optional()
     .isFloat({ min: 0 })
     .withMessage('Maximum price must be a positive number')
     .toFloat(),
-  
+
   query('min_area')
     .optional()
     .isFloat({ min: 0 })
     .withMessage('Minimum area must be a positive number')
     .toFloat(),
-  
+
   query('max_area')
     .optional()
     .isFloat({ min: 0 })
     .withMessage('Maximum area must be a positive number')
     .toFloat(),
-  
+
   query('bedrooms')
     .optional()
     .isInt({ min: 0 })
     .withMessage('Bedrooms must be a positive integer')
     .toInt(),
-  
+
   query('bathrooms')
     .optional()
     .isFloat({ min: 0 })
     .withMessage('Bathrooms must be a positive number')
     .toFloat(),
-  
+
   query('property_type')
     .optional()
     .isIn(VALID_PROPERTY_TYPES)
     .withMessage('Invalid property type'),
-  
+
   query('purpose')
     .optional()
     .isIn(VALID_PURPOSES)
@@ -266,27 +292,27 @@ export const getPropertiesQuerySchema = [
     .optional()
     .isIn(VALID_PURPOSES)
     .withMessage('Listing type must be a valid purpose'),
-  
+
   query('city')
     .optional()
     .isString()
     .withMessage('City must be a string'),
-  
+
   query('state')
     .optional()
     .isString()
     .withMessage('State must be a string'),
-  
+
   query('sort_by')
     .optional()
     .isIn(['price', 'created_at', 'area', 'bedrooms'])
     .withMessage('Invalid sort field'),
-  
+
   query('sort_order')
     .optional()
     .isIn(['asc', 'desc'])
     .withMessage('Sort order must be asc or desc'),
-  
+
   query('amenities')
     .optional()
     .isString()
@@ -328,12 +354,12 @@ export const searchPropertiesSchema = [
     .withMessage('Search query must be a string')
     .isLength({ min: 2 })
     .withMessage('Search query must be at least 2 characters'),
-  
+
   query('page')
     .optional()
     .isInt({ min: 1 })
     .withMessage('Page must be a positive integer'),
-  
+
   query('limit')
     .optional()
     .isInt({ min: 1, max: 100 })

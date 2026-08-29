@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { HelmetProvider } from 'react-helmet-async';
 import { Toaster } from 'sonner';
 
+import { GoogleTranslateScript } from './components/GoogleTranslateScript';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import Layout from './components/layout/Layout';
@@ -33,12 +34,21 @@ const NotFound = React.lazy(() => import('./pages/NotFound'));
 const CreateListing = React.lazy(() => import('./pages/CreateListing'));
 const PaymentSuccess = React.lazy(() => import('./pages/PaymentSuccess'));
 
+// Super Admin Layout & Pages
+const AdminLayout = React.lazy(() => import('./components/admin/AdminLayout'));
+const AdminDashboard = React.lazy(() => import('./pages/admin/AdminDashboard'));
+const AdminManagement = React.lazy(() => import('./pages/admin/AdminManagement'));
+const UserManagement = React.lazy(() => import('./pages/admin/UserManagement'));
+const ListingManagement = React.lazy(() => import('./pages/admin/ListingManagement'));
+const PaymentManagement = React.lazy(() => import('./pages/admin/PaymentManagement'));
+const AuditLogs = React.lazy(() => import('./pages/admin/AuditLogs'));
+
 // Loading component for lazy-loaded routes
 const LoadingFallback = () => (
-  <div className="min-h-screen flex items-center justify-center bg-white dark:bg-dark-primary">
+  <div className="min-h-screen flex items-center justify-center bg-slate-900 text-white">
     <div className="text-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
-      <p className="mt-4 text-gray-600 dark:text-gray-400">Loading...</p>
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto"></div>
+      <p className="mt-4 text-slate-400 text-sm">Loading UrbanNEST...</p>
     </div>
   </div>
 );
@@ -49,6 +59,7 @@ function App() {
   return (
     <ErrorBoundary>
       <HelmetProvider>
+        <GoogleTranslateScript />
         <QueryClientProvider client={queryClient}>
           <DarkModeProvider>
             <AuthProvider>
@@ -57,7 +68,7 @@ function App() {
                   <Layout>
                     <Suspense fallback={<LoadingFallback />}>
                       <Routes>
-                        {/* Public Routes - Accessible to everyone */}
+                        {/* Public Routes */}
                         <Route path="/" element={<Home />} />
                         <Route path="/about" element={<About />} />
                         <Route path="/properties" element={<Properties />} />
@@ -68,11 +79,9 @@ function App() {
                         <Route path="/forgot-password" element={<ForgotPassword />} />
                         <Route path="/terms" element={<Terms />} />
                         <Route path="/privacy" element={<Privacy />} />
-
-                        {/* Payment Routes - Public (for redirects from payment gateway) */}
                         <Route path="/payment/success" element={<PaymentSuccess />} />
 
-                        {/* Protected Routes - Require authentication */}
+                        {/* Protected Standard User Routes */}
                         <Route path="/create-listing" element={
                           <ProtectedRoute>
                             <CreateListing />
@@ -104,7 +113,21 @@ function App() {
                           </ProtectedRoute>
                         } />
 
-                        {/* 404 Route - Catch all unmatched routes */}
+                        {/* Super Admin Dashboard Nested Routes */}
+                        <Route path="/admin" element={
+                          <ProtectedRoute requiredRole="admin">
+                            <AdminLayout />
+                          </ProtectedRoute>
+                        }>
+                          <Route index element={<AdminDashboard />} />
+                          <Route path="users" element={<AdminManagement />} />
+                          <Route path="all-users" element={<UserManagement />} />
+                          <Route path="listings" element={<ListingManagement />} />
+                          <Route path="payments" element={<PaymentManagement />} />
+                          <Route path="audit-logs" element={<AuditLogs />} />
+                        </Route>
+
+                        {/* 404 Route */}
                         <Route path="*" element={<NotFound />} />
                       </Routes>
                     </Suspense>

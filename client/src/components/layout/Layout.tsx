@@ -5,7 +5,6 @@ import { Outlet, useLocation } from 'react-router-dom';
 
 import { Helmet } from 'react-helmet-async';
 
-import { GoogleTranslateScript } from '../GoogleTranslateScript';
 import ChatBot from '../ui/ChatBot';
 import Footer from './Footer';
 import Navbar from './Navbar';
@@ -80,6 +79,20 @@ const Layout: React.FC<LayoutProps> = ({ children, showSidebar = false }) => {
   };
 
   const metaTags = getMetaTags();
+  const isDashboardRoute = location.pathname.startsWith('/dashboard') || location.pathname.startsWith('/admin');
+
+  if (isDashboardRoute) {
+    return (
+      <>
+        <Helmet>
+          <title>{metaTags.title}</title>
+          <meta name="description" content={metaTags.description} />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        </Helmet>
+        {children || <Outlet />}
+      </>
+    );
+  }
 
   return (
     <>
@@ -95,9 +108,6 @@ const Layout: React.FC<LayoutProps> = ({ children, showSidebar = false }) => {
         <meta name="twitter:card" content="summary_large_image" />
         <link rel="canonical" href={window.location.href} />
       </Helmet>
-
-      <GoogleTranslateScript />
-      <div id="google_translate_element" style={{ display: 'none' }} />
 
       <div className="min-h-screen flex flex-col bg-white">
         <Navbar />

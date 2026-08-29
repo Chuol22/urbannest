@@ -53,7 +53,7 @@ export const userService = {
     try {
       const formData = new FormData();
       formData.append('avatar', file);
-      const response = await apiClient.post(`${API_BASE_URL}/users/avatar`, formData, {
+      const response = await apiClient.post('/users/avatar', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -61,6 +61,38 @@ export const userService = {
       return response.data;
     } catch (error) {
       console.error('Error uploading avatar:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Upload broker/landlord verification document
+   */
+  async uploadVerificationDocument(file: File): Promise<any> {
+    try {
+      const formData = new FormData();
+      formData.append('document', file);
+      const response = await apiClient.post('/users/verification-documents', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error uploading verification document:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Get verification status
+   */
+  async getVerificationStatus(): Promise<any> {
+    try {
+      const response = await apiClient.get('/users/verification-status');
+      return response.data;
+    } catch (error) {
+      console.error('Error getting verification status:', error);
       throw error;
     }
   },

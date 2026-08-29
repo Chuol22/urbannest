@@ -15,6 +15,9 @@ interface User {
   created_at: string;
   updated_at?: string;
   last_login?: string | null;
+  verification_status?: 'pending_review' | 'approved' | 'rejected';
+  verification_document_url?: string | null;
+  verification_rejection_reason?: string | null;
   [key: string]: any;
 }
 
@@ -38,10 +41,11 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   isLoggedIn: boolean;
-  login: (credentials: LoginData) => Promise<void>;
+  login: (credentials: LoginData) => Promise<User>;
   register: (userData: RegisterData) => Promise<void>;
   logout: () => Promise<void>;
   refreshToken: () => Promise<void>;
+  refreshUser: () => Promise<void>;
   updateUser: (userData: Partial<User>) => Promise<void>;
 }
 
@@ -53,13 +57,21 @@ const REFRESH_TOKEN_KEY = 'refresh_token';
 const USER_KEY = 'user_data';
 
 // Storage helpers
-const setSecureToken = (token: string) => {
+const setSecureToken = (token: string, refreshToken?: string) => {
   sessionStorage.setItem(TOKEN_KEY, token);
   localStorage.setItem(TOKEN_KEY, token); // Backup for persistence
+  if (refreshToken) {
+    sessionStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+    localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+  }
 };
 
 const getSecureToken = () => {
   return sessionStorage.getItem(TOKEN_KEY) || localStorage.getItem(TOKEN_KEY);
+};
+
+const getRefreshToken = () => {
+  return sessionStorage.getItem(REFRESH_TOKEN_KEY) || localStorage.getItem(REFRESH_TOKEN_KEY);
 };
 
 const removeSecureToken = () => {
@@ -109,7 +121,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Set default authorization header
       api.setAuthToken(token);
       
-      const response = await api.get('/auth/me');
+      const response = await api.get('/auth/session');
       if (response.success && response.data) {
         setUser(response.data);
         setIsLoggedIn(true);
@@ -141,16 +153,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const response = await api.post('/auth/login', credentials);
       
       if (response.success && response.data) {
-        const { token, refreshToken, user: userData } = response.data;
+        // api.ts interceptor wraps server response: response.data.data holds the actual payload
+        const payload = response.data?.data ?? response.data;
+        const { token, refreshToken, user: userData } = payload;
         
-        // Store tokens securely
-        setSecureToken(token);
-        sessionStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+        // Store tokens securely (persisted in both sessionStorage + localStorage)
+        setSecureToken(token, refreshToken);
         api.setAuthToken(token);
         
         setUser(userData);
         setIsLoggedIn(true);
         setUserData(userData);
+        return userData; // Return user data for redirect logic
       } else {
         throw new Error(response.message || 'Login failed');
       }
@@ -193,10 +207,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
       
       if (response.success && response.data) {
-        const { token, refreshToken, user: newUser } = response.data;
+        // api.ts interceptor wraps server response: response.data.data holds the actual payload
+        const payload = response.data?.data ?? response.data;
+        const { token, refreshToken, user: newUser } = payload;
         
-        setSecureToken(token);
-        sessionStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+        setSecureToken(token, refreshToken);
         api.setAuthToken(token);
         
         setUser(newUser);
@@ -229,7 +244,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const refreshToken = async () => {
-    const refreshTokenStr = sessionStorage.getItem(REFRESH_TOKEN_KEY);
+    const refreshTokenStr = getRefreshToken();
     if (!refreshTokenStr) {
       throw new Error('No refresh token available');
     }
@@ -237,8 +252,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const response = await api.post('/auth/refresh', { refreshToken: refreshTokenStr });
       if (response.success && response.data) {
-        const { token } = response.data.data;
-        setSecureToken(token);
+        // Handle double-wrapped response
+        const payload = response.data?.data ?? response.data;
+        const { token, refreshToken: newRefresh } = payload;
+        setSecureToken(token, newRefresh);
         api.setAuthToken(token);
       } else {
         throw new Error('Token refresh failed');
@@ -277,6 +294,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         register,
         logout,
         refreshToken,
+        refreshUser: validateToken,
         updateUser,
       }}
     >

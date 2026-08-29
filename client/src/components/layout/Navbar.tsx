@@ -163,7 +163,10 @@ export const Navbar = () => {
               </div>
             ))}
 
-            {/* Language Selector */}
+            {user?.role === 'admin' && (
+  <Link to="/admin" className="text-gray-900 dark:text-gray-300 hover:text-amber-600 dark:hover:text-amber-500 px-3 py-2 rounded-md text-sm font-medium transition-colors">Admin</Link>
+)}
+{/* Language Selector */}
             <LanguageSelector />
 
             {/* Theme Toggle */}

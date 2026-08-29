@@ -1,25 +1,54 @@
+/**
+ * Chapa Payment Service
+ *
+ * Handles all interactions with the Chapa payment gateway API.
+ * Provides methods for initializing and verifying payments.
+ *
+ * @see https://developer.chapa.co/
+ * @author UrbanNEST Team
+ * @version 2.0.0
+ */
+
 import axios from 'axios';
 import crypto from 'crypto';
+
+/* ==========================================================================
+   Chapa Service Class
+   ========================================================================== */
 
 class ChapaService {
   constructor() {
     this.secretKey = process.env.CHAPA_SECRET_KEY;
     this.baseURL = process.env.CHAPA_BASE_URL || 'https://api.chapa.co/v1';
-    
+
     if (!this.secretKey) {
       console.error('❌ CHAPA_SECRET_KEY is not set in environment variables');
     }
   }
 
+  /* ==========================================================================
+     Payment Verification
+     ========================================================================== */
+
   /**
-   * Verify a payment transaction
+   * Verify a payment transaction with Chapa.
+   *
    * @param {string} transactionReference - The transaction reference (tx_ref)
-   * @returns {Promise<Object>} - Payment verification result
+   * @returns {Promise<Object>} Verification result containing:
+   *   - success: boolean indicating if verification succeeded
+   *   - data: Chapa response data
+   *   - message: Status message
+   *
+   * @example
+   * const result = await chapaService.verifyPayment('tx-ref-123');
+   * if (result.success) {
+   *   console.log('Payment confirmed:', result.data);
+   * }
    */
   async verifyPayment(transactionReference) {
     try {
       console.log(`🔍 Verifying payment: ${transactionReference}`);
-      
+
       const response = await axios.get(
         `${this.baseURL}/transaction/verify/${transactionReference}`,
         {
@@ -30,36 +59,58 @@ class ChapaService {
         }
       );
 
-      console.log(`✅ Verification response:`, response.data);
+      console.log('✅ Verification response:', response.data);
 
-      if (response.data.status === 'success') {
-        return {
-          success: true,
-          data: response.data,
-          message: 'Payment verified successfully'
-        };
-      } else {
-        return {
-          success: false,
-          data: response.data,
-          message: 'Payment verification failed'
-        };
-      }
+      const isSuccess = response.data.status === 'success';
+
+      return {
+        success: isSuccess,
+        data: response.data,
+        message: isSuccess ? 'Payment verified successfully' : 'Payment verification failed',
+      };
     } catch (error) {
       console.error('❌ Payment verification error:', error.response?.data || error.message);
-      
+
       return {
         success: false,
         error: error.response?.data || error.message,
-        message: 'Error verifying payment'
+        message: 'Error verifying payment',
       };
     }
   }
 
+  /* ==========================================================================
+     Payment Initialization
+     ========================================================================== */
+
   /**
-   * Initialize a new payment (if you need server-side initialization)
+   * Initialize a new payment with Chapa.
+   *
    * @param {Object} paymentData - Payment details
-   * @returns {Promise<Object>} - Payment initialization result
+   * @param {number} paymentData.amount - Payment amount
+   * @param {string} paymentData.email - Customer email
+   * @param {string} paymentData.firstName - Customer first name
+   * @param {string} paymentData.lastName - Customer last name
+   * @param {string} paymentData.phoneNumber - Customer phone number
+   * @param {string} paymentData.tx_ref - Unique transaction reference
+   * @param {string} paymentData.returnUrl - URL to redirect after payment
+   * @param {string} paymentData.callbackUrl - Webhook URL for payment notifications
+   * @returns {Promise<Object>} Initialization result containing:
+   *   - success: boolean indicating if initialization succeeded
+   *   - data: Chapa response data
+   *   - checkoutUrl: URL to redirect user for payment
+   *
+   * @example
+   * const result = await chapaService.initializePayment({
+   *   amount: 100,
+   *   email: 'customer@example.com',
+   *   firstName: 'John',
+   *   lastName: 'Doe',
+   *   phoneNumber: '+251912345678',
+   *   tx_ref: 'UN-LISTING-123',
+   *   returnUrl: 'https://example.com/dashboard',
+   *   callbackUrl: 'https://api.example.com/webhook/chapa',
+   * });
    */
   async initializePayment(paymentData) {
     try {
@@ -71,26 +122,26 @@ class ChapaService {
         phoneNumber,
         tx_ref,
         returnUrl,
-        callbackUrl
+        callbackUrl,
       } = paymentData;
 
       const payload = {
         amount: amount.toString(),
         currency: 'ETB',
-        email: email,
+        email,
         first_name: firstName,
         last_name: lastName,
         phone_number: phoneNumber,
-        tx_ref: tx_ref,
+        tx_ref,
         return_url: returnUrl,
         callback_url: callbackUrl,
         customization: {
           title: 'UrbanNest Payment',
-          description: 'Payment for property services'
-        }
+          description: 'Payment for property services',
+        },
       };
 
-      console.log(`💳 Initializing payment:`, payload);
+      console.log('💳 Initializing payment:', payload);
 
       const response = await axios.post(
         `${this.baseURL}/transaction/initialize`,
@@ -106,18 +157,22 @@ class ChapaService {
       return {
         success: true,
         data: response.data,
-        checkoutUrl: response.data.data.checkout_url
+        checkoutUrl: response.data.data.checkout_url,
       };
     } catch (error) {
       console.error('❌ Payment initialization error:', error.response?.data || error.message);
-      
+
       return {
         success: false,
         error: error.response?.data || error.message,
-        message: 'Error initializing payment'
+        message: 'Error initializing payment',
       };
     }
   }
 }
+
+/* ==========================================================================
+   Export Singleton Instance
+   ========================================================================== */
 
 export default new ChapaService();

@@ -15,9 +15,9 @@ class PaymentController {
   async initializePayment(req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ 
-        success: false, 
-        errors: errors.array() 
+      return res.status(400).json({
+        success: false,
+        errors: errors.array()
       });
     }
 
@@ -264,10 +264,10 @@ class PaymentController {
  * @route POST /api/payments
  * @access Private
  */
-async createPayment(req, res) {
-  // This is an alias for initializePayment
-  return this.initializePayment(req, res);
-}
+  async createPayment(req, res) {
+    // This is an alias for initializePayment
+    return this.initializePayment(req, res);
+  }
 
   /**
    * Get transaction by ID
@@ -467,9 +467,9 @@ async createPayment(req, res) {
   async processRefund(req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ 
-        success: false, 
-        errors: errors.array() 
+      return res.status(400).json({
+        success: false,
+        errors: errors.array()
       });
     }
 
@@ -633,9 +633,9 @@ async createPayment(req, res) {
   async addPaymentMethod(req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ 
-        success: false, 
-        errors: errors.array() 
+      return res.status(400).json({
+        success: false,
+        errors: errors.array()
       });
     }
 
@@ -1805,7 +1805,7 @@ async createPayment(req, res) {
       // Set new default
       const method = await prisma.paymentMethodDetail.update({
         where: { id },
-        data: { 
+        data: {
           isDefault: true,
           updated_at: new Date()
         }
@@ -2029,7 +2029,7 @@ async createPayment(req, res) {
   async initializeGatewayPayment({ transaction, user, amount, currency, paymentMethod, paymentGateway }) {
     // This would integrate with actual payment gateways
     // Examples: Chapa, Telebirr, CBE, Stripe, etc.
-    
+
     switch (paymentGateway) {
       case 'CHAPA':
         return this.initializeChapaPayment(transaction, user, amount, currency);
@@ -2272,8 +2272,72 @@ async createPayment(req, res) {
 
   // Private webhook helpers
   async handleChapaWebhook(payload) {
-    // Process Chapa webhook
-    console.log('Chapa webhook:', payload);
+    console.log('Chapa webhook received:', JSON.stringify(payload, null, 2));
+
+    try {
+      const { tx_ref, status, reference } = payload;
+
+      if (!tx_ref) {
+        console.error('Chapa webhook missing tx_ref');
+        return;
+      }
+
+      // Find the listing fee payment by transaction reference
+      const payment = await prisma.listingFeePayment.findUnique({
+        where: { chapaTransactionRef: tx_ref },
+        include: { property: true }
+      });
+
+      if (!payment) {
+        console.error(`No listing fee payment found for tx_ref: ${tx_ref}`);
+        return;
+      }
+
+      // Skip if already processed
+      if (payment.status === 'COMPLETED') {
+        console.log(`Payment ${tx_ref} already marked as completed`);
+        return;
+      }
+
+      // Only process successful payments
+      if (status === 'success') {
+        const tier = payment.tier || 'standard';
+        const listingDays = tier === 'premium' ? 60 : 30;
+        const listingExpiresAt = new Date();
+        listingExpiresAt.setDate(listingExpiresAt.getDate() + listingDays);
+
+        await prisma.$transaction([
+          prisma.listingFeePayment.update({
+            where: { id: payment.id },
+            data: {
+              status: 'COMPLETED',
+              paidAt: new Date(),
+              chapaCheckoutUrl: payload.checkout_url || payment.chapaCheckoutUrl
+            }
+          }),
+          prisma.property.update({
+            where: { id: payment.propertyId },
+            data: {
+              listing_fee_paid: true,
+              listing_tier: tier,
+              listing_expires_at: listingExpiresAt,
+              is_featured: tier === 'premium',
+              status: 'pending'
+            }
+          })
+        ]);
+
+        console.log(`✅ Payment ${tx_ref} verified and property ${payment.propertyId} activated with ${tier} tier`);
+      } else if (status === 'failed' || status === 'cancelled') {
+        await prisma.listingFeePayment.update({
+          where: { id: payment.id },
+          data: { status: 'FAILED' }
+        });
+        console.log(`❌ Payment ${tx_ref} marked as failed`);
+      }
+    } catch (error) {
+      console.error('Error processing Chapa webhook:', error);
+    }
   }
 
   async handleStripeWebhook(payload) {

@@ -224,6 +224,25 @@ const connectDB = async () => {
     const result = await prisma.$queryRaw`SELECT current_database() as db, current_user as user`;
     console.log(`   Database: ${result[0].db}`);
     console.log(`   User: ${result[0].user}`);
+
+    // Auto-synchronize essential database columns if missing
+    try {
+      await prisma.$executeRawUnsafe(`
+        ALTER TABLE properties ADD COLUMN IF NOT EXISTS is_featured BOOLEAN DEFAULT false;
+        ALTER TABLE properties ADD COLUMN IF NOT EXISTS listing_fee_paid BOOLEAN DEFAULT false;
+        ALTER TABLE properties ADD COLUMN IF NOT EXISTS listing_tier VARCHAR(50) DEFAULT 'standard';
+        ALTER TABLE properties ADD COLUMN IF NOT EXISTS listing_expires_at TIMESTAMP;
+        ALTER TABLE properties ADD COLUMN IF NOT EXISTS listing_rejection_reason TEXT;
+        ALTER TABLE properties ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP;
+
+        ALTER TABLE users ADD COLUMN IF NOT EXISTS verification_rejection_reason TEXT;
+        ALTER TABLE users ADD COLUMN IF NOT EXISTS two_factor_enabled BOOLEAN DEFAULT false;
+        ALTER TABLE users ADD COLUMN IF NOT EXISTS two_factor_secret VARCHAR(255);
+      `);
+      console.log('✅ Database schema verified & columns synchronized successfully');
+    } catch (schemaErr) {
+      console.warn('⚠️ Schema sync warning:', schemaErr.message);
+    }
     
     return true;
   } catch (error) {

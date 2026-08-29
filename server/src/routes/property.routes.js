@@ -25,10 +25,14 @@ router.get('/featured', propertyController.getFeaturedProperties.bind(propertyCo
 // Search properties
 router.get('/search', validate(searchPropertiesSchema), propertyController.searchProperties.bind(propertyController));
 
+// Get user's own properties (MUST come before /:id parameter)
+router.get('/user/me', 
+  authMiddleware.verifyToken, 
+  propertyController.getUserProperties.bind(propertyController)
+);
+
 // Get property by ID
 router.get('/:id', validate(propertyIdParamSchema), propertyController.getPropertyById.bind(propertyController));
-
-// ==================== Protected Routes ====================
 
 // Create property (requires authentication)
 router.post('/', 
@@ -50,12 +54,6 @@ router.delete('/:id',
   authMiddleware.verifyToken, 
   validate(deletePropertySchema), 
   propertyController.deleteProperty.bind(propertyController)
-);
-
-// Get user's own properties
-router.get('/user/me', 
-  authMiddleware.verifyToken, 
-  propertyController.getUserProperties.bind(propertyController)
 );
 
 router.post(

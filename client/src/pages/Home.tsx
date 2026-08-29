@@ -32,7 +32,7 @@ const PopularLocations = () => {
     { name: 'Jimma', slug: 'jimma', properties: '278', image: 'https://images.unsplash.com/photo-1590077428593-55c4ae1fd254?w=400&h=300&fit=crop' },
   ];
 
-  const neighborhoods = ['Bole', 'CMC', 'Kazanchis', 'Piassa', 'Mexico', 'Megenagna', 'Ayat', 'Jemo', 'Gergi', 'Lideta', 'Saris', 'Kality'];
+  const neighborhoods = ['Newland', 'Dipo Downtown', 'Agarpa', 'New University side', 'Dipo Mamaratal', 'Dalkoch', 'Nyangora', 'Arat Kilo', 'Jap Jap', 'Yawere', 'Yechuey', 'Kality'];
 
   const handleCityClick = (slug: string) => {
     navigate(`/properties?city=${slug}`);
@@ -63,7 +63,7 @@ const PopularLocations = () => {
           <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
             Your new home might be waiting for you in one of these popular cities.
             <br />
-            Select a city to explore available homes.
+            Select a city to find available homes.
           </p>
         </motion.div>
 
@@ -118,7 +118,7 @@ const PopularLocations = () => {
                       className="flex items-center text-amber-600 dark:text-amber-400 font-medium group"
                       initial={false}
                     >
-                      <span className="text-sm">Explore</span>
+                      <span className="text-sm">Find</span>
                       <motion.span
                         initial={{ x: 0 }}
                         animate={{ x: 0 }}
@@ -337,7 +337,8 @@ export default function Home() {
         setLoading(true);
         setError(null);
         const data = await propertyService.getFeaturedProperties(6);
-        setFeaturedProperties(data || []);
+        // Defensive: ensure we always get an array even if API shape changes
+        setFeaturedProperties(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error('Error fetching featured properties:', err);
         setError('Failed to load featured properties');
@@ -439,7 +440,7 @@ export default function Home() {
                 className="text-xl md:text-2xl lg:text-2xl text-gray-200 max-w-4xl mx-auto leading-relaxed mt-6 mb-8"
               >
                 Discover safe, secure and trusted properties with UrbanNest, Your trusted partner in finding the perfect home.
-                Browse verified listings and connect with trusted landlords or agents.
+                Browse verified listings and connect with trusted landlords or Broker/ agents.
               </motion.p>
 
               {/* Professional Wide Buttons */}

@@ -1,0 +1,98 @@
+# Test Bulk User Action Endpoint
+# This file can be used with REST Client extension in VS Code
+
+### Variables
+@baseUrl = http://localhost:8080/api/v1
+@token = YOUR_AUTH_TOKEN_HERE
+
+### Test 1: Bulk Approve Users
+POST {{baseUrl}}/admin/users/all/bulk-action
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "action": "approve",
+  "user_ids": [
+    "user-id-1",
+    "user-id-2"
+  ]
+}
+
+### Test 2: Bulk Reject Users
+POST {{baseUrl}}/admin/users/all/bulk-action
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "action": "reject",
+  "user_ids": [
+    "user-id-1",
+    "user-id-2"
+  ],
+  "reason": "Documents do not meet verification requirements"
+}
+
+### Test 3: Bulk Activate Users
+POST {{baseUrl}}/admin/users/all/bulk-action
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "action": "activate",
+  "user_ids": [
+    "user-id-1"
+  ]
+}
+
+### Test 4: Bulk Deactivate Users
+POST {{baseUrl}}/admin/users/all/bulk-action
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "action": "deactivate",
+  "user_ids": [
+    "user-id-1"
+  ]
+}
+
+### Test 5: Invalid - Empty Array
+POST {{baseUrl}}/admin/users/all/bulk-action
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "action": "approve",
+  "user_ids": []
+}
+
+### Test 6: Invalid - Missing action
+POST {{baseUrl}}/admin/users/all/bulk-action
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "user_ids": ["user-id-1"]
+}
+
+### Test 7: Invalid - Missing user_ids
+POST {{baseUrl}}/admin/users/all/bulk-action
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "action": "approve"
+}
+
+### Test 8: Test with userIds (camelCase) instead of user_ids
+POST {{baseUrl}}/admin/users/all/bulk-action
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "action": "approve",
+  "userIds": [
+    "user-id-1",
+    "user-id-2"
+  ]
+}

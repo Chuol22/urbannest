@@ -139,7 +139,8 @@ const authMiddleware = {
    */
   generateTokens(user) {
     const payload = {
-      userId: user.id,
+      id: user.id,          // Changed from userId to id for consistency
+      userId: user.id,      // Keep both for backward compatibility
       email: user.email,
       role: user.role
     };
@@ -154,7 +155,7 @@ const authMiddleware = {
 
     // Refresh token (longer-lived)
     const refreshToken = jwt.sign(
-      { userId: user.id },
+      { id: user.id, userId: user.id }, // Changed from userId to id for consistency
       process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET,
       {
         expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
@@ -185,9 +186,12 @@ const authMiddleware = {
         process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET
       );
 
+      // Support both old (userId) and new (id) token formats
+      const userId = decoded.id || decoded.userId;
+
       // Get user data
       const user = await prisma.user.findUnique({
-        where: { id: decoded.id },
+        where: { id: userId },
         select: { id: true, email: true, role: true, is_active: true }
       });
 

@@ -121,6 +121,11 @@ router.post('/initialize',
  *     security:
  *       - bearerAuth: []
  */
+router.get('/history',
+  authMiddleware.verifyToken,
+  getUserTransactions
+);
+
 router.get('/',
   authMiddleware.verifyToken,
   getUserTransactions

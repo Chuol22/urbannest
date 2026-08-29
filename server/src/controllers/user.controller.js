@@ -206,13 +206,6 @@ class UserController {
         return res.status(404).json({ success: false, message: 'User not found' });
       }
 
-      if (!['owner', 'agent'].includes(user.role)) {
-        return res.status(403).json({
-          success: false,
-          message: 'Only brokers and landlords can upload verification documents'
-        });
-      }
-
       let documentUrl = req.file.path || req.file.location;
       if (!documentUrl && req.file.buffer) {
         try {
@@ -228,9 +221,12 @@ class UserController {
         }
       }
 
+      const targetRole = user.role === 'seeker' ? 'agent' : user.role;
+
       const updatedUser = await prisma.user.update({
         where: { id },
         data: {
+          role: targetRole,
           verification_document_url: documentUrl,
           verification_status: 'pending_review',
           is_verified: false, // Reset to false while pending re-review
@@ -241,6 +237,7 @@ class UserController {
           first_name: true,
           last_name: true,
           email: true,
+          role: true,
           verification_status: true,
           verification_document_url: true
         }

@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 
 import { useTheme } from '../context/ThemeContext';
 import { useLocalStorage, useLocalStorageBoolean } from '../hooks/useLocalStorage';
+import { useGoogleTranslate } from '../hooks/useGoogleTranslate';
 
 import { Alert } from '../components/ui/Alert';
 import { Button } from '../components/ui/Button';
@@ -23,7 +24,7 @@ interface PrivacySettings {
 
 export default function Settings() {
   const { theme, setTheme, currentTheme } = useTheme();
-  const [language, setLanguage] = useLocalStorage('language', 'en');
+  const { currentLang, changeLanguage, languages } = useGoogleTranslate();
   const [currency, setCurrency] = useLocalStorage('currency', 'USD');
   const [distanceUnit, setDistanceUnit] = useLocalStorage('distanceUnit', 'miles');
   const [notifications, setNotifications] = useLocalStorage<NotificationSettings>('notifications', {
@@ -101,14 +102,18 @@ export default function Settings() {
                 Language
               </label>
               <select
-                value={language}
-                onChange={(e) => setLanguage(e.target.value)}
+                value={currentLang.code}
+                onChange={(e) => {
+                  const selected = languages.find(l => l.code === e.target.value);
+                  if (selected) changeLanguage(selected);
+                }}
                 className="w-full md:w-64 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
               >
-                <option value="en">English</option>
-                <option value="es">Spanish</option>
-                <option value="fr">French</option>
-                <option value="de">German</option>
+                {languages.map((l) => (
+                  <option key={l.code} value={l.code}>
+                    {l.name} ({l.nativeName})
+                  </option>
+                ))}
               </select>
             </div>
 

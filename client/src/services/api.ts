@@ -76,8 +76,31 @@ class ApiService {
       async (error: AxiosError) => {
         const originalRequest = error.config as any;
 
-        // Handle 401 Unauthorized errors (token expired)
-        if (error.response?.status === 401 && !originalRequest._retry) {
+        const url = originalRequest?.url || '';
+        const isAuthEndpoint = 
+          url.includes('/auth/login') || 
+          url.includes('/auth/register') || 
+          url.includes('/auth/refresh') ||
+          url.includes('/auth/forgot-password') ||
+          url.includes('/auth/reset-password') ||
+          url.includes('/auth/verify-email');
+
+        // Handle 401 Unauthorized errors (token expired) only for protected non-auth requests
+        if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
+          const refreshToken = sessionStorage.getItem('refresh_token') || localStorage.getItem('refresh_token');
+          if (!refreshToken) {
+            this.clearTokens();
+            if (!window.location.pathname.includes('/login')) {
+              window.location.href = '/login';
+            }
+            return {
+              data: {
+                success: false,
+                message: 'Session expired. Please log in again.',
+              }
+            };
+          }
+
           if (this.isRefreshing) {
             // Queue the request while token is being refreshed
             return new Promise((resolve, reject) => {
@@ -94,14 +117,19 @@ class ApiService {
             await this.refreshToken();
             this.processQueue(null);
             return this.axiosInstance(originalRequest);
-          } catch (refreshError) {
+          } catch (refreshError: any) {
             this.processQueue(refreshError);
             this.clearTokens();
-            // Only redirect if not already on login page
+            // Silently redirect to login without propagating the refresh error
             if (!window.location.pathname.includes('/login')) {
               window.location.href = '/login';
             }
-            return Promise.reject(refreshError);
+            return {
+              data: {
+                success: false,
+                message: 'Session expired. Please log in again.',
+              }
+            };
           } finally {
             this.isRefreshing = false;
           }
@@ -140,7 +168,7 @@ class ApiService {
   }
 
   private async refreshToken() {
-    const refreshToken = sessionStorage.getItem('refresh_token');
+    const refreshToken = sessionStorage.getItem('refresh_token') || localStorage.getItem('refresh_token');
     if (!refreshToken) {
       throw new Error('No refresh token available');
     }
@@ -152,11 +180,13 @@ class ApiService {
       this.setToken(data.token);
       if (data.refreshToken) {
         sessionStorage.setItem('refresh_token', data.refreshToken);
+        localStorage.setItem('refresh_token', data.refreshToken);
       }
     } else if (data?.data?.token) {
       this.setToken(data.data.token);
       if (data.data.refreshToken) {
         sessionStorage.setItem('refresh_token', data.data.refreshToken);
+        localStorage.setItem('refresh_token', data.data.refreshToken);
       }
     } else {
       throw new Error('Token refresh failed');

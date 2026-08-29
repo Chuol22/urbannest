@@ -85,14 +85,17 @@ export const propertyService = {
 
   /**
    * Get featured properties
+   * The backend returns { success: true, data: [...] } — we extract the data array.
    */
   async getFeaturedProperties(limit = 6): Promise<Property[]> {
     try {
       const response = await apiClient.get(`${API_BASE_URL}/properties/featured?limit=${limit}`);
-      return response.data;
+      // Backend wraps response: { success: true, data: [...] }
+      const payload = response.data;
+      return Array.isArray(payload) ? payload : (payload?.data ?? []);
     } catch (error) {
       console.error('Error fetching featured properties:', error);
-      throw error;
+      return []; // Return empty array on error instead of crashing
     }
   },
 
@@ -102,10 +105,11 @@ export const propertyService = {
   async searchProperties(query: string, limit = 10): Promise<Property[]> {
     try {
       const response = await apiClient.get(`${API_BASE_URL}/properties/search?q=${encodeURIComponent(query)}&limit=${limit}`);
-      return response.data;
+      const payload = response.data;
+      return Array.isArray(payload) ? payload : (payload?.data ?? []);
     } catch (error) {
       console.error('Error searching properties:', error);
-      throw error;
+      return [];
     }
   },
 
@@ -132,10 +136,11 @@ export const propertyService = {
   async getPropertyPhotos(propertyId: string): Promise<any[]> {
     try {
       const response = await apiClient.get(`${API_BASE_URL}/properties/${propertyId}/photos`);
-      return response.data;
+      const payload = response.data;
+      return Array.isArray(payload) ? payload : (payload?.data ?? []);
     } catch (error) {
       console.error('Error fetching property photos:', error);
-      throw error;
+      return [];
     }
   },
 
@@ -173,7 +178,7 @@ export const propertyService = {
         limit: limit.toString()
       });
 
-      const response = await apiClient.get(`${API_BASE_URL}/properties/user?${params}`);
+      const response = await apiClient.get(`${API_BASE_URL}/properties/user/me?${params}`);
       return response.data;
     } catch (error) {
       console.error('Error fetching user properties:', error);

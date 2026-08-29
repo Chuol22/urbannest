@@ -245,10 +245,12 @@ model Property {
   status          PropertyStatus     @default(pending)
 
   // Additional fields
-  is_featured     Boolean            @default(false)
-  listing_fee_paid Boolean           @default(false)
+  is_featured       Boolean            @default(false)
+  listing_fee_paid  Boolean            @default(false)
+  listing_tier      String?            @default("standard") // standard | premium - null if unpaid
+  listing_expires_at DateTime?         // When the listing expires (30 days standard, 60 days premium)
   listing_rejection_reason String?
-  deleted_at      DateTime?
+  deleted_at        DateTime?
 
   // REMOVED: searchVector (Unsupported type no longer available)
   // Use raw SQL for full-text search instead
@@ -282,6 +284,7 @@ model ListingFeePayment {
   userId               String    @map("user_id") @db.Uuid
   amount               Float
   currency             Currency  @default(ETB)
+  tier                 String    @default("standard") // standard | premium
   chapaTransactionRef  String?   @unique @map("chapa_transaction_ref")
   chapaCheckoutUrl     String?   @map("chapa_checkout_url")
   status               String    @default("PENDING") // PENDING | COMPLETED | FAILED
@@ -295,6 +298,7 @@ model ListingFeePayment {
   @@index([propertyId])
   @@index([userId])
   @@index([status])
+  @@index([tier])
   @@map("listing_fee_payments")
 }
 

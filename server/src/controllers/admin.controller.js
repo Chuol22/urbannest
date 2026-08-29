@@ -787,31 +787,83 @@ class AdminController {
    */
   async getAllListings(req, res) {
     try {
+      console.log('[GET LISTINGS] Request params:', req.query);
+
       const { status, page = 1, limit = 20 } = req.query;
       const skip = (parseInt(page) - 1) * parseInt(limit);
+      const take = parseInt(limit);
 
       const where = { deleted_at: null };
-      if (status) where.status = status;
+      if (status) {
+        where.status = status;
+      }
+
+      console.log('[GET LISTINGS] Where clause:', where);
+      console.log('[GET LISTINGS] Pagination - skip:', skip, 'take:', take);
 
       const [listings, total] = await Promise.all([
         prisma.property.findMany({
           where,
           orderBy: { created_at: 'desc' },
           skip,
-          take: parseInt(limit),
+          take,
           include: {
-            user: { select: { id: true, first_name: true, last_name: true, email: true } },
+            user: {
+              select: {
+                id: true,
+                first_name: true,
+                last_name: true,
+                email: true,
+                phone: true,
+                role: true
+              }
+            },
             location: true,
-            photos: { where: { isPrimary: true }, take: 1 }
+            photos: {
+              where: { isPrimary: true },
+              take: 1,
+              select: {
+                id: true,
+                photoUrl: true,
+                isPrimary: true
+              }
+            }
           }
         }),
         prisma.property.count({ where })
       ]);
 
-      res.json({ success: true, data: { listings, total, page: parseInt(page), limit: parseInt(limit) } });
+      // Map photos to include url field for frontend compatibility
+      const mappedListings = listings.map(listing => ({
+        ...listing,
+        photos: listing.photos?.map(photo => ({
+          ...photo,
+          url: photo.photoUrl
+        })) || []
+      }));
+
+      const totalPages = Math.ceil(total / take);
+
+      console.log('[GET LISTINGS] Found', total, 'listings,', mappedListings.length, 'on this page');
+
+      res.json({
+        success: true,
+        data: {
+          listings: mappedListings,
+          total,
+          page: parseInt(page),
+          limit: take,
+          totalPages
+        }
+      });
     } catch (error) {
-      console.error('Get all listings error:', error);
-      res.status(500).json({ success: false, message: 'Failed to get listings' });
+      console.error('[GET LISTINGS] Error:', error);
+      console.error('[GET LISTINGS] Error stack:', error.stack);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to get listings',
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      });
     }
   }
 
@@ -1084,6 +1136,47 @@ class AdminController {
     } catch (error) {
       console.error('Get payments error:', error);
       res.status(500).json({ success: false, message: 'Failed to get payments' });
+    }
+  }
+
+  /**
+   * GET /api/admin/payments/config
+   */
+  async getPaymentConfig(req, res) {
+    try {
+      if (!this.paymentConfig) {
+        this.paymentConfig = { sell_fee: 500, rent_fee: 300 };
+      }
+      res.json({
+        success: true,
+        data: this.paymentConfig
+      });
+    } catch (error) {
+      console.error('Get payment config error:', error);
+      res.status(500).json({ success: false, message: 'Failed to get payment configuration' });
+    }
+  }
+
+  /**
+   * PUT /api/admin/payments/config
+   */
+  async updatePaymentConfig(req, res) {
+    try {
+      const { sell_fee, rent_fee } = req.body;
+      if (!this.paymentConfig) {
+        this.paymentConfig = { sell_fee: 500, rent_fee: 300 };
+      }
+      if (sell_fee !== undefined) this.paymentConfig.sell_fee = Number(sell_fee);
+      if (rent_fee !== undefined) this.paymentConfig.rent_fee = Number(rent_fee);
+
+      res.json({
+        success: true,
+        message: 'Payment configuration updated successfully',
+        data: this.paymentConfig
+      });
+    } catch (error) {
+      console.error('Update payment config error:', error);
+      res.status(500).json({ success: false, message: 'Failed to update payment configuration' });
     }
   }
 
@@ -1550,10 +1643,55 @@ class AdminController {
         userAgent: extractUserAgent(req)
       });
 
-      res.json({ success: true, message: 'User account deactivated', data: updated });
+      res.json({ success: true, message: 'User account deactivated successfully', data: updated });
     } catch (error) {
       console.error('Deactivate user error:', error);
       res.status(500).json({ success: false, message: 'Failed to deactivate user account' });
+    }
+  }
+
+  /**
+   * DELETE /api/v1/admin/users/all/:id
+   * Permanently delete a user account from the platform
+   */
+  async deleteUser(req, res) {
+    try {
+      const { id } = req.params;
+
+      if (id === req.user.id) {
+        return res.status(400).json({ success: false, message: 'Cannot delete your own admin account' });
+      }
+
+      const user = await prisma.user.findUnique({ where: { id } });
+      if (!user) {
+        return res.status(404).json({ success: false, message: 'User account not found' });
+      }
+
+      await prisma.user.delete({
+        where: { id }
+      });
+
+      try {
+        await auditLogService.log({
+          adminId: req.user.id,
+          actionType: 'DELETE_USER',
+          targetResource: 'USER',
+          targetId: id,
+          ipAddress: extractIPAddress(req),
+          userAgent: extractUserAgent(req),
+          metadata: { email: user.email, name: `${user.first_name} ${user.last_name}`, role: user.role }
+        });
+      } catch (auditErr) {
+        console.error('Audit log error (non-fatal):', auditErr);
+      }
+
+      res.json({
+        success: true,
+        message: `Account for ${user.first_name} ${user.last_name} (${user.email || user.phone}) has been permanently deleted from the platform.`
+      });
+    } catch (error) {
+      console.error('Delete user error:', error);
+      res.status(500).json({ success: false, message: 'Failed to delete user account: ' + error.message });
     }
   }
 
@@ -1562,50 +1700,134 @@ class AdminController {
    */
   async bulkUserAction(req, res) {
     try {
-      const userIds = req.body.userIds || req.body.user_ids;
+      console.log('[BULK ACTION] Request body:', JSON.stringify(req.body, null, 2));
+
+      // Accept both snake_case (user_ids) and camelCase (userIds)
+      const userIds = req.body.user_ids || req.body.userIds;
       const { action, reason } = req.body;
-      if (!Array.isArray(userIds) || userIds.length === 0) {
-        return res.status(400).json({ success: false, message: 'User IDs array is required' });
+
+      console.log('[BULK ACTION] Extracted userIds:', userIds);
+      console.log('[BULK ACTION] Action:', action);
+
+      // Validation: Check if userIds is provided and is an array
+      if (!userIds) {
+        console.error('[BULK ACTION] Missing user_ids/userIds field');
+        return res.status(400).json({
+          success: false,
+          message: 'User IDs array is required (provide as user_ids or userIds)'
+        });
       }
 
-      if (!['approve', 'reject', 'activate', 'deactivate'].includes(action)) {
-        return res.status(400).json({ success: false, message: 'Invalid bulk action specified' });
+      if (!Array.isArray(userIds)) {
+        console.error('[BULK ACTION] user_ids is not an array:', typeof userIds);
+        return res.status(400).json({
+          success: false,
+          message: 'User IDs must be an array'
+        });
       }
 
+      if (userIds.length === 0) {
+        console.error('[BULK ACTION] Empty user_ids array');
+        return res.status(400).json({
+          success: false,
+          message: 'User IDs array cannot be empty'
+        });
+      }
+
+      // Validation: Check action type
+      if (!action) {
+        console.error('[BULK ACTION] Missing action field');
+        return res.status(400).json({
+          success: false,
+          message: 'Action field is required'
+        });
+      }
+
+      const validActions = ['approve', 'reject', 'activate', 'deactivate'];
+      if (!validActions.includes(action)) {
+        console.error('[BULK ACTION] Invalid action:', action);
+        return res.status(400).json({
+          success: false,
+          message: `Invalid bulk action specified. Must be one of: ${validActions.join(', ')}`
+        });
+      }
+
+      // Validation: Reject action requires reason
+      if (action === 'reject' && (!reason || reason.trim().length < 10)) {
+        console.error('[BULK ACTION] Reject action missing or invalid reason');
+        return res.status(400).json({
+          success: false,
+          message: 'Rejection reason is required and must be at least 10 characters'
+        });
+      }
+
+      // Build update data based on action
       let updateData = {};
       if (action === 'approve') {
-        updateData = { is_verified: true, verification_status: 'approved', verification_rejection_reason: null };
+        updateData = {
+          is_verified: true,
+          verification_status: 'approved',
+          verification_rejection_reason: null
+        };
       } else if (action === 'reject') {
-        updateData = { is_verified: false, verification_status: 'rejected', verification_rejection_reason: reason || 'Bulk rejected by administrator' };
+        updateData = {
+          is_verified: false,
+          verification_status: 'rejected',
+          verification_rejection_reason: reason.trim()
+        };
       } else if (action === 'activate') {
         updateData = { is_active: true };
       } else if (action === 'deactivate') {
         updateData = { is_active: false };
       }
 
+      console.log('[BULK ACTION] Update data:', updateData);
+      console.log('[BULK ACTION] Attempting to update users:', userIds);
+
+      // Execute bulk update
       const result = await prisma.user.updateMany({
         where: { id: { in: userIds } },
         data: updateData
       });
 
-      await auditLogService.log({
-        adminId: req.user.id,
-        actionType: `BULK_${action.toUpperCase()}_USERS`,
-        targetResource: 'USER',
-        targetId: 'MULTIPLE',
-        ipAddress: extractIPAddress(req),
-        userAgent: extractUserAgent(req),
-        metadata: { count: result.count, userIds, action }
-      });
+      console.log('[BULK ACTION] Update result:', result);
+
+      // Log the action in audit trail
+      try {
+        await auditLogService.log({
+          adminId: req.user.id,
+          actionType: `BULK_${action.toUpperCase()}_USERS`,
+          targetResource: 'USER',
+          targetId: 'MULTIPLE',
+          ipAddress: extractIPAddress(req),
+          userAgent: extractUserAgent(req),
+          metadata: { count: result.count, userIds, action, reason }
+        });
+      } catch (auditError) {
+        console.error('[BULK ACTION] Audit log error (non-fatal):', auditError);
+        // Continue even if audit logging fails
+      }
+
+      console.log('[BULK ACTION] Success - processed', result.count, 'users');
 
       res.json({
         success: true,
-        message: `Successfully processed ${result.count} accounts (${action})`,
-        data: { affectedCount: result.count }
+        message: `Successfully processed ${result.count} user account(s) - ${action}`,
+        data: {
+          affectedCount: result.count,
+          requestedCount: userIds.length,
+          action,
+          userIds
+        }
       });
     } catch (error) {
-      console.error('Bulk user action error:', error);
-      res.status(500).json({ success: false, message: 'Failed to execute bulk user action' });
+      console.error('[BULK ACTION] Error details:', error);
+      console.error('[BULK ACTION] Error stack:', error.stack);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to execute bulk user action',
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      });
     }
   }
 
@@ -1639,7 +1861,7 @@ class AdminController {
       });
 
       const csvHeader = 'ID,First Name,Last Name,Email,Phone,Role,Active,Verified,Verification Status,Created At\n';
-      const csvRows = users.map(u => 
+      const csvRows = users.map(u =>
         `"${u.id}","${u.first_name || ''}","${u.last_name || ''}","${u.email || ''}","${u.phone || ''}","${u.role}","${u.is_active}","${u.is_verified}","${u.verification_status || ''}","${u.created_at}"`
       ).join('\n');
 

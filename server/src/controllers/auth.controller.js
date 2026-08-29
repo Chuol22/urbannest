@@ -482,6 +482,9 @@ class AuthController {
           last_name: true,
           role: true,
           is_verified: true,
+          verification_status: true,
+          verification_document_url: true,
+          verification_rejection_reason: true,
           avatar_url: true,
           last_login: true,
           created_at: true

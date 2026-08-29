@@ -18,10 +18,20 @@ router.get('/dashboard/revenue', (req, res) => adminController.getRevenueStats(r
 // ==================== Platform User Management (must come BEFORE /:id routes) ====================
 router.get('/users/all', (req, res) => adminController.getAllUsers(req, res));
 router.get('/users/all/export', (req, res) => adminController.exportUsers(req, res));
-router.post('/users/all/bulk-action', (req, res) => adminController.bulkUserAction(req, res));
+router.post('/users/all/bulk-action', async (req, res) => {
+    try {
+        await adminController.bulkUserAction(req, res);
+    } catch (error) {
+        console.error('[Route] Bulk user action route error:', error);
+        if (!res.headersSent) {
+            res.status(500).json({ success: false, message: 'Internal server error in route handler' });
+        }
+    }
+});
 router.put('/users/all/:id/verify', (req, res) => adminController.verifyUser(req, res));
 router.post('/users/all/:id/deactivate', (req, res) => adminController.deactivateUser(req, res));
 router.post('/users/all/:id/activate', (req, res) => adminController.activateUser(req, res));
+router.delete('/users/all/:id', (req, res) => adminController.deleteUser(req, res));
 
 // ==================== Admin User Lifecycle ====================
 router.post('/users', (req, res) => adminController.createAdmin(req, res));
@@ -43,7 +53,16 @@ router.get('/audit-logs/export', (req, res) => adminController.exportAuditLogs(r
 router.get('/audit-logs/:id', (req, res) => adminController.getAuditLogDetails(req, res));
 
 // ==================== Listing Moderation ====================
-router.get('/listings', (req, res) => adminController.getAllListings(req, res));
+router.get('/listings', async (req, res) => {
+    try {
+        await adminController.getAllListings(req, res);
+    } catch (error) {
+        console.error('[Route] Get listings route error:', error);
+        if (!res.headersSent) {
+            res.status(500).json({ success: false, message: 'Internal server error in listings route' });
+        }
+    }
+});
 router.get('/listings/pending', (req, res) => adminController.getPendingListings(req, res));
 router.get('/listings/awaiting-fee', (req, res) => adminController.getListingsAwaitingFee(req, res));
 router.post('/listings/bulk-approve', (req, res) => adminController.bulkApproveListings(req, res));
@@ -53,6 +72,8 @@ router.post('/listings/:id/reject', (req, res) => adminController.rejectListing(
 
 // ==================== Payment Management ====================
 router.get('/payments', (req, res) => adminController.getPayments(req, res));
+router.get('/payments/config', (req, res) => adminController.getPaymentConfig(req, res));
+router.put('/payments/config', (req, res) => adminController.updatePaymentConfig(req, res));
 router.get('/payments/export', (req, res) => adminController.exportPayments(req, res));
 router.get('/payments/:id', (req, res) => adminController.getPaymentDetails(req, res));
 router.post('/payments/:id/complete', (req, res) => adminController.markPaymentCompleted(req, res));

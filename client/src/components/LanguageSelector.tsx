@@ -10,7 +10,7 @@ import { useGoogleTranslate } from '../hooks/useGoogleTranslate';
 export const LanguageSelector: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
-    const { currentLang, changeLanguage, languages } = useGoogleTranslate();
+    const { currentLang, changeLanguage, languages, isReady } = useGoogleTranslate();
 
     const handleClickOutside = (e: MouseEvent) => {
         if (
@@ -30,8 +30,10 @@ export const LanguageSelector: React.FC = () => {
         <div className="relative" ref={dropdownRef}>
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition-all duration-200 border border-gray-200 dark:border-gray-700"
+                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition-all duration-200 border border-gray-200 dark:border-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 aria-label="Select language"
+                disabled={!isReady}
+                title={!isReady ? "Loading translation service..." : "Select language"}
             >
                 <span
                     aria-hidden="true"

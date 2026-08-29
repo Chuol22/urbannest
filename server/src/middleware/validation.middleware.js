@@ -8,6 +8,9 @@ import { validationResult } from "express-validator";
  */
 const validate = (validations, type = 'body') => {
   return async (req, res, next) => {
+    console.log('[VALIDATION] Running validations for:', req.method, req.path);
+    console.log('[VALIDATION] Request body:', JSON.stringify(req.body, null, 2));
+
     // Run all validations
     for (const validation of validations) {
       const result = await validation.run(req);
@@ -17,8 +20,12 @@ const validate = (validations, type = 'body') => {
     // Check for validation errors
     const errors = validationResult(req);
     if (errors.isEmpty()) {
+      console.log('[VALIDATION] Validation passed');
       return next();
     }
+
+    console.error('[VALIDATION] Validation failed');
+    console.error('[VALIDATION] Errors:', errors.array());
 
     // Format errors
     const formattedErrors = errors.array().map(error => ({
@@ -37,9 +44,14 @@ const validate = (validations, type = 'body') => {
       return acc;
     }, {});
 
+    // Create a user-friendly error message
+    const errorMessages = formattedErrors.map(e => `${e.field}: ${e.message}`).join('; ');
+
+    console.error('[VALIDATION] User-friendly error:', errorMessages);
+
     return res.status(400).json({
       success: false,
-      message: 'Validation failed',
+      message: `Validation failed: ${errorMessages}`,
       errors: formattedErrors,
       groupedErrors,
       timestamp: new Date().toISOString()
