@@ -1,8 +1,10 @@
 import { useState } from 'react';
-
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { LogOut } from 'lucide-react';
 
 import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext';
 import { useLocalStorage, useLocalStorageBoolean } from '../hooks/useLocalStorage';
 import { useGoogleTranslate } from '../hooks/useGoogleTranslate';
 
@@ -23,6 +25,13 @@ interface PrivacySettings {
 }
 
 export default function Settings() {
+  const { logout, isLoggedIn } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login');
+  };
   const { theme, setTheme, currentTheme } = useTheme();
   const { currentLang, changeLanguage, languages } = useGoogleTranslate();
   const [currency, setCurrency] = useLocalStorage('currency', 'USD');
@@ -370,6 +379,26 @@ export default function Settings() {
             </div>
           </div>
         </motion.div>
+
+        {/* Account Session / Log Out */}
+        {isLoggedIn && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border-t-2 border-rose-500"
+          >
+            <h2 className="text-xl font-bold text-rose-600 dark:text-rose-400 mb-1">Account Session</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Sign out of your active account session on this device.</p>
+            <button
+              onClick={handleLogout}
+              className="bg-rose-600 hover:bg-rose-700 text-white font-bold px-6 py-2.5 rounded-lg flex items-center space-x-2 transition shadow-md shadow-rose-600/20"
+            >
+              <LogOut size={18} />
+              <span>Log Out of Account</span>
+            </button>
+          </motion.div>
+        )}
       </div>
     </div>
   );

@@ -49,11 +49,27 @@ export const propertyService = {
    * Create a new property
    */
   async createProperty(propertyData: CreatePropertyData): Promise<Property> {
+    console.log('[Property Service] Creating property with data:', propertyData);
+
     try {
-      const response = await apiClient.post(`${API_BASE_URL}/properties`, propertyData);
+      const url = `${API_BASE_URL}/properties`;
+      console.log('[Property Service] POST URL:', url);
+
+      const response = await apiClient.post(url, propertyData);
+      console.log('[Property Service] Create property response:', response.data);
+
       return response.data;
-    } catch (error) {
-      console.error('Error creating property:', error);
+    } catch (error: any) {
+      console.error('[Property Service] Error creating property:', error);
+      console.error('[Property Service] Error response:', error.response?.data);
+      console.error('[Property Service] Error status:', error.response?.status);
+      console.error('[Property Service] Error message:', error.message);
+
+      // Provide more specific error information
+      if (error.code === 'ECONNABORTED') {
+        console.error('[Property Service] Request timeout - operation took too long');
+      }
+
       throw error;
     }
   },
@@ -172,16 +188,25 @@ export const propertyService = {
    * Get user's properties
    */
   async getUserProperties(page = 1, limit = 10): Promise<PaginatedResponse<Property>> {
+    console.log('[Property Service] Getting user properties - page:', page, 'limit:', limit);
+
     try {
       const params = new URLSearchParams({
         page: page.toString(),
         limit: limit.toString()
       });
 
-      const response = await apiClient.get(`${API_BASE_URL}/properties/user/me?${params}`);
+      const url = `${API_BASE_URL}/properties/user/me?${params}`;
+      console.log('[Property Service] Request URL:', url);
+
+      const response = await apiClient.get(url);
+      console.log('[Property Service] User properties response:', response.data);
+
       return response.data;
-    } catch (error) {
-      console.error('Error fetching user properties:', error);
+    } catch (error: any) {
+      console.error('[Property Service] Error fetching user properties:', error);
+      console.error('[Property Service] Error response:', error.response?.data);
+      console.error('[Property Service] Error status:', error.response?.status);
       throw error;
     }
   }

@@ -2,14 +2,14 @@
 import React, { useState, useEffect } from 'react';
 import { adminService } from '../../services/admin.service';
 import { PlatformListing } from '../../types/admin.types';
-import { 
-  Building2, 
-  Search, 
-  CheckCircle2, 
-  XCircle, 
-  AlertCircle, 
-  ChevronLeft, 
-  ChevronRight, 
+import {
+  Building2,
+  Search,
+  CheckCircle2,
+  XCircle,
+  AlertCircle,
+  ChevronLeft,
+  ChevronRight,
   X,
   Eye,
   Check,
@@ -42,20 +42,30 @@ export const ListingManagement: React.FC = () => {
   const fetchListings = async () => {
     setLoading(true);
     try {
+      console.log('[Listing Management] Fetching listings with params:', { page, limit, status: statusFilter });
+
       const res = await adminService.getAllListings({
         page,
         limit,
         status: statusFilter || undefined
       });
 
+      console.log('[Listing Management] Response:', res);
+
       if (res.success && res.data?.listings) {
         setListings(res.data.listings);
         setTotal(res.data.total || 0);
-        setTotalPages(res.data.totalPages || 1);
+        setTotalPages(res.data.totalPages || Math.ceil((res.data.total || 0) / limit));
+        console.log('[Listing Management] Loaded', res.data.listings.length, 'listings');
+      } else {
+        console.error('[Listing Management] Unexpected response format:', res);
+        toast.error('Unexpected response format from server');
       }
-    } catch (err) {
-      console.error('Failed to fetch listings:', err);
-      toast.error('Failed to load listing records');
+    } catch (err: any) {
+      console.error('[Listing Management] Failed to fetch listings:', err);
+      console.error('[Listing Management] Error response:', err.response?.data);
+      const errorMessage = err.response?.data?.message || err.message || 'Failed to load listing records';
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -74,7 +84,7 @@ export const ListingManagement: React.FC = () => {
   };
 
   const handleSelectOne = (id: string) => {
-    setSelectedIds(prev => 
+    setSelectedIds(prev =>
       prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
     );
   };
@@ -212,11 +222,10 @@ export const ListingManagement: React.FC = () => {
           <button
             key={status}
             onClick={() => { setStatusFilter(status); setPage(1); }}
-            className={`px-4 py-2 rounded-xl text-xs font-bold capitalize transition ${
-              statusFilter === status
+            className={`px-4 py-2 rounded-xl text-xs font-bold capitalize transition ${statusFilter === status
                 ? 'bg-teal-500/20 text-teal-400 border border-teal-500/40 shadow-inner'
                 : 'text-slate-400 hover:text-white bg-slate-800/50'
-            }`}
+              }`}
           >
             {status} listings
           </button>
@@ -308,11 +317,10 @@ export const ListingManagement: React.FC = () => {
                         )}
                       </td>
                       <td className="px-6 py-4">
-                        <span className={`px-2.5 py-1 rounded-full text-xs font-bold capitalize ${
-                          listing.status === 'available' ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30' :
-                          listing.status === 'pending' ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30' :
-                          'bg-rose-500/15 text-rose-400 border border-rose-500/30'
-                        }`}>
+                        <span className={`px-2.5 py-1 rounded-full text-xs font-bold capitalize ${listing.status === 'available' ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30' :
+                            listing.status === 'pending' ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30' :
+                              'bg-rose-500/15 text-rose-400 border border-rose-500/30'
+                          }`}>
                           {listing.status}
                         </span>
                       </td>

@@ -1,7 +1,26 @@
-// client/src/services/paymentService.ts
+/**
+ * Payment Service
+ *
+ * Handles all payment-related API interactions including:
+ * - Listing fee initialization and verification
+ * - Payment history retrieval
+ * - Chapa payment gateway integration
+ *
+ * @author UrbanNEST Team
+ * @version 2.0.0
+ */
+
 import { apiClient } from '../utils/apiClient';
 
+/* ==========================================================================
+   Configuration
+   ========================================================================== */
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api/v1';
+
+/* ==========================================================================
+   Types & Interfaces
+   ========================================================================== */
 
 export interface PaymentPlan {
   id: string;
@@ -27,9 +46,17 @@ export interface PaymentResponse {
   message?: string;
 }
 
+/* ==========================================================================
+   Payment Service API
+   ========================================================================== */
+
 export const paymentService = {
+
   /**
-   * Get available payment plans
+   * Fetch available payment plans.
+   *
+   * @returns Array of available payment plans
+   * @throws Error if request fails
    */
   async getPaymentPlans(): Promise<PaymentPlan[]> {
     try {
@@ -42,7 +69,11 @@ export const paymentService = {
   },
 
   /**
-   * Initialize payment for property listing (legacy)
+   * Initialize payment for property listing (legacy endpoint).
+   *
+   * @param paymentData - Payment details including plan, property, and amount
+   * @returns Payment response with checkout URL
+   * @throws Error if request fails
    */
   async initializePropertyListingPayment(paymentData: PaymentData): Promise<PaymentResponse> {
     try {
@@ -55,12 +86,34 @@ export const paymentService = {
   },
 
   /**
-   * Initialize Chapa listing fee for a specific property.
-   * Returns { success, data: { checkout_url, tx_ref, amount } }
+   * Initialize Chapa listing fee payment for a property.
+   *
+   * This creates a payment session with Chapa and returns the checkout URL
+   * for redirecting the user to complete payment.
+   *
+   * @param propertyId - UUID of the property to pay for
+   * @param tier - 'standard' or 'premium' listing tier
+   * @returns Payment response containing:
+   *   - checkout_url: Chapa payment page URL
+   *   - tx_ref: Transaction reference for verification
+   *   - amount: Fee amount in ETB
+   *   - tier: Selected tier
+   *
+   * @example
+   * const response = await paymentService.initializeListingFee('property-uuid', 'premium');
+   * if (response.success) {
+   *   window.location.href = response.data.checkout_url;
+   * }
    */
-  async initializeListingFee(propertyId: string): Promise<PaymentResponse> {
+  async initializeListingFee(
+    propertyId: string,
+    tier: 'standard' | 'premium' = 'standard'
+  ): Promise<PaymentResponse> {
     try {
-      const response = await apiClient.post(`${API_BASE_URL}/properties/${propertyId}/listing-fee`);
+      const response = await apiClient.post(
+        `${API_BASE_URL}/properties/${propertyId}/listing-fee`,
+        { tier }
+      );
       return response.data;
     } catch (error) {
       console.error('Error initializing listing fee:', error);
@@ -69,8 +122,20 @@ export const paymentService = {
   },
 
   /**
-   * Verify listing fee payment with Chapa after redirect.
-   * Returns { success, message }
+   * Verify Chapa listing fee payment after redirect.
+   *
+   * Called when the user returns from Chapa's payment page to confirm
+   * the payment status and activate the listing.
+   *
+   * @param propertyId - UUID of the property
+   * @param tx_ref - Transaction reference from Chapa
+   * @returns Verification response with payment status and property details
+   *
+   * @example
+   * const response = await paymentService.verifyListingFee('property-uuid', 'tx-ref-123');
+   * if (response.success) {
+   *   // Payment confirmed, listing is now in admin review queue
+   * }
    */
   async verifyListingFee(propertyId: string, tx_ref: string): Promise<PaymentResponse> {
     try {
@@ -86,7 +151,11 @@ export const paymentService = {
   },
 
   /**
-   * Verify payment status
+   * Check payment status by ID.
+   *
+   * @param paymentId - Payment record ID
+   * @returns Payment status and details
+   * @throws Error if request fails
    */
   async verifyPaymentStatus(paymentId: string): Promise<PaymentResponse> {
     try {
@@ -99,11 +168,14 @@ export const paymentService = {
   },
 
   /**
-   * Get user's listing fee payment history
+   * Get the current user's payment history.
+   *
+   * Returns a list of listing fee payments made by the authenticated broker.
+   *
+   * @returns Array of payment records or empty array on failure
    */
   async getPaymentHistory(): Promise<PaymentResponse> {
     try {
-      // Returns listing_fee_payments for the logged-in broker
       const response = await apiClient.get(`${API_BASE_URL}/payments/history`);
       return response.data;
     } catch (error) {

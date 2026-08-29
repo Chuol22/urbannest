@@ -1,20 +1,20 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { 
-  Home, 
-  Plus, 
-  List, 
-  CreditCard, 
-  User, 
-  Settings, 
-  LogOut, 
-  Share2, 
-  CheckCircle, 
-  Clock, 
-  XCircle, 
-  ExternalLink, 
-  TrendingUp, 
-  Eye, 
+import {
+  Home,
+  Plus,
+  List,
+  CreditCard,
+  User,
+  Settings,
+  LogOut,
+  Share2,
+  CheckCircle,
+  Clock,
+  XCircle,
+  ExternalLink,
+  TrendingUp,
+  Eye,
   AlertTriangle,
   Loader2,
   DollarSign,
@@ -189,7 +189,7 @@ export default function Dashboard() {
       window.history.replaceState({}, '', '/dashboard');
       verifyReturnPayment(propertyId);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.search]);
 
   async function verifyReturnPayment(propertyId: string) {
@@ -225,26 +225,79 @@ export default function Dashboard() {
     async function loadDashboardData() {
       try {
         setLoading(true);
-        const propRes = await propertyService.getUserProperties(1, 50);
-        setProperties(propRes.data || []);
+        setError('');
 
+        console.log('[Dashboard] Loading dashboard data...');
+
+        // Fetch user properties
+        try {
+          const propRes = await propertyService.getUserProperties(1, 50);
+          console.log('[Dashboard] Properties response:', propRes);
+
+          if (propRes && propRes.data) {
+            setProperties(propRes.data);
+            console.log('[Dashboard] Loaded', propRes.data.length, 'properties');
+          } else {
+            console.warn('[Dashboard] Unexpected properties response format:', propRes);
+            setProperties([]);
+          }
+        } catch (propErr: any) {
+          console.error('[Dashboard] Failed to load properties:', propErr);
+          console.error('[Dashboard] Properties error response:', propErr.response?.data);
+
+          // Still try to load payments even if properties fail
+          setProperties([]);
+
+          // Only show error if it's a critical auth issue
+          if (propErr.response?.status === 401 || propErr.response?.status === 403) {
+            throw propErr;
+          }
+        }
+
+        // Fetch payment history (non-critical, show warning but don't fail)
         try {
           const payRes = await paymentService.getPaymentHistory();
-          setPayments(payRes.data || []);
-        } catch (payErr) {
-          console.warn('Failed to load payment history:', payErr);
+          console.log('[Dashboard] Payments response:', payRes);
+
+          if (payRes && payRes.data) {
+            setPayments(payRes.data);
+            console.log('[Dashboard] Loaded', payRes.data.length, 'payments');
+          } else {
+            setPayments([]);
+          }
+        } catch (payErr: any) {
+          console.warn('[Dashboard] Failed to load payment history:', payErr);
+          console.warn('[Dashboard] Payment error response:', payErr.response?.data);
+          // Don't fail the whole dashboard if payments fail
+          setPayments([]);
         }
-      } catch {
-        setError('Failed to load dashboard data. Please try again.');
+
+        console.log('[Dashboard] Dashboard data loaded successfully');
+      } catch (err: any) {
+        console.error('[Dashboard] Critical error loading dashboard:', err);
+        console.error('[Dashboard] Error response:', err.response?.data);
+
+        const errorMessage = err.response?.data?.message || err.message || 'Failed to load dashboard data. Please try again.';
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
     }
 
     if (user) {
+      console.log('[Dashboard] User authenticated, loading data for:', user.email);
       loadDashboardData();
+    } else {
+      console.log('[Dashboard] No authenticated user');
     }
   }, [user]);
+
+  // Refresh user profile on mount to update account status (e.g. admin approval)
+  useEffect(() => {
+    if (refreshUser) {
+      refreshUser();
+    }
+  }, [refreshUser]);
 
   const handleLogout = async () => {
     await logout();
@@ -252,15 +305,16 @@ export default function Dashboard() {
   };
 
   // ---- Pay listing fee inline ----
-  const handlePayNow = async (propertyId: string) => {
+  const handlePayNow = async (propertyId: string, tier: 'standard' | 'premium' = 'standard') => {
     setPayNowLoading(propertyId);
     setError('');
     try {
-      const res = await paymentService.initializeListingFee(propertyId);
+      const res = await paymentService.initializeListingFee(propertyId, tier);
       if (res?.success && res?.data?.checkout_url) {
         localStorage.setItem('pendingListingFee', JSON.stringify({
           property_id: propertyId,
           tx_ref: res.data.tx_ref,
+          tier: res.data.tier || tier,
         }));
         window.location.href = res.data.checkout_url;
       } else {
@@ -274,11 +328,11 @@ export default function Dashboard() {
   };
 
   // ---- Stats ----
-  const totalProperties     = properties.length;
+  const totalProperties = properties.length;
   const publishedProperties = properties.filter(p => p.status === 'available').length;
-  const pendingProperties   = properties.filter(p => p.status === 'pending' && p.listing_fee_paid).length;
-  const awaitingPayment     = properties.filter(p => !p.listing_fee_paid).length;
-  const rejectedProperties  = properties.filter(p => p.status === 'withdrawn' || p.listing_rejection_reason).length;
+  const pendingProperties = properties.filter(p => p.status === 'pending' && p.listing_fee_paid).length;
+  const awaitingPayment = properties.filter(p => !p.listing_fee_paid).length;
+  const rejectedProperties = properties.filter(p => p.status === 'withdrawn' || p.listing_rejection_reason).length;
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-gray-950 flex flex-col md:flex-row font-sans">
@@ -308,11 +362,11 @@ export default function Dashboard() {
             <div className="mt-3 flex items-center justify-between text-xs border-t border-slate-700 pt-2">
               <span className="text-gray-400">Account status:</span>
               {user?.verification_status === 'approved' ? (
-                <span className="text-emerald-400 font-medium flex items-center"><CheckCircle size={12} className="mr-1"/> Verified</span>
+                <span className="text-emerald-400 font-medium flex items-center"><CheckCircle size={12} className="mr-1" /> Verified</span>
               ) : user?.verification_status === 'rejected' ? (
-                <span className="text-rose-400 font-medium flex items-center"><XCircle size={12} className="mr-1"/> Rejected</span>
+                <span className="text-rose-400 font-medium flex items-center"><XCircle size={12} className="mr-1" /> Rejected</span>
               ) : (
-                <span className="text-amber-400 font-medium flex items-center"><Clock size={12} className="mr-1"/> Pending</span>
+                <span className="text-amber-400 font-medium flex items-center"><Clock size={12} className="mr-1" /> Pending</span>
               )}
             </div>
           </div>
@@ -329,11 +383,10 @@ export default function Dashboard() {
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id as any)}
-                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-semibold transition ${
-                  activeTab === item.id
-                    ? 'bg-emerald-600 text-white shadow-md'
-                    : 'text-gray-300 hover:bg-slate-800 hover:text-white'
-                }`}
+                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-semibold transition ${activeTab === item.id
+                  ? 'bg-emerald-600 text-white shadow-md'
+                  : 'text-gray-300 hover:bg-slate-800 hover:text-white'
+                  }`}
               >
                 {item.icon}
                 <span className="flex-1 text-left">{item.label}</span>
@@ -701,13 +754,12 @@ export default function Dashboard() {
                               <td className="px-6 py-4 text-sm font-semibold text-gray-700 dark:text-gray-300">{p.property?.title || '—'}</td>
                               <td className="px-6 py-4 text-sm font-bold text-gray-900 dark:text-white">ETB {p.amount}</td>
                               <td className="px-6 py-4">
-                                <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
-                                  p.status === 'COMPLETED'
-                                    ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/20 dark:text-emerald-400'
-                                    : p.status === 'FAILED'
+                                <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${p.status === 'COMPLETED'
+                                  ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/20 dark:text-emerald-400'
+                                  : p.status === 'FAILED'
                                     ? 'bg-rose-100 text-rose-700 dark:bg-rose-950/20 dark:text-rose-400'
                                     : 'bg-amber-100 text-amber-800 dark:bg-amber-950/20 dark:text-amber-400'
-                                }`}>
+                                  }`}>
                                   {p.status}
                                 </span>
                               </td>
@@ -747,10 +799,10 @@ export default function Dashboard() {
                           {user?.verification_status === 'approved'
                             ? 'Approved! You can now publish properties publicly.'
                             : user?.verification_status === 'rejected'
-                            ? `Rejected: ${user?.verification_rejection_reason || 'Invalid document. Please submit again.'}`
-                            : user?.verification_document_url
-                            ? 'Your document is uploaded and under review by our admin team.'
-                            : 'Upload your commercial registration license or ID card copy below.'}
+                              ? `Rejected: ${user?.verification_rejection_reason || 'Invalid document. Please submit again.'}`
+                              : user?.verification_document_url
+                                ? 'Your document is uploaded and under review by our admin team.'
+                                : 'Upload your commercial registration license or ID card copy below.'}
                         </p>
                       </div>
                       <div>
@@ -820,11 +872,10 @@ export default function Dashboard() {
                           onDragOver={handleDragOver}
                           onDragLeave={handleDragLeave}
                           onDrop={handleDrop}
-                          className={`border-2 border-dashed rounded-xl p-8 text-center transition cursor-pointer ${
-                            isDragging
-                              ? 'border-emerald-500 bg-emerald-50/30 dark:bg-emerald-950/20'
-                              : 'border-gray-300 dark:border-gray-600 bg-slate-50/50 hover:bg-slate-50 dark:bg-slate-800/40 dark:hover:bg-slate-800'
-                          }`}
+                          className={`border-2 border-dashed rounded-xl p-8 text-center transition cursor-pointer ${isDragging
+                            ? 'border-emerald-500 bg-emerald-50/30 dark:bg-emerald-950/20'
+                            : 'border-gray-300 dark:border-gray-600 bg-slate-50/50 hover:bg-slate-50 dark:bg-slate-800/40 dark:hover:bg-slate-800'
+                            }`}
                         >
                           <UploadCloud className={`mx-auto mb-3 transition-colors ${isDragging ? 'text-emerald-500' : 'text-gray-400 dark:text-gray-500'}`} size={36} />
                           <span className="block text-sm font-bold text-gray-800 dark:text-gray-200">
@@ -881,11 +932,10 @@ export default function Dashboard() {
                         type="button"
                         onClick={handleUploadDocument}
                         disabled={!selectedFile || uploadingDoc}
-                        className={`w-full font-semibold py-3 rounded-xl transition flex items-center justify-center gap-2 shadow-sm ${
-                          !selectedFile || uploadingDoc
-                            ? 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
-                            : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/10 hover:shadow-emerald-600/20'
-                        }`}
+                        className={`w-full font-semibold py-3 rounded-xl transition flex items-center justify-center gap-2 shadow-sm ${!selectedFile || uploadingDoc
+                          ? 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                          : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/10 hover:shadow-emerald-600/20'
+                          }`}
                       >
                         {uploadingDoc ? (
                           <>
@@ -948,9 +998,24 @@ export default function Dashboard() {
                       </div>
                     </div>
                   </div>
-                  <button className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-2.5 rounded-xl transition text-sm">
-                    Save Preferences
-                  </button>
+                  <div className="flex items-center justify-between border-t border-gray-100 dark:border-gray-700 pt-5">
+                    <button className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-2.5 rounded-xl transition text-sm">
+                      Save Preferences
+                    </button>
+                  </div>
+
+                  {/* Account Session / Logout Section */}
+                  <div className="border-t border-gray-100 dark:border-gray-700 pt-5 space-y-3">
+                    <h3 className="font-bold text-sm text-rose-600 dark:text-rose-400">Account Session</h3>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Sign out of your agent/owner session on this device.</p>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full sm:w-auto flex items-center justify-center space-x-2 bg-rose-600 hover:bg-rose-700 text-white font-bold px-6 py-3 rounded-xl transition text-sm shadow-md shadow-rose-600/20"
+                    >
+                      <LogOut size={18} />
+                      <span>Log Out of Account</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             )}

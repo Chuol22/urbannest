@@ -2,20 +2,21 @@
 import React, { useState, useEffect } from 'react';
 import { adminService } from '../../services/admin.service';
 import { PlatformUser } from '../../types/admin.types';
-import { 
-  Users, 
-  Search, 
-  Download, 
-  CheckCircle2, 
-  XCircle, 
-  UserCheck, 
-  UserX, 
-  ChevronLeft, 
-  ChevronRight, 
+import {
+  Users,
+  Search,
+  Download,
+  CheckCircle2,
+  XCircle,
+  UserCheck,
+  UserX,
+  ChevronLeft,
+  ChevronRight,
   X,
   FileCheck,
   AlertTriangle,
-  ExternalLink
+  ExternalLink,
+  Trash2
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -41,6 +42,11 @@ export const UserManagement: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<PlatformUser | null>(null);
   const [verifyDecision, setVerifyDecision] = useState<'approved' | 'rejected'>('approved');
   const [rejectionReason, setRejectionReason] = useState<string>('');
+
+  // Delete User Modal
+  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
+  const [userToDelete, setUserToDelete] = useState<PlatformUser | null>(null);
+  const [deleting, setDeleting] = useState<boolean>(false);
 
   // Bulk action confirmation modal
   const [showBulkModal, setShowBulkModal] = useState<boolean>(false);
@@ -92,7 +98,7 @@ export const UserManagement: React.FC = () => {
   };
 
   const handleSelectOne = (id: string) => {
-    setSelectedUserIds(prev => 
+    setSelectedUserIds(prev =>
       prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
     );
   };
@@ -145,6 +151,30 @@ export const UserManagement: React.FC = () => {
     }
   };
 
+  // Delete User Account
+  const openDeleteUser = (user: PlatformUser) => {
+    setUserToDelete(user);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDeleteUser = async () => {
+    if (!userToDelete) return;
+    setDeleting(true);
+    try {
+      const res = await adminService.deleteUser(userToDelete.id);
+      if (res.success) {
+        toast.success(res.message || `Account for ${userToDelete.first_name} ${userToDelete.last_name} permanently deleted.`);
+        setShowDeleteModal(false);
+        setUserToDelete(null);
+        fetchUsers();
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to delete user account');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   // Bulk Actions
   const openBulkAction = (action: 'approve' | 'reject' | 'activate' | 'deactivate') => {
     if (selectedUserIds.length === 0) return;
@@ -162,20 +192,35 @@ export const UserManagement: React.FC = () => {
     }
 
     try {
+      console.log('[BULK ACTION] Sending request:', {
+        action: pendingBulkAction,
+        user_ids: selectedUserIds,
+        reason: bulkReason,
+        count: selectedUserIds.length
+      });
+
       const res = await adminService.bulkUserAction({
         action: pendingBulkAction,
         user_ids: selectedUserIds,
         reason: bulkReason
       });
 
+      console.log('[BULK ACTION] Response:', res);
+
       if (res.success) {
-        toast.success(res.message);
+        toast.success(res.message || `Successfully processed ${selectedUserIds.length} users`);
         setShowBulkModal(false);
         setSelectedUserIds([]);
+        setPendingBulkAction(null);
+        setBulkReason('');
         fetchUsers();
+      } else {
+        toast.error(res.message || 'Bulk operation failed');
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Bulk operation failed');
+      console.error('[BULK ACTION] Error:', err);
+      const errorMessage = err.response?.data?.message || err.message || 'Bulk operation failed';
+      toast.error(errorMessage);
     }
   };
 
@@ -448,15 +493,24 @@ export const UserManagement: React.FC = () => {
 
                           <button
                             onClick={() => toggleUserStatus(user)}
-                            className={`p-1.5 rounded-lg border transition ${
-                              user.is_active
+                            className={`p-1.5 rounded-lg border transition ${user.is_active
                                 ? 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
                                 : 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
-                            }`}
+                              }`}
                             title={user.is_active ? 'Deactivate Account' : 'Activate Account'}
                           >
                             {user.is_active ? <UserX className="w-4 h-4 text-slate-400" /> : <UserCheck className="w-4 h-4" />}
                           </button>
+
+                          {user.role !== 'admin' && (
+                            <button
+                              onClick={() => openDeleteUser(user)}
+                              className="p-1.5 rounded-lg border bg-rose-950/40 hover:bg-rose-900/60 text-rose-400 border-rose-800/50 transition"
+                              title="Delete Account Permanently"
+                            >
+                              <Trash2 className="w-4 h-4 text-rose-400" />
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -590,11 +644,10 @@ export const UserManagement: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className={`flex-1 px-4 py-2.5 rounded-xl font-bold transition text-xs ${
-                    verifyDecision === 'approved' 
-                      ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950' 
+                  className={`flex-1 px-4 py-2.5 rounded-xl font-bold transition text-xs ${verifyDecision === 'approved'
+                      ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950'
                       : 'bg-rose-500 hover:bg-rose-400 text-white'
-                  }`}
+                    }`}
                 >
                   Submit Decision
                 </button>
@@ -649,6 +702,53 @@ export const UserManagement: React.FC = () => {
                 className="flex-1 px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl font-bold transition text-xs"
               >
                 Confirm Bulk Action
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* DELETE USER CONFIRMATION MODAL */}
+      {showDeleteModal && userToDelete && (
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-slate-800 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-5">
+            <div className="flex items-center justify-between border-b border-slate-700 pb-3">
+              <h3 className="text-lg font-bold text-rose-400 flex items-center space-x-2">
+                <Trash2 className="w-5 h-5 text-rose-500" />
+                <span>Delete Account Permanently</span>
+              </h3>
+              <button onClick={() => setShowDeleteModal(false)} className="text-slate-400 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-2 text-xs text-slate-300">
+              <p className="font-semibold text-sm text-white">
+                Are you sure you want to completely delete the account for{' '}
+                <span className="text-rose-400 font-bold">{userToDelete.first_name} {userToDelete.last_name}</span>?
+              </p>
+              <p className="text-slate-400">
+                Email: <strong className="text-slate-200">{userToDelete.email}</strong> | Role: <strong className="text-slate-200 capitalize">{userToDelete.role}</strong>
+              </p>
+              <p className="text-rose-400/90 font-medium bg-rose-950/40 p-3 rounded-xl border border-rose-800/40">
+                ⚠️ Warning: This will permanently purge the agent/user account from the platform database along with their associated listings. This action cannot be undone.
+              </p>
+            </div>
+
+            <div className="flex space-x-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowDeleteModal(false)}
+                className="flex-1 px-4 py-2.5 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-xl font-semibold transition text-xs"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDeleteUser}
+                disabled={deleting}
+                className="flex-1 px-4 py-2.5 bg-rose-600 hover:bg-rose-500 disabled:opacity-60 text-white rounded-xl font-bold transition text-xs shadow-lg shadow-rose-600/20"
+              >
+                {deleting ? 'Deleting Account...' : 'Yes, Delete Account'}
               </button>
             </div>
           </div>

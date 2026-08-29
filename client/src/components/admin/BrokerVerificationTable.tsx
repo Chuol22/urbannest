@@ -32,12 +32,22 @@ export default function BrokerVerificationTable() {
     onSuccess: () => queryClient.invalidateQueries(['pendingBrokers']),
   });
 
+  const deleteMutation = useMutation(adminService.deleteUser, {
+    onSuccess: () => queryClient.invalidateQueries(['pendingBrokers']),
+  });
+
   const handleApprove = (id: string) => {
     approveMutation.mutate(id);
   };
 
   const handleReject = (id: string) => {
     setShowRejectModal(id);
+  };
+
+  const handleDelete = (id: string) => {
+    if (window.confirm('Are you sure you want to permanently delete this broker account from the platform?')) {
+      deleteMutation.mutate(id);
+    }
   };
 
   const submitReject = (id: string) => {
@@ -84,7 +94,8 @@ export default function BrokerVerificationTable() {
               </td>
               <td className="px-4 py-2 space-x-2">
                 <Button size="sm" onClick={() => handleApprove(b.id)} loading={approveMutation.isLoading} className="bg-emerald-600 hover:bg-emerald-500">Approve</Button>
-                <Button size="sm" onClick={() => handleReject(b.id)} loading={rejectMutation.isLoading} className="bg-rose-600 hover:bg-rose-500">Reject</Button>
+                <Button size="sm" onClick={() => handleReject(b.id)} loading={rejectMutation.isLoading} className="bg-amber-600 hover:bg-amber-500">Reject</Button>
+                <Button size="sm" onClick={() => handleDelete(b.id)} loading={deleteMutation.isLoading} className="bg-rose-700 hover:bg-rose-600">Delete</Button>
               </td>
             </tr>
           ))}

@@ -114,9 +114,21 @@ export const adminService = {
     return res.data;
   },
 
-  bulkUserAction: async (data: { action: 'approve' | 'reject' | 'activate' | 'deactivate'; user_ids: string[]; reason?: string }) => {
-    const res = await apiClient.post('/admin/users/all/bulk-action', data);
+  deleteUser: async (id: string) => {
+    const res = await apiClient.delete(`/admin/users/all/${id}`);
     return res.data;
+  },
+
+  bulkUserAction: async (data: { action: 'approve' | 'reject' | 'activate' | 'deactivate'; user_ids: string[]; reason?: string }) => {
+    console.log('[Admin Service] Bulk user action request:', data);
+    try {
+      const res = await apiClient.post('/admin/users/all/bulk-action', data);
+      console.log('[Admin Service] Bulk user action response:', res.data);
+      return res.data;
+    } catch (error: any) {
+      console.error('[Admin Service] Bulk user action error:', error.response?.data || error.message);
+      throw error;
+    }
   },
 
   exportUsersUrl: (params?: any) => {
@@ -127,8 +139,15 @@ export const adminService = {
 
   // Listing Moderation
   getAllListings: async (params?: { page?: number; limit?: number; status?: string }) => {
-    const res = await apiClient.get('/admin/listings', { params });
-    return res.data;
+    console.log('[Admin Service] Get all listings request:', params);
+    try {
+      const res = await apiClient.get('/admin/listings', { params });
+      console.log('[Admin Service] Get all listings response:', res.data);
+      return res.data;
+    } catch (error: any) {
+      console.error('[Admin Service] Get all listings error:', error.response?.data || error.message);
+      throw error;
+    }
   },
 
   getPendingListings: async () => {
@@ -160,6 +179,16 @@ export const adminService = {
   getPayments: async (params?: { page?: number; limit?: number; status?: string; from_date?: string; to_date?: string }) => {
     const res = await apiClient.get('/admin/payments', { params });
     return res.data;
+  },
+
+  getPaymentConfig: async () => {
+    const res = await apiClient.get('/admin/payments/config');
+    return res.data?.data || res.data;
+  },
+
+  updatePaymentConfig: async (data: { sell_fee: number; rent_fee: number }) => {
+    const res = await apiClient.put('/admin/payments/config', data);
+    return res.data?.data || res.data;
   },
 
   getPaymentDetails: async (id: string) => {

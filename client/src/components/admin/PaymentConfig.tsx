@@ -1,5 +1,5 @@
 // client/src/components/admin/PaymentConfig.tsx
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert } from '../ui/Alert';
 import { Button } from '../ui/Button';
 import { adminService } from '../../services/admin.service';
