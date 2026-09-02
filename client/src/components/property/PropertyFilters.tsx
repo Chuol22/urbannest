@@ -113,7 +113,7 @@ export const PropertyFilters: React.FC<PropertyFiltersProps> = ({
   };
 
   return (
-    <div className={`bg-white rounded-lg shadow-md p-4 ${className}`}>
+    <div className={`bg-white dark:bg-gray-800 rounded-lg shadow-md dark:border dark:border-gray-700 p-4 transition-colors ${className}`}>
       {/* Search Input */}
       <div className="mb-4">
         <Input
@@ -122,7 +122,7 @@ export const PropertyFilters: React.FC<PropertyFiltersProps> = ({
           value={localFilters.search || ''}
           onChange={(e) => handleChange('search', e.target.value)}
           icon={
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           }
@@ -132,13 +132,13 @@ export const PropertyFilters: React.FC<PropertyFiltersProps> = ({
       {/* Basic Filters */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Property Type
           </label>
           <select
             value={localFilters.type || 'all'}
             onChange={(e) => handleChange('type', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-amber-500 focus:border-transparent"
           >
             {PROPERTY_TYPES.map((type) => (
               <option key={type.value} value={type.value}>
@@ -149,7 +149,7 @@ export const PropertyFilters: React.FC<PropertyFiltersProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Price Range
           </label>
           <select
@@ -161,7 +161,7 @@ export const PropertyFilters: React.FC<PropertyFiltersProps> = ({
                 handleChange('maxPrice', range.max);
               }
             }}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-amber-500 focus:border-transparent"
           >
             {PRICE_RANGES.map((range) => (
               <option key={range.label} value={range.label}>
@@ -172,7 +172,7 @@ export const PropertyFilters: React.FC<PropertyFiltersProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Location
           </label>
           <Input
@@ -189,7 +189,7 @@ export const PropertyFilters: React.FC<PropertyFiltersProps> = ({
         <div className="mb-4">
           <button
             onClick={() => setIsAdvancedOpen(!isAdvancedOpen)}
-            className="text-primary-600 hover:text-primary-700 text-sm font-medium flex items-center"
+            className="text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 text-sm font-medium flex items-center"
           >
             <svg
               className={`w-4 h-4 mr-1 transform transition-transform ${isAdvancedOpen ? 'rotate-180' : ''}`}
@@ -215,10 +215,10 @@ export const PropertyFilters: React.FC<PropertyFiltersProps> = ({
               transition={{ duration: 0.3 }}
               className="overflow-hidden"
             >
-              <div className="border-t border-gray-200 pt-4 mt-4">
+              <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Bedrooms
                     </label>
                     <div className="flex space-x-2">
@@ -229,8 +229,8 @@ export const PropertyFilters: React.FC<PropertyFiltersProps> = ({
                           className={`
                             px-3 py-1 rounded-md transition-colors
                             ${localFilters.bedrooms === num
-                              ? 'bg-primary-600 text-white'
-                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                              ? 'bg-amber-600 text-white font-semibold'
+                              : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                             }
                           `}
                         >
@@ -239,7 +239,7 @@ export const PropertyFilters: React.FC<PropertyFiltersProps> = ({
                       ))}
                       <button
                         onClick={() => handleChange('bedrooms', undefined)}
-                        className="px-3 py-1 rounded-md text-gray-500 hover:bg-gray-100"
+                        className="px-3 py-1 rounded-md text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
                       >
                         Any
                       </button>
@@ -247,7 +247,7 @@ export const PropertyFilters: React.FC<PropertyFiltersProps> = ({
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Bathrooms
                     </label>
                     <div className="flex space-x-2">
@@ -258,8 +258,8 @@ export const PropertyFilters: React.FC<PropertyFiltersProps> = ({
                           className={`
                             px-3 py-1 rounded-md transition-colors
                             ${localFilters.bathrooms === num
-                              ? 'bg-primary-600 text-white'
-                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                              ? 'bg-amber-600 text-white font-semibold'
+                              : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                             }
                           `}
                         >
@@ -268,7 +268,7 @@ export const PropertyFilters: React.FC<PropertyFiltersProps> = ({
                       ))}
                       <button
                         onClick={() => handleChange('bathrooms', undefined)}
-                        className="px-3 py-1 rounded-md text-gray-500 hover:bg-gray-100"
+                        className="px-3 py-1 rounded-md text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
                       >
                         Any
                       </button>
@@ -277,7 +277,7 @@ export const PropertyFilters: React.FC<PropertyFiltersProps> = ({
                 </div>
 
                 <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Amenities
                   </label>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
@@ -293,9 +293,9 @@ export const PropertyFilters: React.FC<PropertyFiltersProps> = ({
                               : currentAmenities.filter(a => a !== amenity);
                             handleChange('amenities', updatedAmenities);
                           }}
-                          className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                          className="rounded border-gray-300 dark:border-gray-600 text-amber-600 focus:ring-amber-500"
                         />
-                        <span className="text-sm text-gray-700">{amenity}</span>
+                        <span className="text-sm text-gray-700 dark:text-gray-300">{amenity}</span>
                       </label>
                     ))}
                   </div>

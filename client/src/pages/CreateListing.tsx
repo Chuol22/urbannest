@@ -218,6 +218,20 @@ const CreateListing: React.FC = () => {
   const [createdPropertyId, setCreatedPropertyId] = useState<string | null>(null);
   const [error, setError] = useState('');
 
+  /** Safely converts any value to a displayable string */
+  const toStr = (val: unknown): string => {
+    if (!val) return '';
+    if (typeof val === 'string') return val;
+    if (typeof val === 'object') {
+      try {
+        return Object.entries(val as Record<string, unknown>)
+          .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(', ') : v}`)
+          .join(' | ');
+      } catch { return JSON.stringify(val); }
+    }
+    return String(val);
+  };
+
   const [form, setForm] = useState<FormData>({
     title: '',
     description: '',
@@ -402,11 +416,11 @@ const CreateListing: React.FC = () => {
         // Redirect to Chapa payment page
         window.location.href = response.data.checkout_url;
       } else {
-        setError(response?.message || 'Could not initialize payment. Please try again.');
+        setError(toStr(response?.message) || 'Could not initialize payment. Please try again.');
       }
     } catch (err: any) {
-      const errorMessage = err?.response?.data?.message || err?.message || 'Failed to initialize payment.';
-      setError(errorMessage);
+      const raw = err?.response?.data?.message ?? err?.response?.data?.error ?? err?.message;
+      setError(toStr(raw) || 'Failed to initialize payment.');
     } finally {
       setPaymentLoading(false);
     }

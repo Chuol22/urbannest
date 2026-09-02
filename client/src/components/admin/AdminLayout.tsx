@@ -18,17 +18,15 @@ import {
   ShieldCheck
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAuth } from '../../context/AuthContext';
 
 export const AdminLayout: React.FC = () => {
+  const { user, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [sessionTimer, setSessionTimer] = useState<number>(4 * 60 * 60); // 4 hours in seconds
   const [showWarning, setShowWarning] = useState<boolean>(false);
   const location = useLocation();
   const navigate = useNavigate();
-
-  // Load current user from storage
-  const userString = localStorage.getItem('user') || sessionStorage.getItem('user');
-  const user = userString ? JSON.parse(userString) : null;
 
   // Session timer countdown
   useEffect(() => {
@@ -55,12 +53,12 @@ export const AdminLayout: React.FC = () => {
     toast.success('Session extended for 4 hours.');
   };
 
-  const handleLogout = (msg?: string) => {
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('refresh_token');
-    sessionStorage.removeItem('auth_token');
-    sessionStorage.removeItem('refresh_token');
-    localStorage.removeItem('user');
+  const handleLogout = async (msg?: string) => {
+    try {
+      await logout();
+    } catch {
+      // ignore
+    }
     toast.info(msg || 'Logged out successfully.');
     navigate('/login');
   };

@@ -109,7 +109,7 @@ const Layout: React.FC<LayoutProps> = ({ children, showSidebar = false }) => {
         <link rel="canonical" href={window.location.href} />
       </Helmet>
 
-      <div className="min-h-screen flex flex-col bg-white">
+      <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
         <Navbar />
 
         <main
@@ -120,32 +120,32 @@ const Layout: React.FC<LayoutProps> = ({ children, showSidebar = false }) => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
               <div className="flex flex-col lg:flex-row gap-8">
                 <aside className="lg:w-1/4">
-                  <div className="bg-white rounded-lg shadow-md p-6 sticky top-24">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Navigation</h3>
+                  <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:border dark:border-gray-700 p-6 sticky top-24">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Navigation</h3>
                     <nav>
                       <ul className="space-y-2">
                         <li>
-                          <a href="/dashboard" className="text-gray-600 hover:text-blue-600 transition-colors duration-200">
+                          <a href="/dashboard" className="text-gray-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors duration-200">
                             Dashboard
                           </a>
                         </li>
                         <li>
-                          <a href="/properties" className="text-gray-600 hover:text-blue-600 transition-colors duration-200">
+                          <a href="/properties" className="text-gray-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors duration-200">
                             My Properties
                           </a>
                         </li>
                         <li>
-                          <a href="/favorites" className="text-gray-600 hover:text-blue-600 transition-colors duration-200">
+                          <a href="/favorites" className="text-gray-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors duration-200">
                             Favorites
                           </a>
                         </li>
                         <li>
-                          <a href="/profile" className="text-gray-600 hover:text-blue-600 transition-colors duration-200">
+                          <a href="/profile" className="text-gray-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors duration-200">
                             Profile
                           </a>
                         </li>
                         <li>
-                          <a href="/messages" className="text-gray-600 hover:text-blue-600 transition-colors duration-200">
+                          <a href="/messages" className="text-gray-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors duration-200">
                             Messages
                           </a>
                         </li>
@@ -155,7 +155,7 @@ const Layout: React.FC<LayoutProps> = ({ children, showSidebar = false }) => {
                 </aside>
 
                 <div className="lg:w-3/4">
-                  <div className="bg-white rounded-lg shadow-md p-6">
+                  <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:border dark:border-gray-700 p-6">
                     {children || <Outlet />}
                   </div>
                 </div>

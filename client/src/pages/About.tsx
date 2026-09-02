@@ -425,7 +425,7 @@ export default function About() {
                   className="text-center p-6 bg-gray-50 dark:bg-gray-800 rounded-2xl hover:shadow-lg transition-all duration-300 border-l-4 border-amber-600"
                 >
                   <motion.div
-                    className="text-3xl font-black text-gray-900 mb-2"
+                    className="text-3xl font-black text-gray-900 dark:text-white mb-2"
                     whileHover={{ scale: 1.1, rotate: 5 }}
                     transition={{ type: "spring", stiffness: 400, damping: 20 }}
                   >

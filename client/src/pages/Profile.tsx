@@ -118,17 +118,17 @@ export default function Profile() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">My Profile</h1>
+      <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">My Profile</h1>
 
       <div className="space-y-8">
         {/* Profile Information */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-lg shadow-md p-6"
+          className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 dark:border dark:border-gray-700"
         >
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold text-gray-900">Profile Information</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Profile Information</h2>
             {!isEditing && (
               <Button variant="outline" onClick={() => setIsEditing(true)}>
                 Edit Profile
@@ -161,7 +161,7 @@ export default function Profile() {
                 type="email"
                 value={formData.email}
                 disabled
-                className="bg-gray-50"
+                className="bg-gray-50 dark:bg-gray-700/50"
               />
 
               <Input
@@ -206,9 +206,9 @@ export default function Profile() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-white rounded-lg shadow-md p-6"
+          className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 dark:border dark:border-gray-700"
         >
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">Change Password</h2>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Change Password</h2>
 
           <form onSubmit={handlePasswordUpdate}>
             <div className="space-y-4">
@@ -254,23 +254,23 @@ export default function Profile() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-gray-50 rounded-lg p-6"
+          className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 dark:border dark:border-gray-700"
         >
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Account Information</h2>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Account Information</h2>
           <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <p className="text-sm text-gray-500">Member Since</p>
-              <p className="font-medium text-gray-900">
+              <p className="text-sm text-gray-500 dark:text-gray-400">Member Since</p>
+              <p className="font-medium text-gray-900 dark:text-white">
                 {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
               </p>
             </div>
             <div>
-              <p className="text-sm text-gray-500">Account Type</p>
-              <p className="font-medium text-gray-900 capitalize">{user?.role || 'Tenant'}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Account Type</p>
+              <p className="font-medium text-gray-900 dark:text-white capitalize">{user?.role || 'Tenant'}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-500">Email Status</p>
-              <p className={`font-medium ${user?.emailVerified ? 'text-green-600' : 'text-yellow-600'}`}>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Email Status</p>
+              <p className={`font-medium ${user?.emailVerified ? 'text-green-600 dark:text-green-400' : 'text-yellow-600 dark:text-yellow-400'}`}>
                 {user?.emailVerified ? 'Verified ✓' : 'Not Verified'}
               </p>
             </div>

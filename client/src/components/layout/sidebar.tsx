@@ -114,17 +114,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
   };
 
   const sidebarContent = (
-    <div className="flex flex-col h-full bg-white shadow-xl">
+    <div className="flex flex-col h-full bg-white dark:bg-gray-800 shadow-xl transition-colors">
       {/* Sidebar Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200">
+      <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
         <Link to="/" className="flex items-center space-x-2">
-          <div className="w-8 h-8 bg-primary-600 rounded-lg"></div>
-          <span className="text-xl font-bold text-primary-600">Tiiplongha</span>
+          <div className="w-8 h-8 bg-amber-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">UN</div>
+          <span className="text-xl font-bold text-amber-600 dark:text-amber-400">UrbanNEST</span>
         </Link>
         {variant === 'temporary' && (
           <button
             onClick={onClose}
-            className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+            className="p-2 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -135,16 +135,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* User Info */}
       {user && (
-        <div className="p-4 border-b border-gray-200 bg-gray-50">
+        <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
-              <span className="text-primary-600 font-semibold">
-                {user.name.charAt(0).toUpperCase()}
+            <div className="w-10 h-10 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center">
+              <span className="text-amber-600 dark:text-amber-400 font-semibold">
+                {(user.first_name || user.name || 'U').charAt(0).toUpperCase()}
               </span>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 truncate">{user.name}</p>
-              <p className="text-xs text-gray-500 truncate">{user.email}</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                {user.first_name ? `${user.first_name} ${user.last_name || ''}` : (user.name || 'User')}
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user.email || user.phone}</p>
             </div>
           </div>
         </div>
@@ -160,12 +162,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
               className={`
                 w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors
                 ${activePath === item.path
-                  ? 'bg-primary-50 text-primary-600'
-                  : 'text-gray-700 hover:bg-gray-100'
+                  ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 font-semibold'
+                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                 }
               `}
             >
-              <span className={activePath === item.path ? 'text-primary-600' : 'text-gray-500'}>
+              <span className={activePath === item.path ? 'text-amber-600 dark:text-amber-400' : 'text-gray-500 dark:text-gray-400'}>
                 {item.icon}
               </span>
               <span className="text-sm font-medium">{item.label}</span>
@@ -175,10 +177,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </nav>
 
       {/* Footer Actions */}
-      <div className="border-t border-gray-200 p-4 space-y-2">
+      <div className="border-t border-gray-200 dark:border-gray-700 p-4 space-y-2">
         <button
           onClick={handleLogout}
-          className="w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-red-600 hover:bg-red-50 transition-colors"
+          className="w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors"
         >
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -192,7 +194,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   // Render based on variant
   if (variant === 'permanent') {
     return (
-      <aside className="w-64 h-screen sticky top-0 overflow-y-auto border-r border-gray-200 bg-white">
+      <aside className="w-64 h-screen sticky top-0 overflow-y-auto border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
         {sidebarContent}
       </aside>
     );

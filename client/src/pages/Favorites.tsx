@@ -82,10 +82,10 @@ const Favorites: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900 transition-colors">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading your favorites...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading your favorites...</p>
         </div>
       </div>
     );
@@ -93,16 +93,16 @@ const Favorites: React.FC = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <div className="text-center max-w-md">
-          <Heart className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Sign in to view favorites</h2>
-          <p className="text-gray-600 mb-6">
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900 p-4 transition-colors">
+        <div className="text-center max-w-md bg-gray-50 dark:bg-gray-800 p-8 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700">
+          <Heart className="w-16 h-16 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Sign in to view favorites</h2>
+          <p className="text-gray-600 dark:text-gray-300 mb-6">
             Please sign in to see your saved properties and manage your favorites.
           </p>
           <button
             onClick={() => window.location.href = '/login'}
-            className="bg-primary-600 text-white px-6 py-2 rounded-lg hover:bg-primary-700 transition-colors"
+            className="bg-amber-600 text-white px-6 py-2.5 rounded-xl font-bold hover:bg-amber-700 transition-colors shadow-lg shadow-amber-600/20"
           >
             Sign In
           </button>
@@ -113,16 +113,16 @@ const Favorites: React.FC = () => {
 
   if (favorites.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <div className="text-center max-w-md">
-          <Heart className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">No favorites yet</h2>
-          <p className="text-gray-600 mb-6">
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900 p-4 transition-colors">
+        <div className="text-center max-w-md bg-gray-50 dark:bg-gray-800 p-8 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700">
+          <Heart className="w-16 h-16 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">No favorites yet</h2>
+          <p className="text-gray-600 dark:text-gray-300 mb-6">
             Start exploring properties and save your favorites to see them here.
           </p>
           <button
             onClick={() => window.location.href = '/properties'}
-            className="bg-primary-600 text-white px-6 py-2 rounded-lg hover:bg-primary-700 transition-colors"
+            className="bg-amber-600 text-white px-6 py-2.5 rounded-xl font-bold hover:bg-amber-700 transition-colors shadow-lg shadow-amber-600/20"
           >
             Browse Properties
           </button>
@@ -132,29 +132,31 @@ const Favorites: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">My Favorites</h1>
-        <p className="text-gray-600">
-          You have {favorites.length} saved {favorites.length === 1 ? 'property' : 'properties'}
-        </p>
-      </div>
+    <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">My Favorites</h1>
+          <p className="text-gray-600 dark:text-gray-400">
+            You have {favorites.length} saved {favorites.length === 1 ? 'property' : 'properties'}
+          </p>
+        </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {favorites.map((property) => (
-          <div key={property.id} className="relative">
-            <PropertyCard
-              property={property}
-              onFavoriteToggle={() => handleRemoveFavorite(property.id)}
-            />
-            <button
-              onClick={() => handleRemoveFavorite(property.id)}
-              className="absolute top-4 right-4 z-10 p-2 bg-white rounded-full shadow-md hover:shadow-lg transition-shadow"
-            >
-              <Heart size={20} className="fill-red-500 text-red-500" />
-            </button>
-          </div>
-        ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {favorites.map((property) => (
+            <div key={property.id} className="relative">
+              <PropertyCard
+                property={property}
+                onFavoriteToggle={() => handleRemoveFavorite(property.id)}
+              />
+              <button
+                onClick={() => handleRemoveFavorite(property.id)}
+                className="absolute top-4 right-4 z-10 p-2 bg-white dark:bg-gray-800 rounded-full shadow-md hover:shadow-lg transition-shadow"
+              >
+                <Heart size={20} className="fill-red-500 text-red-500" />
+              </button>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

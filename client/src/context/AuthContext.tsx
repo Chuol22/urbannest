@@ -84,13 +84,16 @@ const removeSecureToken = () => {
 
 const setUserData = (user: User) => {
   localStorage.setItem(USER_KEY, JSON.stringify(user));
+  localStorage.setItem('user', JSON.stringify(user)); // Support legacy components
 };
 
 const getUserData = (): User | null => {
-  const userStr = localStorage.getItem(USER_KEY);
+  const userStr = localStorage.getItem(USER_KEY) || localStorage.getItem('user');
   if (userStr) {
     try {
-      return JSON.parse(userStr);
+      const parsed = JSON.parse(userStr);
+      // Unnest if saved under nested payload
+      return parsed?.data ?? parsed?.user ?? parsed;
     } catch {
       return null;
     }
@@ -123,9 +126,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       const response = await api.get('/auth/session');
       if (response.success && response.data) {
-        setUser(response.data);
+        const userData = response.data?.data ?? response.data?.user ?? response.data;
+        setUser(userData);
         setIsLoggedIn(true);
-        setUserData(response.data);
+        setUserData(userData);
       } else {
         removeSecureToken();
         setIsLoggedIn(false);
@@ -153,9 +157,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const response = await api.post('/auth/login', credentials);
       
       if (response.success && response.data) {
-        // api.ts interceptor wraps server response: response.data.data holds the actual payload
         const payload = response.data?.data ?? response.data;
-        const { token, refreshToken, user: userData } = payload;
+        const token = payload.token || response.data?.token;
+        const refreshToken = payload.refreshToken || response.data?.refreshToken;
+        const userData = payload.user || payload;
         
         // Store tokens securely (persisted in both sessionStorage + localStorage)
         setSecureToken(token, refreshToken);
@@ -207,9 +212,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
       
       if (response.success && response.data) {
-        // api.ts interceptor wraps server response: response.data.data holds the actual payload
         const payload = response.data?.data ?? response.data;
-        const { token, refreshToken, user: newUser } = payload;
+        const token = payload.token || response.data?.token;
+        const refreshToken = payload.refreshToken || response.data?.refreshToken;
+        const newUser = payload.user || payload;
         
         setSecureToken(token, refreshToken);
         api.setAuthToken(token);
@@ -237,6 +243,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error('Logout error:', error);
     } finally {
       removeSecureToken();
+      localStorage.removeItem('user');
       api.removeAuthToken();
       setUser(null);
       setIsLoggedIn(false);
@@ -252,9 +259,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const response = await api.post('/auth/refresh', { refreshToken: refreshTokenStr });
       if (response.success && response.data) {
-        // Handle double-wrapped response
         const payload = response.data?.data ?? response.data;
-        const { token, refreshToken: newRefresh } = payload;
+        const token = payload.token || response.data?.token;
+        const newRefresh = payload.refreshToken || response.data?.refreshToken;
         setSecureToken(token, newRefresh);
         api.setAuthToken(token);
       } else {
@@ -271,9 +278,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const response = await api.patch('/auth/profile', userData);
       if (response.success && response.data) {
-        setUser(prev => prev ? { ...prev, ...response.data } : null);
-        if (response.data) {
-          setUserData({ ...user!, ...response.data });
+        const updated = response.data?.data ?? response.data?.user ?? response.data;
+        setUser(prev => prev ? { ...prev, ...updated } : null);
+        if (updated) {
+          const prevUser = getUserData() || {};
+          setUserData({ ...prevUser, ...updated });
         }
       } else {
         throw new Error(response.message || 'Profile update failed');

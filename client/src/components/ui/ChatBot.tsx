@@ -172,7 +172,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, onToggle }) => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 100, scale: 0.9 }}
             transition={{ type: 'spring', damping: 25 }}
-            className="fixed bottom-28 right-8 z-50 w-96 h-[600px] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-200/50 backdrop-blur-sm"
+            className="fixed bottom-28 right-8 z-50 w-96 h-[600px] bg-white dark:bg-gray-800 rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-200/50 dark:border-gray-700/50 backdrop-blur-sm"
           >
             {/* Header */}
             <div className="bg-amber-600 text-white p-4">
@@ -197,7 +197,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, onToggle }) => {
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-gray-900">
               {messages.map((message) => (
                 <motion.div
                   key={message.id}
@@ -209,12 +209,12 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, onToggle }) => {
                     <div
                       className={`rounded-2xl px-4 py-2 ${message.sender === 'user'
                           ? 'bg-amber-600 text-white'
-                          : 'bg-white border border-gray-200 text-gray-900'
+                          : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100'
                         }`}
                     >
                       <p className="text-sm whitespace-pre-wrap">{message.text}</p>
                     </div>
-                    <div className={`text-xs text-gray-500 mt-1 ${message.sender === 'user' ? 'text-right' : 'text-left'}`}>
+                    <div className={`text-xs text-gray-500 dark:text-gray-400 mt-1 ${message.sender === 'user' ? 'text-right' : 'text-left'}`}>
                       {formatTime(message.timestamp)}
                     </div>
 
@@ -225,7 +225,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, onToggle }) => {
                           <button
                             key={option}
                             onClick={() => handleOptionClick(option)}
-                            className="text-xs bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded-full transition-colors"
+                            className="text-xs bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 px-3 py-1 rounded-full transition-colors"
                           >
                             {option}
                           </button>
@@ -243,7 +243,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, onToggle }) => {
                   animate={{ opacity: 1, y: 0 }}
                   className="flex justify-start"
                 >
-                  <div className="bg-white border border-gray-200 rounded-2xl px-4 py-2">
+                  <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl px-4 py-2">
                     <div className="flex space-x-1">
                       <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
                       <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-100"></div>
@@ -257,7 +257,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, onToggle }) => {
             </div>
 
             {/* Input Area */}
-            <div className="p-4 bg-white border-t border-gray-200">
+            <div className="p-4 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
               <div className="flex space-x-2">
                 <input
                   ref={inputRef}
@@ -266,7 +266,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, onToggle }) => {
                   onChange={(e) => setInputText(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="Type your message..."
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-900 focus:border-transparent"
+                  className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 rounded-full focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                 />
                 <button
                   onClick={handleSendMessage}
@@ -278,7 +278,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ isOpen, onToggle }) => {
                   </svg>
                 </button>
               </div>
-              <p className="text-xs text-gray-500 text-center mt-2">
+              <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-2">
                 Powered by UrbanNEST AI • 24/7 Support
               </p>
             </div>

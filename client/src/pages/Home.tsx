@@ -515,14 +515,14 @@ export default function Home() {
       </div>
 
       {/* What Are You Looking For Section */}
-      <section className="lg:px-16 md:px-6 px-4 md:pt-12 py-8 bg-white">
+      <section className="lg:px-16 md:px-6 px-4 md:pt-12 py-8 bg-white dark:bg-gray-900 transition-colors">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, type: "spring", stiffness: 100, damping: 15 }}
           viewport={{ once: true }}
         >
-          <h2 className="lg:text-3xl text-2xl font-bold leading-none tracking-tighter text-gray-900 lg:mb-10">What Are You Looking For?</h2>
+          <h2 className="lg:text-3xl text-2xl font-bold leading-none tracking-tighter text-gray-900 dark:text-white lg:mb-10">What Are You Looking For?</h2>
           <div className="w-20 h-1.5 bg-amber-600 rounded-full mt-2"></div>
         </motion.div>
 

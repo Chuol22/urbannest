@@ -31,15 +31,15 @@ export default function ForgotPassword() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full text-center">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 transition-colors">
+        <div className="max-w-md w-full text-center bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700">
           <div className="text-6xl mb-4">📧</div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Check Your Email</h2>
-          <p className="text-gray-600 mb-8">
-            We've sent password reset instructions to <strong>{email}</strong>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Check Your Email</h2>
+          <p className="text-gray-600 dark:text-gray-300 mb-8">
+            We've sent password reset instructions to <strong className="text-gray-900 dark:text-white">{email}</strong>
           </p>
           <Link to="/login">
-            <Button variant="primary">Back to Login</Button>
+            <Button variant="primary" fullWidth className="bg-amber-600 hover:bg-amber-700 text-white shadow-lg shadow-amber-600/20">Back to Login</Button>
           </Link>
         </div>
       </div>
@@ -47,13 +47,13 @@ export default function ForgotPassword() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 transition-colors">
+      <div className="max-w-md w-full space-y-8 bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <h2 className="mt-2 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
             Reset your password
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
             Enter your email address and we'll send you a link to reset your password.
           </p>
         </div>
@@ -70,12 +70,12 @@ export default function ForgotPassword() {
             placeholder="you@example.com"
           />
 
-          <Button type="submit" loading={loading} fullWidth>
+          <Button type="submit" loading={loading} fullWidth className="bg-amber-600 hover:bg-amber-700 text-white shadow-lg shadow-amber-600/20">
             Send Reset Link
           </Button>
 
           <div className="text-center">
-            <Link to="/login" className="text-sm text-primary-600 hover:text-primary-500">
+            <Link to="/login" className="text-sm text-amber-600 dark:text-amber-400 hover:underline">
               Back to Login
             </Link>
           </div>

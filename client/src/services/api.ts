@@ -63,13 +63,25 @@ class ApiService {
     // Response interceptor
     this.axiosInstance.interceptors.response.use(
       (response) => {
-        // Ensure consistent response format
+        // If the backend already returns { success, data, message } format
+        const resData = response.data;
+        if (resData && typeof resData === 'object' && 'success' in resData) {
+          return {
+            ...response,
+            data: {
+              success: Boolean(resData.success),
+              data: resData.data !== undefined ? resData.data : resData,
+              message: resData.message,
+              error: resData.error
+            }
+          };
+        }
         return {
           ...response,
           data: {
             success: true,
-            data: response.data,
-            message: response.data?.message,
+            data: resData,
+            message: resData?.message,
           }
         };
       },
@@ -146,11 +158,26 @@ class ApiService {
           });
         }
 
-        // Return formatted error response
+        // Return formatted error response - always ensure message is a string
+        const rawMsg = (error.response?.data as any)?.message;
+        let safeMessage: string;
+        if (!rawMsg) {
+          safeMessage = error.message || 'Request failed';
+        } else if (typeof rawMsg === 'string') {
+          safeMessage = rawMsg;
+        } else if (typeof rawMsg === 'object') {
+          // Chapa-style field validation errors: { field: ["msg1"], "field2": ["msg2"] }
+          safeMessage = Object.entries(rawMsg as Record<string, unknown>)
+            .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(', ') : String(v)}`)
+            .join(' | ');
+        } else {
+          safeMessage = String(rawMsg);
+        }
+
         return {
           data: {
             success: false,
-            message: (error.response?.data as any)?.message || error.message || 'Request failed',
+            message: safeMessage,
             error: error.code,
           }
         };

@@ -229,9 +229,9 @@ const SearchBar = ({ onSearch, initialFilters = {}, useOpenStreetMap = false }: 
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl p-6 max-w-4xl mx-auto">
+    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl dark:border dark:border-gray-700 p-6 max-w-4xl mx-auto transition-colors">
       {/* Search Type Tabs */}
-      <div className="flex gap-4 mb-6 border-b border-gray-200">
+      <div className="flex gap-4 mb-6 border-b border-gray-200 dark:border-gray-700">
         {[
           { value: 'rent', label: 'For Rent' },
           { value: 'buy', label: 'For Buy' },
@@ -242,14 +242,14 @@ const SearchBar = ({ onSearch, initialFilters = {}, useOpenStreetMap = false }: 
             onClick={() => setSearchType(type.value)}
             className={`pb-3 px-4 text-lg font-medium transition-colors relative
               ${searchType === type.value
-                ? 'text-green-600'
-                : 'text-gray-500 hover:text-gray-700'}`}
+                ? 'text-amber-600 dark:text-amber-400'
+                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
           >
             {type.label}
             {searchType === type.value && (
               <motion.div
                 layoutId="activeTab"
-                className="absolute bottom-0 left-0 right-0 h-0.5 bg-green-600"
+                className="absolute bottom-0 left-0 right-0 h-0.5 bg-amber-600 dark:bg-amber-400"
                 transition={{ type: "spring", stiffness: 500, damping: 30 }}
               />
             )}
@@ -261,7 +261,7 @@ const SearchBar = ({ onSearch, initialFilters = {}, useOpenStreetMap = false }: 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {/* Location Input with Autocomplete */}
         <div className="relative md:col-span-1">
-          <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 z-10" size={20} />
+          <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-400 z-10" size={20} />
 
           <input
             ref={inputRef}
@@ -277,13 +277,13 @@ const SearchBar = ({ onSearch, initialFilters = {}, useOpenStreetMap = false }: 
                 setShowCitySuggestions(true);
               }
             }}
-            className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+            className="w-full pl-10 pr-10 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
           />
 
           {location && (
             <button
               onClick={clearLocation}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 z-10"
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 z-10"
             >
               <X size={16} />
             </button>
@@ -297,23 +297,23 @@ const SearchBar = ({ onSearch, initialFilters = {}, useOpenStreetMap = false }: 
 
           {/* OpenStreetMap Suggestions */}
           {useOpenStreetMap && showOsmSuggestions && osmSuggestions.length > 0 && (
-            <div className="absolute z-20 w-full mt-2 bg-white rounded-lg shadow-lg border border-gray-200 max-h-80 overflow-y-auto">
+            <div className="absolute z-20 w-full mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 max-h-80 overflow-y-auto">
               {osmSuggestions.map((place) => (
                 <button
                   key={place.place_id}
                   onClick={() => handleOsmSelect(place)}
-                  className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0"
+                  className="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-0"
                 >
                   <div className="flex items-start gap-3">
                     <div className="mt-1">
                       {place.type === 'city' ? (
-                        <Building2 size={16} className="text-blue-900" />
+                        <Building2 size={16} className="text-amber-600 dark:text-amber-400" />
                       ) : (
-                        <MapIcon size={16} className="text-green-500" />
+                        <MapIcon size={16} className="text-amber-500" />
                       )}
                     </div>
                     <div className="flex-1">
-                      <div className="text-sm text-gray-900">{place.display_name}</div>
+                      <div className="text-sm text-gray-900 dark:text-gray-200">{place.display_name}</div>
                     </div>
                   </div>
                 </button>
@@ -323,15 +323,15 @@ const SearchBar = ({ onSearch, initialFilters = {}, useOpenStreetMap = false }: 
 
           {/* Local City Suggestions */}
           {!useOpenStreetMap && showCitySuggestions && filteredCities.length > 0 && (
-            <div className="absolute z-20 w-full mt-2 bg-white rounded-lg shadow-lg border border-gray-200 max-h-80 overflow-y-auto">
+            <div className="absolute z-20 w-full mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 max-h-80 overflow-y-auto">
               {filteredCities.map((city, index) => (
                 <button
                   key={index}
                   onClick={() => handleCitySelect(city)}
-                  className="w-full text-left px-4 py-2 hover:bg-gray-50 transition-colors"
+                  className="w-full text-left px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
-                  <div className="font-medium text-gray-900">{city.name}</div>
-                  <div className="text-sm text-gray-500">{city.region}</div>
+                  <div className="font-medium text-gray-900 dark:text-white">{city.name}</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">{city.region}</div>
                 </button>
               ))}
             </div>
@@ -345,7 +345,7 @@ const SearchBar = ({ onSearch, initialFilters = {}, useOpenStreetMap = false }: 
             <select
               value={selectedNeighborhood}
               onChange={(e) => handleNeighborhoodSelect(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent appearance-none bg-white cursor-pointer"
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent appearance-none cursor-pointer"
             >
               <option value="">Select Neighborhood</option>
               {ETHIOPIAN_CITIES.find(c => c.name === selectedCity)?.neighborhoods?.map((neighborhood, idx) => (
@@ -361,7 +361,7 @@ const SearchBar = ({ onSearch, initialFilters = {}, useOpenStreetMap = false }: 
           <select
             value={propertyType}
             onChange={(e) => setPropertyType(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent appearance-none bg-white cursor-pointer"
+            className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent appearance-none cursor-pointer"
           >
             <option value="">Property Type</option>
             <option value="apartment">Apartment</option>
@@ -380,7 +380,7 @@ const SearchBar = ({ onSearch, initialFilters = {}, useOpenStreetMap = false }: 
           <select
             value={priceRange}
             onChange={(e) => setPriceRange(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent appearance-none bg-white cursor-pointer"
+            className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent appearance-none cursor-pointer"
           >
             <option value="">Price Range</option>
             <option value="0-10000">0 - ብር 10,000</option>
@@ -395,7 +395,7 @@ const SearchBar = ({ onSearch, initialFilters = {}, useOpenStreetMap = false }: 
         {/* Search Button */}
         <button
           onClick={handleSearch}
-          className="bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl transition-colors shadow-md hover:shadow-lg flex items-center justify-center space-x-2"
+          className="bg-amber-600 hover:bg-amber-700 text-white py-3 rounded-xl transition-colors shadow-md hover:shadow-lg flex items-center justify-center space-x-2"
         >
           <Search size={20} />
           <span>Find Your Home</span>
@@ -407,11 +407,11 @@ const SearchBar = ({ onSearch, initialFilters = {}, useOpenStreetMap = false }: 
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mt-4 p-3 bg-green-50 rounded-lg border border-green-200"
+          className="mt-4 p-3 bg-amber-50 dark:bg-amber-950/40 rounded-lg border border-amber-200 dark:border-amber-800"
         >
           <div className="flex items-center gap-2">
-            <MapPin size={16} className="text-green-600" />
-            <p className="text-sm text-gray-700">
+            <MapPin size={16} className="text-amber-600 dark:text-amber-400" />
+            <p className="text-sm text-gray-700 dark:text-gray-200">
               <span className="font-semibold">Searching in:</span> {getLocationDisplayName()}
             </p>
           </div>
@@ -421,7 +421,7 @@ const SearchBar = ({ onSearch, initialFilters = {}, useOpenStreetMap = false }: 
       {/* Popular Locations */}
       <div className="mt-6">
         <div className="flex flex-wrap gap-2 items-center mb-3">
-          <span className="text-sm text-gray-500 font-medium">Popular Cities:</span>
+          <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">Popular Cities:</span>
           {['Addis Ababa', 'Hawassa', 'Bahir Dar', 'Dire Dawa', 'Mekelle', 'Gambella'].map((city) => (
             <button
               key={city}
@@ -429,7 +429,7 @@ const SearchBar = ({ onSearch, initialFilters = {}, useOpenStreetMap = false }: 
                 const cityData = ETHIOPIAN_CITIES.find(c => c.name === city);
                 if (cityData) handleCitySelect(cityData);
               }}
-              className="text-sm px-3 py-1.5 bg-gray-100 text-gray-700 rounded-full hover:bg-green-100 hover:text-green-700 transition-colors"
+              className="text-sm px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full hover:bg-amber-100 dark:hover:bg-amber-900/40 hover:text-amber-700 dark:hover:text-amber-400 transition-colors"
             >
               {city}
             </button>
@@ -438,7 +438,7 @@ const SearchBar = ({ onSearch, initialFilters = {}, useOpenStreetMap = false }: 
 
         {!useOpenStreetMap && (
           <div className="flex flex-wrap gap-2 items-center">
-            <span className="text-sm text-gray-500 font-medium">Popular Neighborhoods (Addis Ababa):</span>
+            <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">Popular Neighborhoods (Addis Ababa):</span>
             {['Bole', 'CMC', 'Kazanchis', 'Piassa', 'Mexico', 'Megenagna', 'Ayat', 'Jemo'].map((neighborhood) => (
               <button
                 key={neighborhood}
@@ -448,7 +448,7 @@ const SearchBar = ({ onSearch, initialFilters = {}, useOpenStreetMap = false }: 
                   setLocation(`${neighborhood}, Addis Ababa`);
                   setShowNeighborhoods(true);
                 }}
-                className="text-sm px-3 py-1.5 bg-gray-100 text-gray-700 rounded-full hover:bg-green-100 hover:text-green-700 transition-colors"
+                className="text-sm px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full hover:bg-amber-100 dark:hover:bg-amber-900/40 hover:text-amber-700 dark:hover:text-amber-400 transition-colors"
               >
                 {neighborhood}
               </button>

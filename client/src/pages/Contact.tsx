@@ -116,7 +116,7 @@ export default function Contact() {
   };
 
   return (
-    <div className="bg-white">
+    <div className="bg-white dark:bg-gray-900 transition-colors">
       {/* Premium Hero Section */}
       <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden">
         {/* Background Image Container */}
@@ -228,10 +228,10 @@ export default function Contact() {
               viewport={{ once: true }}
               whileHover={{ y: -12, scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="bg-gray-900 rounded-xl p-8 text-center hover:shadow-xl transition-all duration-300 border-b-4 border-amber-600"
+              className="bg-gray-900 dark:bg-gray-800 rounded-xl p-8 text-center hover:shadow-xl transition-all duration-300 border-b-4 border-amber-600 dark:border-amber-500 border dark:border-gray-700"
             >
               <motion.div
-                className="w-16 h-16 bg-white rounded-full mx-auto mb-4 flex items-center justify-center text-2xl"
+                className="w-16 h-16 bg-white dark:bg-gray-700 rounded-full mx-auto mb-4 flex items-center justify-center text-2xl"
                 animate={{ y: [0, -8, 0] }}
                 transition={{ repeat: Infinity, duration: 2, delay: index * 0.2 }}
                 whileHover={{ rotate: 360 }}
@@ -240,7 +240,7 @@ export default function Contact() {
               </motion.div>
               <h3 className="text-xl font-black text-white mb-4">{info.title}</h3>
               {info.details.map((detail, idx) => (
-                <p key={idx} className="text-gray-300 mb-1">{detail}</p>
+                <p key={idx} className="text-gray-300 dark:text-gray-300 mb-1">{detail}</p>
               ))}
               <motion.button
                 whileHover={{ x: 5 }}
@@ -262,11 +262,11 @@ export default function Contact() {
             transition={{ duration: 0.5, type: "spring", stiffness: 100, damping: 15 }}
             viewport={{ once: true }}
             whileHover={{ y: -4 }}
-            className="bg-white rounded-2xl shadow-lg p-8 border-b-4 border-amber-600"
+            className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 border-b-4 border-amber-600 dark:border-amber-500 border dark:border-gray-700"
           >
-            <h2 className="text-3xl mt-4 font-black text-center text-gray-900 mb-2">Send Us a Message</h2>
+            <h2 className="text-3xl mt-4 font-black text-center text-gray-900 dark:text-white mb-2">Send Us a Message</h2>
             <div className="w-20 h-1.5 bg-amber-600 mx-auto rounded-full mb-4"></div>
-            <p className="text-gray-600 mb-8 text-center">
+            <p className="text-gray-600 dark:text-gray-300 mb-8 text-center">
               Whether you have a question about our properties, need assistance, or just want to say hello,
               we'd love to hear from you.
             </p>
@@ -309,7 +309,7 @@ export default function Contact() {
               />
 
               <div>
-                <label className="block ml-4 text-sm font-medium text-gray-700 mb-1">
+                <label className="block ml-4 text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Subject
                 </label>
                 <select
@@ -317,7 +317,7 @@ export default function Contact() {
                   value={formData.subject}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                 >
                   <option value="">Select a subject</option>
                   <option value="general">General Inquiry</option>
@@ -329,7 +329,7 @@ export default function Contact() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Message
                 </label>
                 <textarea
@@ -338,7 +338,7 @@ export default function Contact() {
                   value={formData.message}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                   placeholder="How can we help you?"
                 />
               </div>
@@ -362,8 +362,8 @@ export default function Contact() {
             viewport={{ once: true }}
             whileHover={{ y: -4 }}
           >
-            <div className="bg-white rounded-2xl shadow-lg p-8 border-b-4 border-amber-600">
-              <h2 className="text-2xl font-black text-gray-900 mb-6">Frequently Asked Questions</h2>
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 border-b-4 border-amber-600 dark:border-amber-500 border dark:border-gray-700">
+              <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-6">Frequently Asked Questions</h2>
               <div className="space-y-6">
                 {faqs.map((faq, index) => (
                   <motion.div
@@ -375,18 +375,18 @@ export default function Contact() {
                     whileHover={{ x: 5 }}
                     className="cursor-pointer"
                   >
-                    <h3 className="font-semibold text-gray-900 mb-2">{faq.question}</h3>
-                    <p className="text-gray-600 text-sm">{faq.answer}</p>
+                    <h3 className="font-semibold text-gray-900 dark:text-white mb-2">{faq.question}</h3>
+                    <p className="text-gray-600 dark:text-gray-300 text-sm">{faq.answer}</p>
                   </motion.div>
                 ))}
               </div>
 
-              <div className="mt-8 pt-6 border-t border-gray-200">
-                <p className="text-gray-600 text-sm mb-3">
+              <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <p className="text-gray-600 dark:text-gray-400 text-sm mb-3">
                   Can't find what you're looking for?
                 </p>
                 <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                  <Button variant="outline" fullWidth className="border-amber-600 text-amber-600 hover:bg-amber-600 hover:text-white">
+                  <Button variant="outline" fullWidth className="border-amber-600 text-amber-600 dark:text-amber-400 dark:border-amber-400 hover:bg-amber-600 hover:text-white dark:hover:bg-amber-500">
                     View All FAQs
                   </Button>
                 </motion.div>
@@ -403,14 +403,14 @@ export default function Contact() {
           transition={{ duration: 0.5, type: "spring", stiffness: 100, damping: 15 }}
           viewport={{ once: true }}
         >
-          <div className="bg-gray-100 rounded-xl overflow-hidden h-96 flex items-center justify-center border-2 border-dashed border-gray-300">
+          <div className="bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden h-96 flex items-center justify-center border-2 border-dashed border-gray-300 dark:border-gray-700">
             <motion.div
               animate={{ y: [0, -10, 0] }}
               transition={{ repeat: Infinity, duration: 2 }}
               className="text-center"
             >
               <MapPin className="w-16 h-16 text-amber-600 mx-auto mb-4" />
-              <p className="text-gray-500 font-medium">Interactive Map Coming Soon</p>
+              <p className="text-gray-500 dark:text-gray-400 font-medium">Interactive Map Coming Soon</p>
             </motion.div>
           </div>
         </motion.section>

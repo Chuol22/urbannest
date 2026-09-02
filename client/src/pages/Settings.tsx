@@ -64,7 +64,7 @@ export default function Settings() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Settings</h1>
+      <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">Settings</h1>
 
       {saveStatus === 'saved' && (
         <Alert type="success" message="Settings saved successfully!" />
@@ -75,13 +75,13 @@ export default function Settings() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-lg shadow-md p-6"
+          className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 dark:border dark:border-gray-700"
         >
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Appearance</h2>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Appearance</h2>
 
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Theme
               </label>
               <div className="flex space-x-4">
@@ -92,8 +92,8 @@ export default function Settings() {
                     className={`
                       px-4 py-2 rounded-lg capitalize transition-colors
                       ${theme === themeOption
-                        ? 'bg-primary-600 text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        ? 'bg-amber-600 text-white font-semibold'
+                        : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                       }
                     `}
                   >
@@ -101,13 +101,13 @@ export default function Settings() {
                   </button>
                 ))}
               </div>
-              <p className="mt-2 text-sm text-gray-500">
+              <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
                 Current: {currentTheme} mode
               </p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Language
               </label>
               <select
@@ -116,7 +116,7 @@ export default function Settings() {
                   const selected = languages.find(l => l.code === e.target.value);
                   if (selected) changeLanguage(selected);
                 }}
-                className="w-full md:w-64 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                className="w-full md:w-64 px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-amber-500"
               >
                 {languages.map((l) => (
                   <option key={l.code} value={l.code}>
@@ -127,14 +127,15 @@ export default function Settings() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Currency
               </label>
               <select
                 value={currency}
                 onChange={(e) => setCurrency(e.target.value)}
-                className="w-full md:w-64 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                className="w-full md:w-64 px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-amber-500"
               >
+                <option value="ETB">ETB (Birr)</option>
                 <option value="USD">USD ($)</option>
                 <option value="EUR">EUR (€)</option>
                 <option value="GBP">GBP (£)</option>
@@ -143,7 +144,7 @@ export default function Settings() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Distance Unit
               </label>
               <div className="flex space-x-4">
@@ -154,8 +155,8 @@ export default function Settings() {
                     className={`
                       px-4 py-2 rounded-lg capitalize transition-colors
                       ${distanceUnit === unit
-                        ? 'bg-primary-600 text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        ? 'bg-amber-600 text-white font-semibold'
+                        : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                       }
                     `}
                   >
@@ -172,21 +173,21 @@ export default function Settings() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-white rounded-lg shadow-md p-6"
+          className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 dark:border dark:border-gray-700"
         >
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Notifications</h2>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Notifications</h2>
 
           <div className="space-y-3">
             <label className="flex items-center justify-between cursor-pointer">
               <div>
-                <span className="text-gray-700">Email Notifications</span>
-                <p className="text-sm text-gray-500">Receive property updates via email</p>
+                <span className="text-gray-700 dark:text-gray-300">Email Notifications</span>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Receive property updates via email</p>
               </div>
               <button
                 onClick={() => handleNotificationChange('emailNotifications')}
                 className={`
                   relative inline-flex h-6 w-11 items-center rounded-full transition-colors
-                  ${notifications.emailNotifications ? 'bg-primary-600' : 'bg-gray-300'}
+                  ${notifications.emailNotifications ? 'bg-amber-600' : 'bg-gray-300 dark:bg-gray-600'}
                 `}
               >
                 <span
@@ -200,14 +201,14 @@ export default function Settings() {
 
             <label className="flex items-center justify-between cursor-pointer">
               <div>
-                <span className="text-gray-700">Push Notifications</span>
-                <p className="text-sm text-gray-500">Get instant alerts on your device</p>
+                <span className="text-gray-700 dark:text-gray-300">Push Notifications</span>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Get instant alerts on your device</p>
               </div>
               <button
                 onClick={() => handleNotificationChange('pushNotifications')}
                 className={`
                   relative inline-flex h-6 w-11 items-center rounded-full transition-colors
-                  ${notifications.pushNotifications ? 'bg-primary-600' : 'bg-gray-300'}
+                  ${notifications.pushNotifications ? 'bg-amber-600' : 'bg-gray-300 dark:bg-gray-600'}
                 `}
               >
                 <span
@@ -221,14 +222,14 @@ export default function Settings() {
 
             <label className="flex items-center justify-between cursor-pointer">
               <div>
-                <span className="text-gray-700">Marketing Emails</span>
-                <p className="text-sm text-gray-500">Receive offers and promotions</p>
+                <span className="text-gray-700 dark:text-gray-300">Marketing Emails</span>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Receive offers and promotions</p>
               </div>
               <button
                 onClick={() => handleNotificationChange('marketingEmails')}
                 className={`
                   relative inline-flex h-6 w-11 items-center rounded-full transition-colors
-                  ${notifications.marketingEmails ? 'bg-primary-600' : 'bg-gray-300'}
+                  ${notifications.marketingEmails ? 'bg-amber-600' : 'bg-gray-300 dark:bg-gray-600'}
                 `}
               >
                 <span
@@ -242,14 +243,14 @@ export default function Settings() {
 
             <label className="flex items-center justify-between cursor-pointer">
               <div>
-                <span className="text-gray-700">Property Alerts</span>
-                <p className="text-sm text-gray-500">Get notified about new listings</p>
+                <span className="text-gray-700 dark:text-gray-300">Property Alerts</span>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Get notified about new listings</p>
               </div>
               <button
                 onClick={() => handleNotificationChange('propertyAlerts')}
                 className={`
                   relative inline-flex h-6 w-11 items-center rounded-full transition-colors
-                  ${notifications.propertyAlerts ? 'bg-primary-600' : 'bg-gray-300'}
+                  ${notifications.propertyAlerts ? 'bg-amber-600' : 'bg-gray-300 dark:bg-gray-600'}
                 `}
               >
                 <span
@@ -268,21 +269,21 @@ export default function Settings() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-white rounded-lg shadow-md p-6"
+          className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 dark:border dark:border-gray-700"
         >
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Privacy</h2>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Privacy</h2>
 
           <div className="space-y-3">
             <label className="flex items-center justify-between cursor-pointer">
               <div>
-                <span className="text-gray-700">Show Profile in Search</span>
-                <p className="text-sm text-gray-500">Allow others to find your profile</p>
+                <span className="text-gray-700 dark:text-gray-300">Show Profile in Search</span>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Allow others to find your profile</p>
               </div>
               <button
                 onClick={() => handlePrivacyChange('showProfile')}
                 className={`
                   relative inline-flex h-6 w-11 items-center rounded-full transition-colors
-                  ${privacy.showProfile ? 'bg-primary-600' : 'bg-gray-300'}
+                  ${privacy.showProfile ? 'bg-amber-600' : 'bg-gray-300 dark:bg-gray-600'}
                 `}
               >
                 <span
@@ -296,14 +297,14 @@ export default function Settings() {
 
             <label className="flex items-center justify-between cursor-pointer">
               <div>
-                <span className="text-gray-700">Show Email Address</span>
-                <p className="text-sm text-gray-500">Display email on your profile</p>
+                <span className="text-gray-700 dark:text-gray-300">Show Email Address</span>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Display email on your profile</p>
               </div>
               <button
                 onClick={() => handlePrivacyChange('showEmail')}
                 className={`
                   relative inline-flex h-6 w-11 items-center rounded-full transition-colors
-                  ${privacy.showEmail ? 'bg-primary-600' : 'bg-gray-300'}
+                  ${privacy.showEmail ? 'bg-amber-600' : 'bg-gray-300 dark:bg-gray-600'}
                 `}
               >
                 <span
@@ -317,14 +318,14 @@ export default function Settings() {
 
             <label className="flex items-center justify-between cursor-pointer">
               <div>
-                <span className="text-gray-700">Show Phone Number</span>
-                <p className="text-sm text-gray-500">Display phone on your profile</p>
+                <span className="text-gray-700 dark:text-gray-300">Show Phone Number</span>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Display phone on your profile</p>
               </div>
               <button
                 onClick={() => handlePrivacyChange('showPhone')}
                 className={`
                   relative inline-flex h-6 w-11 items-center rounded-full transition-colors
-                  ${privacy.showPhone ? 'bg-primary-600' : 'bg-gray-300'}
+                  ${privacy.showPhone ? 'bg-amber-600' : 'bg-gray-300 dark:bg-gray-600'}
                 `}
               >
                 <span
@@ -343,21 +344,21 @@ export default function Settings() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="bg-white rounded-lg shadow-md p-6"
+          className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 dark:border dark:border-gray-700"
         >
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Data & Storage</h2>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Data & Storage</h2>
 
           <div className="space-y-4">
             <label className="flex items-center justify-between cursor-pointer">
               <div>
-                <span className="text-gray-700">Auto-save Search Filters</span>
-                <p className="text-sm text-gray-500">Remember your filter preferences</p>
+                <span className="text-gray-700 dark:text-gray-300">Auto-save Search Filters</span>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Remember your filter preferences</p>
               </div>
               <button
                 onClick={toggleAutoSave}
                 className={`
                   relative inline-flex h-6 w-11 items-center rounded-full transition-colors
-                  ${autoSave ? 'bg-primary-600' : 'bg-gray-300'}
+                  ${autoSave ? 'bg-amber-600' : 'bg-gray-300 dark:bg-gray-600'}
                 `}
               >
                 <span
@@ -369,11 +370,11 @@ export default function Settings() {
               </button>
             </label>
 
-            <div className="pt-4 border-t border-gray-200">
-              <Button variant="outline" className="text-red-600 hover:bg-red-50">
+            <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+              <Button variant="outline" className="text-red-600 dark:text-red-400 border-red-300 dark:border-red-800 hover:bg-red-50 dark:hover:bg-red-950/20">
                 Clear All Data
               </Button>
-              <p className="mt-2 text-xs text-gray-500">
+              <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
                 This will reset all your preferences and clear cached data.
               </p>
             </div>
@@ -386,7 +387,7 @@ export default function Settings() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border-t-2 border-rose-500"
+            className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border-t-2 border-rose-500 dark:border-rose-600"
           >
             <h2 className="text-xl font-bold text-rose-600 dark:text-rose-400 mb-1">Account Session</h2>
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Sign out of your active account session on this device.</p>

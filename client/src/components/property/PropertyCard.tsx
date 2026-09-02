@@ -27,7 +27,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
     return (
       <motion.div
         whileHover={{ y: -5 }}
-        className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden"
+        className="bg-white dark:bg-gray-800 rounded-2xl shadow-md hover:shadow-xl dark:border dark:border-gray-700 transition-all duration-300 overflow-hidden"
       >
         <Link to={`/property/${property.id}`} className="flex flex-col md:flex-row">
           <div className="md:w-72 h-56 relative overflow-hidden">
@@ -38,12 +38,12 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
             />
             <button
               onClick={handleFavoriteClick}
-              className="absolute top-3 right-3 p-2 bg-white rounded-full shadow-md hover:shadow-lg transition-all"
+              className="absolute top-3 right-3 p-2 bg-white dark:bg-gray-700 rounded-full shadow-md hover:shadow-lg transition-all"
             >
               {isFavorite ? (
                 <FaHeart className="text-red-500" size={18} />
               ) : (
-                <FaRegHeart className="text-gray-600" size={18} />
+                <FaRegHeart className="text-gray-600 dark:text-gray-300" size={18} />
               )}
             </button>
             {property.is_featured && (
@@ -54,40 +54,40 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
           </div>
           <div className="flex-1 p-6">
             <div className="flex justify-between items-start mb-2">
-              <h3 className="text-xl font-semibold text-gray-900 hover:text-blue-600 transition-colors">
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white hover:text-amber-600 dark:hover:text-amber-400 transition-colors">
                 {property.title}
               </h3>
               <div className="text-right">
-                <span className="text-2xl font-bold text-blue-600">
+                <span className="text-2xl font-bold text-amber-600 dark:text-amber-400">
                   ETB {property.price?.toLocaleString()}
                 </span>
-                <span className="text-gray-500 text-sm">/{property.period || 'month'}</span>
+                <span className="text-gray-500 dark:text-gray-400 text-sm">/{property.period || 'month'}</span>
               </div>
             </div>
 
-            <div className="flex items-center text-gray-500 mb-4">
-              <FaMapMarkerAlt className="mr-1" size={14} />
+            <div className="flex items-center text-gray-500 dark:text-gray-400 mb-4">
+              <FaMapMarkerAlt className="mr-1 text-amber-600 dark:text-amber-400" size={14} />
               <span className="text-sm">{property.location?.city || property.location}, Ethiopia</span>
             </div>
 
-            <p className="text-gray-600 mb-4 line-clamp-2">{property.description}</p>
+            <p className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-2">{property.description}</p>
 
-            <div className="flex items-center space-x-4 text-gray-500">
+            <div className="flex items-center space-x-4 text-gray-500 dark:text-gray-400">
               {property.bedrooms > 0 && (
                 <div className="flex items-center">
-                  <FaBed className="mr-1" size={16} />
+                  <FaBed className="mr-1 text-amber-600 dark:text-amber-400" size={16} />
                   <span className="text-sm">{property.bedrooms} beds</span>
                 </div>
               )}
               {property.bathrooms > 0 && (
                 <div className="flex items-center">
-                  <FaBath className="mr-1" size={16} />
+                  <FaBath className="mr-1 text-amber-600 dark:text-amber-400" size={16} />
                   <span className="text-sm">{property.bathrooms} baths</span>
                 </div>
               )}
               {property.sqft > 0 && (
                 <div className="flex items-center">
-                  <FaRuler className="mr-1" size={16} />
+                  <FaRuler className="mr-1 text-amber-600 dark:text-amber-400" size={16} />
                   <span className="text-sm">{property.sqft} sqft</span>
                 </div>
               )}
@@ -102,7 +102,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
   return (
     <motion.div
       whileHover={{ y: -8 }}
-      className="group bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden"
+      className="group bg-white dark:bg-gray-800 rounded-2xl shadow-md hover:shadow-2xl dark:border dark:border-gray-700/60 transition-all duration-300 overflow-hidden"
     >
       <Link to={`/property/${property.id}`}>
         <div className="relative h-56 overflow-hidden">
@@ -113,12 +113,12 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
           />
           <button
             onClick={handleFavoriteClick}
-            className="absolute top-3 right-3 p-2 bg-white rounded-full shadow-md hover:shadow-lg transition-all opacity-0 group-hover:opacity-100"
+            className="absolute top-3 right-3 p-2 bg-white dark:bg-gray-700 rounded-full shadow-md hover:shadow-lg transition-all opacity-0 group-hover:opacity-100"
           >
             {isFavorite ? (
               <FaHeart className="text-red-500" size={16} />
             ) : (
-              <FaRegHeart className="text-gray-600" size={16} />
+              <FaRegHeart className="text-gray-600 dark:text-gray-300" size={16} />
             )}
           </button>
           {property.is_featured && (
@@ -135,44 +135,44 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
 
         <div className="p-4">
           <div className="flex justify-between items-start mb-2">
-            <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-1">
+            <h3 className="font-semibold text-gray-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors line-clamp-1">
               {property.title}
             </h3>
             <div className="text-right">
-              <span className="text-lg font-bold text-blue-600">
+              <span className="text-lg font-bold text-amber-600 dark:text-amber-400">
                 ETB {property.price?.toLocaleString()}
               </span>
-              <span className="text-gray-500 text-xs">/{property.period || 'month'}</span>
+              <span className="text-gray-500 dark:text-gray-400 text-xs">/{property.period || 'month'}</span>
             </div>
           </div>
 
-          <div className="flex items-center text-gray-500 mb-3">
-            <FaMapMarkerAlt className="mr-1" size={12} />
+          <div className="flex items-center text-gray-500 dark:text-gray-400 mb-3">
+            <FaMapMarkerAlt className="mr-1 text-amber-600 dark:text-amber-400" size={12} />
             <span className="text-xs">{property.location?.city || property.location}</span>
           </div>
 
-          <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-            <div className="flex items-center space-x-3 text-gray-500">
+          <div className="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-700">
+            <div className="flex items-center space-x-3 text-gray-500 dark:text-gray-400">
               {property.bedrooms > 0 && (
                 <div className="flex items-center">
-                  <FaBed className="mr-1" size={12} />
+                  <FaBed className="mr-1 text-amber-600 dark:text-amber-400" size={12} />
                   <span className="text-xs">{property.bedrooms}</span>
                 </div>
               )}
               {property.bathrooms > 0 && (
                 <div className="flex items-center">
-                  <FaBath className="mr-1" size={12} />
+                  <FaBath className="mr-1 text-amber-600 dark:text-amber-400" size={12} />
                   <span className="text-xs">{property.bathrooms}</span>
                 </div>
               )}
               {property.sqft > 0 && (
                 <div className="flex items-center">
-                  <FaRuler className="mr-1" size={12} />
+                  <FaRuler className="mr-1 text-amber-600 dark:text-amber-400" size={12} />
                   <span className="text-xs">{property.sqft}</span>
                 </div>
               )}
             </div>
-            <div className="text-xs text-gray-400">
+            <div className="text-xs text-gray-400 dark:text-gray-500">
               {property.created_at && new Date(property.created_at).toLocaleDateString()}
             </div>
           </div>

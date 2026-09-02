@@ -183,40 +183,82 @@ export default function Dashboard() {
     const params = new URLSearchParams(location.search);
     const isPaymentReturn = params.get('payment') === 'success';
     const propertyId = params.get('property');
+    const urlTxRef = params.get('tx_ref') || params.get('trx_ref');
 
     if (isPaymentReturn && propertyId) {
-      // Clean URL immediately
+      // Clean URL immediately while passing urlTxRef to verify
       window.history.replaceState({}, '', '/dashboard');
-      verifyReturnPayment(propertyId);
+      verifyReturnPayment(propertyId, urlTxRef);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.search]);
 
-  async function verifyReturnPayment(propertyId: string) {
+  async function verifyReturnPayment(propertyId: string, urlTxRef?: string | null) {
     setPaymentVerifying(true);
     try {
-      const pending = localStorage.getItem('pendingListingFee');
-      const txRef = pending ? JSON.parse(pending).tx_ref : null;
+      let txRef = urlTxRef;
       if (!txRef) {
-        setPaymentResult('failed');
-        return;
+        const pending = localStorage.getItem('pendingListingFee');
+        if (pending) {
+          try {
+            const parsed = JSON.parse(pending);
+            if (!parsed.property_id || parsed.property_id === propertyId) {
+              txRef = parsed.tx_ref;
+            }
+          } catch (e) {
+            console.error('Error parsing pendingListingFee:', e);
+          }
+        }
       }
-      const res = await paymentService.verifyListingFee(propertyId, txRef);
+
+      const res = await paymentService.verifyListingFee(propertyId, txRef || '');
       if (res?.success) {
         localStorage.removeItem('pendingListingFee');
         setPaymentResult('success');
-        setSuccessMessage('Payment confirmed! Your listing is now under admin review.');
+        setSuccessMessage(res.message || 'Payment confirmed! Your listing is now under admin review.');
         setActiveTab('listings');
-        // Reload listings to reflect new status
+        // Reload listings and payment history to reflect new status
         const propRes = await propertyService.getUserProperties(1, 50);
         setProperties(propRes.data || []);
+        const payRes = await paymentService.getPaymentHistory().catch(() => null);
+        if (payRes && payRes.data) {
+          const payList = Array.isArray(payRes.data)
+            ? payRes.data
+            : payRes.data.transactions || payRes.data.payments || [];
+          setPayments(payList);
+        }
       } else {
         setPaymentResult('failed');
       }
-    } catch {
+    } catch (err) {
+      console.error('Verify return payment error:', err);
       setPaymentResult('failed');
     } finally {
       setPaymentVerifying(false);
+    }
+  }
+
+  // Handle Pay Now for unpaid properties in listings table
+  async function handlePayNow(propertyId: string, tier: 'standard' | 'premium' = 'standard') {
+    try {
+      setPayNowLoading(propertyId);
+      setError('');
+      const res = await paymentService.initializeListingFee(propertyId, tier);
+      if (res?.success && res.data?.checkout_url) {
+        localStorage.setItem('pendingListingFee', JSON.stringify({
+          property_id: propertyId,
+          tx_ref: res.data.tx_ref,
+          tier: res.data.tier || tier,
+        }));
+        window.location.href = res.data.checkout_url;
+      } else {
+        setError(res?.message || 'Failed to initialize payment gateway.');
+      }
+    } catch (err: any) {
+      console.error('Pay now error:', err);
+      setError(err?.response?.data?.message || 'Failed to connect to payment gateway.');
+    } finally {
+      setPayNowLoading(null);
     }
   }
 
@@ -260,8 +302,11 @@ export default function Dashboard() {
           console.log('[Dashboard] Payments response:', payRes);
 
           if (payRes && payRes.data) {
-            setPayments(payRes.data);
-            console.log('[Dashboard] Loaded', payRes.data.length, 'payments');
+            const payList = Array.isArray(payRes.data)
+              ? payRes.data
+              : payRes.data.transactions || payRes.data.payments || [];
+            setPayments(payList);
+            console.log('[Dashboard] Loaded', payList.length, 'payments');
           } else {
             setPayments([]);
           }
@@ -305,6 +350,21 @@ export default function Dashboard() {
   };
 
   // ---- Pay listing fee inline ----
+
+  /** Safely converts any error value to a displayable string */
+  const toStr = (val: unknown): string => {
+    if (!val) return '';
+    if (typeof val === 'string') return val;
+    if (typeof val === 'object') {
+      try {
+        return Object.entries(val as Record<string, unknown>)
+          .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(', ') : v}`)
+          .join(' | ');
+      } catch { return JSON.stringify(val); }
+    }
+    return String(val);
+  };
+
   const handlePayNow = async (propertyId: string, tier: 'standard' | 'premium' = 'standard') => {
     setPayNowLoading(propertyId);
     setError('');
@@ -318,10 +378,11 @@ export default function Dashboard() {
         }));
         window.location.href = res.data.checkout_url;
       } else {
-        setError(res?.message || 'Could not initialize payment. Try again.');
+        setError(toStr(res?.message) || 'Could not initialize payment. Try again.');
       }
     } catch (err: any) {
-      setError(err?.response?.data?.message || 'Failed to initiate payment.');
+      const raw = err?.response?.data?.message ?? err?.response?.data?.error ?? err?.message;
+      setError(toStr(raw) || 'Failed to initiate payment.');
     } finally {
       setPayNowLoading(null);
     }
@@ -447,7 +508,7 @@ export default function Dashboard() {
         )}
 
         {/* Verification Alert Banner */}
-        {user?.verification_status !== 'approved' && (
+        {!(user?.role === 'admin' || user?.is_verified === true || user?.verification_status === 'approved') && (
           <div className="mb-6 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 border border-amber-200 dark:border-amber-900 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-start space-x-3">
               <AlertTriangle className="text-amber-600 dark:text-amber-500 shrink-0 mt-0.5" size={20} />
@@ -793,10 +854,14 @@ export default function Dashboard() {
                     <div className="mt-3 p-4 bg-slate-50 dark:bg-slate-700/30 rounded-xl flex items-center justify-between">
                       <div>
                         <p className="text-sm font-medium capitalize text-gray-600 dark:text-gray-300">
-                          Status: <strong className="text-gray-900 dark:text-white">{user?.verification_status?.replace('_', ' ') || 'Pending Review'}</strong>
+                          Status: <strong className="text-gray-900 dark:text-white">
+                            {(user?.role === 'admin' || user?.is_verified === true || user?.verification_status === 'approved')
+                              ? 'Approved'
+                              : (user?.verification_status?.replace('_', ' ') || 'Pending Review')}
+                          </strong>
                         </p>
                         <p className="text-xs text-gray-500 mt-1">
-                          {user?.verification_status === 'approved'
+                          {(user?.role === 'admin' || user?.is_verified === true || user?.verification_status === 'approved')
                             ? 'Approved! You can now publish properties publicly.'
                             : user?.verification_status === 'rejected'
                               ? `Rejected: ${user?.verification_rejection_reason || 'Invalid document. Please submit again.'}`
@@ -806,7 +871,7 @@ export default function Dashboard() {
                         </p>
                       </div>
                       <div>
-                        {user?.verification_status === 'approved' ? (
+                        {(user?.role === 'admin' || user?.is_verified === true || user?.verification_status === 'approved') ? (
                           <CheckCircle className="text-emerald-500" size={32} />
                         ) : user?.verification_status === 'rejected' ? (
                           <XCircle className="text-rose-500" size={32} />
@@ -838,7 +903,7 @@ export default function Dashboard() {
                     )}
                   </div>
 
-                  {user?.verification_status !== 'approved' && (
+                  {!(user?.role === 'admin' || user?.is_verified === true || user?.verification_status === 'approved') && (
                     <div className="border-t border-gray-100 dark:border-gray-700 pt-6 space-y-4">
                       <div className="flex items-center justify-between">
                         <h4 className="font-bold text-sm text-gray-900 dark:text-white">

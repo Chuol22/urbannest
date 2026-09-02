@@ -47,11 +47,11 @@
     --color-secondary: #34D399;
     --color-gray-light: #1F2937;
     --color-gray-dark: #9CA3AF;
-    --bg-primary: 18, 18, 18;
-    --bg-secondary: 30, 30, 30;
-    --text-primary: 255, 255, 255;
-    --text-secondary: 160, 174, 192;
-    --border-color: 51, 51, 51;
+    --bg-primary: 15, 23, 42;
+    --bg-secondary: 30, 41, 59;
+    --text-primary: 248, 250, 252;
+    --text-secondary: 148, 163, 184;
+    --border-color: 51, 65, 85;
   }
 
   * {
