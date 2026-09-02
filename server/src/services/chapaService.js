@@ -18,11 +18,11 @@ import crypto from 'crypto';
 
 class ChapaService {
   constructor() {
-    this.secretKey = process.env.CHAPA_SECRET_KEY;
+    this.secretKey = process.env.CHAPA_SECRET_KEY || 'CHASECK_TEST-f1spSv89Gl5KyQHfhVsr62XadDMMhouO';
     this.baseURL = process.env.CHAPA_BASE_URL || 'https://api.chapa.co/v1';
 
-    if (!this.secretKey) {
-      console.error('❌ CHAPA_SECRET_KEY is not set in environment variables');
+    if (!process.env.CHAPA_SECRET_KEY) {
+      console.warn('⚠️ CHAPA_SECRET_KEY not set in environment variables, using fallback test key');
     }
   }
 

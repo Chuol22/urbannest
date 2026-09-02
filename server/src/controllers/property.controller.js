@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import { env } from '../config/env.js';
 import cloudinary from '../config/cloudinary.js';
 import { uploadMultipleToCloudinary } from '../middleware/upload.cloudinary.js';
+import axios from 'axios';
 
 const prisma = new PrismaClient();
 
@@ -851,6 +852,7 @@ class PropertyController {
         currency: currency || 'ETB',
         status: 'pending',        // Always pending until listing fee paid + admin approved
         listing_fee_paid: false,
+        listing_tier: req.body.listing_tier || req.body.tier || 'standard',
         user_id: userId,
         locationId: finalLocationId
       };
@@ -916,14 +918,13 @@ class PropertyController {
       }
 
       const property = await prisma.property.findUnique({
-        where: { id: propertyId },
-        include: { listing_fee_payments: { where: { status: 'COMPLETED' } } }
+        where: { id: propertyId }
       });
 
       if (!property) {
         return res.status(404).json({ success: false, message: 'Property not found' });
       }
-      if (property.user_id !== userId) {
+      if (property.user_id !== userId && req.user.role !== 'admin') {
         return res.status(403).json({ success: false, message: 'You do not own this property' });
       }
       if (property.listing_fee_paid) {
@@ -936,65 +937,105 @@ class PropertyController {
         standard: isRent ? 50 : 100,
         premium: isRent ? 100 : 200
       };
-      const amount = fees[tier];
+      const amount = fees[tier] || (isRent ? 50 : 100);
 
-      // Unique transaction reference
-      const txRef = `UN-LISTING-${propertyId}-${Date.now()}`;
+      // Unique transaction reference - Chapa limit: max 50 characters
+      const txRef = `un_${Date.now()}`;   // e.g. "un_1756590214123" = 17 chars ✓
+      const chapaSecretKey = process.env.CHAPA_SECRET_KEY || 'CHASECK_TEST-f1spSv89Gl5KyQHfhVsr62XadDMMhouO';
 
-      // Call Chapa API
-      const chapaResponse = await fetch('https://api.chapa.co/v1/transaction/initialize', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${process.env.CHAPA_SECRET_KEY}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          amount: amount.toString(),
-          currency: 'ETB',
-          email: email || `${phone}@urbannest.com`,
-          first_name: first_name || 'Broker',
-          last_name: last_name || 'User',
-          phone_number: phone,
-          tx_ref: txRef,
-          return_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/dashboard?payment=success&property=${propertyId}`,
-          description: `${tier === 'premium' ? 'Premium' : 'Standard'} listing fee for: ${property.title}`,
-          customization: {
-            title: `UrbanNEST ${tier === 'premium' ? 'Premium' : 'Standard'} Listing`,
-            description: `Pay ETB ${amount} to publish your property listing${tier === 'premium' ? ' with premium features' : ''}`
+      const rawPhone = phone || '0911234567';
+      const cleanPhone = rawPhone.replace(/[^\d+]/g, '') || '0911234567';
+
+      console.log('[INITIALIZE LISTING FEE] Calling Chapa for property:', propertyId, 'amount:', amount, 'tier:', tier, 'txRef:', txRef);
+
+      // Call Chapa API using axios (more reliable than native fetch for SSL/network)
+      let chapaData;
+      let chapaStatus;
+      try {
+        const chapaRes = await axios.post(
+          'https://api.chapa.co/v1/transaction/initialize',
+          {
+            amount: amount.toString(),
+            currency: 'ETB',
+            email: email && email.includes('@') ? email : `user_${cleanPhone}@urbannest.com`,
+            first_name: (first_name || 'Owner').slice(0, 30),
+            last_name: (last_name || 'User').slice(0, 30),
+            phone_number: cleanPhone,
+            tx_ref: txRef,
+            return_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/dashboard?payment=success&property=${propertyId}&tx_ref=${txRef}`,
+            customization: {
+              title: 'UrbanNEST',           // 9 chars ✓ (Chapa limit: 16)
+              description: tier === 'premium' ? 'Premium listing' : 'Standard listing'
+            }
+          },
+          {
+            headers: {
+              'Authorization': `Bearer ${chapaSecretKey}`,
+              'Content-Type': 'application/json'
+            },
+            timeout: 15000  // 15s timeout
           }
-        })
-      });
+        );
+        chapaData = chapaRes.data;
+        chapaStatus = chapaRes.status;
+      } catch (chapaErr) {
+        // axios throws for non-2xx; extract the body if available
+        chapaData = chapaErr.response?.data || {};
+        chapaStatus = chapaErr.response?.status || 0;
+        if (!chapaErr.response) {
+          // Pure network error (ECONNREFUSED, fetch failed, timeout, etc.)
+          throw new Error(`Cannot reach payment gateway: ${chapaErr.message}`);
+        }
+      }
 
-      const chapaData = await chapaResponse.json();
+      console.log('[INITIALIZE LISTING FEE] Chapa response status:', chapaStatus, 'data:', chapaData);
 
-      if (!chapaResponse.ok || chapaData.status !== 'success') {
-        console.error('Chapa initialization failed:', chapaData);
-        return res.status(502).json({
+      if (chapaData?.status !== 'success') {
+        console.error('[INITIALIZE LISTING FEE] Chapa initialization failed:', chapaData);
+
+        let errorMsg = 'Payment gateway initialization failed.';
+        if (typeof chapaData?.message === 'string') {
+          errorMsg = chapaData.message;
+        } else if (typeof chapaData?.message === 'object' && chapaData.message !== null) {
+          errorMsg = Object.entries(chapaData.message)
+            .map(([field, msgs]) => `${field}: ${Array.isArray(msgs) ? msgs.join(', ') : msgs}`)
+            .join(' | ');
+        } else if (typeof chapaData?.data === 'object' && chapaData.data !== null) {
+          errorMsg = Object.entries(chapaData.data)
+            .map(([field, msgs]) => `${field}: ${Array.isArray(msgs) ? msgs.join(', ') : msgs}`)
+            .join(' | ');
+        }
+
+        return res.status(400).json({
           success: false,
-          message: 'Payment initialization failed. Please try again.',
-          error: chapaData?.message
+          message: errorMsg,
+          error: chapaData
         });
       }
 
       // Record the pending payment in DB with tier
-      await prisma.listingFeePayment.upsert({
-        where: { chapaTransactionRef: txRef },
-        create: {
-          propertyId,
-          userId,
-          amount,
-          tier,
-          currency: 'ETB',
-          chapaTransactionRef: txRef,
-          chapaCheckoutUrl: chapaData.data?.checkout_url,
-          status: 'PENDING'
-        },
-        update: {
-          tier,
-          chapaCheckoutUrl: chapaData.data?.checkout_url,
-          status: 'PENDING'
-        }
-      });
+      try {
+        await prisma.listingFeePayment.upsert({
+          where: { chapaTransactionRef: txRef },
+          create: {
+            propertyId,
+            userId,
+            amount,
+            tier,
+            currency: 'ETB',
+            chapaTransactionRef: txRef,
+            chapaCheckoutUrl: chapaData.data?.checkout_url,
+            status: 'PENDING'
+          },
+          update: {
+            tier,
+            chapaCheckoutUrl: chapaData.data?.checkout_url,
+            status: 'PENDING'
+          }
+        });
+      } catch (dbErr) {
+        console.warn('[INITIALIZE LISTING FEE] Warning recording payment in DB:', dbErr.message);
+      }
 
       res.json({
         success: true,
@@ -1010,8 +1051,12 @@ class PropertyController {
       });
 
     } catch (error) {
-      console.error('Initialize listing fee error:', error);
-      res.status(500).json({ success: false, message: 'Failed to initialize payment' });
+      console.error('[INITIALIZE LISTING FEE] Fatal Error:', error);
+      res.status(500).json({
+        success: false,
+        message: error.message || 'Failed to initialize payment',
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      });
     }
   }
 
@@ -1022,39 +1067,101 @@ class PropertyController {
   async verifyListingFeePayment(req, res) {
     try {
       const { id: propertyId } = req.params;
-      const { tx_ref } = req.body;
+      let { tx_ref } = req.body || {};
 
-      if (!tx_ref) {
-        return res.status(400).json({ success: false, message: 'Transaction reference required' });
+      if (!tx_ref && req.query?.tx_ref) {
+        tx_ref = req.query.tx_ref;
       }
 
-      // Get the payment record to check tier
-      const paymentRecord = await prisma.listingFeePayment.findUnique({
-        where: { chapaTransactionRef: tx_ref }
-      });
+      // Find the payment record
+      let paymentRecord = null;
+      if (tx_ref) {
+        paymentRecord = await prisma.listingFeePayment.findUnique({
+          where: { chapaTransactionRef: tx_ref }
+        });
+      }
+
+      // Fallback: look up pending payment for this property if tx_ref wasn't directly found
+      if (!paymentRecord && propertyId) {
+        paymentRecord = await prisma.listingFeePayment.findFirst({
+          where: { propertyId, status: 'PENDING' },
+          orderBy: { createdAt: 'desc' }
+        });
+        if (paymentRecord) {
+          tx_ref = paymentRecord.chapaTransactionRef;
+        }
+      }
+
+      // If already verified previously (idempotency check)
+      if (paymentRecord && paymentRecord.status === 'COMPLETED') {
+        const prop = await prisma.property.findUnique({ where: { id: propertyId } });
+        return res.json({
+          success: true,
+          message: 'Payment already verified successfully.',
+          data: {
+            property_id: propertyId,
+            tx_ref: paymentRecord.chapaTransactionRef,
+            tier: paymentRecord.tier,
+            amount_paid: paymentRecord.amount,
+            currency: 'ETB',
+            paid_at: paymentRecord.paidAt,
+            property_title: prop?.title,
+            property_status: prop?.status,
+            listing_expires_at: prop?.listing_expires_at,
+            is_featured: prop?.is_featured
+          }
+        });
+      }
 
       if (!paymentRecord) {
+        // Check if property is already marked paid
+        const existingProp = await prisma.property.findUnique({ where: { id: propertyId } });
+        if (existingProp && existingProp.listing_fee_paid) {
+          return res.json({
+            success: true,
+            message: 'Listing fee is already paid for this property.',
+            data: {
+              property_id: propertyId,
+              property_title: existingProp.title,
+              property_status: existingProp.status
+            }
+          });
+        }
         return res.status(404).json({ success: false, message: 'Payment record not found' });
       }
 
-      // Verify with Chapa
-      const verifyResponse = await fetch(`https://api.chapa.co/v1/transaction/verify/${tx_ref}`, {
-        headers: { 'Authorization': `Bearer ${process.env.CHAPA_SECRET_KEY}` }
-      });
+      const chapaSecretKey = process.env.CHAPA_SECRET_KEY || 'CHASECK_TEST-f1spSv89Gl5KyQHfhVsr62XadDMMhouO';
 
-      const verifyData = await verifyResponse.json();
+      // Verify with Chapa using Axios
+      let verifyData;
+      let isSuccess = false;
+      try {
+        const verifyRes = await axios.get(`https://api.chapa.co/v1/transaction/verify/${tx_ref}`, {
+          headers: {
+            'Authorization': `Bearer ${chapaSecretKey}`,
+            'Content-Type': 'application/json'
+          },
+          timeout: 15000
+        });
+        verifyData = verifyRes.data;
+        isSuccess = verifyRes.status === 200 && verifyData?.status === 'success' && verifyData?.data?.status === 'success';
+      } catch (chapaErr) {
+        console.error('[VERIFY LISTING FEE] Chapa verification API error:', chapaErr.response?.data || chapaErr.message);
+        verifyData = chapaErr.response?.data || {};
+        isSuccess = false;
+      }
 
-      if (!verifyResponse.ok || verifyData.status !== 'success' || verifyData.data?.status !== 'success') {
+      if (!isSuccess) {
         // Update payment status to FAILED if verification failed
         await prisma.listingFeePayment.update({
-          where: { chapaTransactionRef: tx_ref },
+          where: { id: paymentRecord.id },
           data: { status: 'FAILED' }
-        });
+        }).catch(() => {});
 
         return res.status(400).json({
           success: false,
-          message: 'Payment not confirmed by Chapa',
-          chapa_status: verifyData.data?.status
+          message: verifyData?.message || 'Payment not confirmed by Chapa',
+          chapa_status: verifyData?.data?.status || 'failed'
         });
       }
 
@@ -1067,7 +1174,7 @@ class PropertyController {
       // Update payment record and mark property fee as paid with tier benefits
       const [updatedPayment, updatedProperty] = await prisma.$transaction([
         prisma.listingFeePayment.update({
-          where: { chapaTransactionRef: tx_ref },
+          where: { id: paymentRecord.id },
           data: { status: 'COMPLETED', paidAt: new Date() }
         }),
         prisma.property.update({
