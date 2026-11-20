@@ -6,6 +6,7 @@ import { useAuth } from '../hooks/useAuth';
 import { Alert } from '../components/ui/Alert';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
+import logo from '../assets/images/unlogo.png';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
@@ -48,9 +49,16 @@ export default function ForgotPassword() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 transition-colors">
-      <div className="max-w-md w-full space-y-8 bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700">
-        <div>
-          <h2 className="mt-2 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
+      <div className="max-w-md w-full space-y-8 bg-white dark:bg-[#181B22] p-8 rounded-2xl shadow-xl border border-gray-100 dark:border-[#2E3543]">
+        <div className="text-center">
+          <div className="flex justify-center mb-4">
+            <Link to="/" aria-label="UrbanNest Home">
+              <div className="bg-white/95 px-3 py-1.5 rounded-xl shadow-sm border border-[#C9A865]/30 inline-flex items-center justify-center">
+                <img src={logo} alt="UrbanNest Logo" className="h-9 w-auto object-contain" />
+              </div>
+            </Link>
+          </div>
+          <h2 className="mt-2 text-center text-3xl font-extrabold text-[#181B22] dark:text-white">
             Reset your password
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">

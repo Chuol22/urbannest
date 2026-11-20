@@ -14,13 +14,26 @@
   font-display: swap;
 }
 
-
 @layer base {
   :root {
-    --color-primary: #1E3A8A;
-    --color-secondary: #10B981;
-    --color-gray-light: #F3F4F6;
-    --color-gray-dark: #374151;
+    --color-navy: #181B22;
+    --color-gold: #C9A865;
+    --color-green: #2E7D4F;
+    --color-cream: #F4F5EF;
+    --color-white: #FFFFFF;
+    
+    --color-primary: #181B22;
+    --color-secondary: #C9A865;
+    --color-verified: #2E7D4F;
+    --color-gray-light: #F6F7F9;
+    --color-gray-dark: #323A48;
+    --bg-primary: 255 255 255;
+    --text-primary: 24 27 34;
+  }
+
+  .dark {
+    --bg-primary: 15 17 22;
+    --text-primary: 248 250 252;
   }
 
   * {
@@ -30,38 +43,51 @@
   }
 
   body {
-    font-family: 'Vosage', 'Montserrat', sans-serif;
-    color: #1F2937;
-    background-color: var(--color-secondary);
+    font-family: 'Cooper Hewitt', 'Montserrat', sans-serif;
+    color: #181B22;
+    background-color: #FFFFFF;
+    @apply transition-colors duration-300;
+  }
+
+  .dark body {
+    color: #F8FAFC;
+    background-color: #0F1116;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Vosage', 'Montserrat', sans-serif;
+    font-family: 'Cooper Hewitt', 'Montserrat', sans-serif;
     font-weight: 700;
+    color: #181B22;
+  }
+
+  .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
+    color: #F8FAFC;
   }
 }
 
 @layer components {
   .btn-primary {
-    background-color: #10B981;
+    background-color: #181B22;
     color: white;
     padding: 0.75rem 1.5rem;
     border-radius: 0.75rem;
     font-weight: 600;
     transition: all 0.3s ease;
-    border: none;
+    border: 1px solid transparent;
     cursor: pointer;
+    box-shadow: 0 4px 14px rgba(24, 27, 34, 0.25);
   }
   
   .btn-primary:hover {
-    background-color: #0E9F6E;
+    background-color: #262C37;
+    border-color: #C9A865;
     transform: translateY(-2px);
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 20px rgba(201, 168, 101, 0.3);
   }
 
   .btn-secondary {
-    border: 2px solid #10B981;
-    color: #10B981;
+    border: 2px solid #181B22;
+    color: #181B22;
     padding: 0.75rem 1.5rem;
     border-radius: 0.75rem;
     font-weight: 600;
@@ -71,10 +97,10 @@
   }
   
   .btn-secondary:hover {
-    background-color: #10B981;
+    background-color: #181B22;
     color: white;
     transform: translateY(-2px);
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 6px 18px rgba(24, 27, 34, 0.15);
   }
 
   .card-hover {
@@ -83,7 +109,7 @@
   
   .card-hover:hover {
     transform: translateY(-4px);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 20px 25px -5px rgba(24, 27, 34, 0.08);
   }
 
   .container-custom {
@@ -116,26 +142,6 @@
   animation: fadeUp 0.8s ease forwards;
   transform: translateY(20px);
   opacity: 0;
-}
-
-
-/* Dark mode styles */
-
-@layer base {
-  /* Dark mode color scheme */
-  :root {
-    --bg-primary: 255 255 255;
-    --text-primary: 17 24 39;
-  }
-
-  .dark {
-    --bg-primary: 17 24 39;
-    --text-primary: 243 244 246;
-  }
-
-  body {
-    @apply bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300;
-  }
 }
 
 /* Smooth transitions for theme switching */

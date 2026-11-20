@@ -2,13 +2,15 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { api } from '../services/api';
 
 // Updated User interface to match backend response
-interface User {
+export type UserRole = 'seeker' | 'owner' | 'agent' | 'admin';
+
+export interface User {
   id: string;
   email: string;
   phone: string;
   first_name: string;
   last_name: string;
-  role: 'seeker' | 'owner' | 'agent' | 'admin';
+  role: UserRole;
   is_verified: boolean;
   is_active: boolean;
   avatar_url?: string | null;

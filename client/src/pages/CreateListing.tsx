@@ -1,4 +1,4 @@
-/**
+﻿/**
  * CreateListing Page
  *
  * Multi-step property listing creation flow with Chapa payment integration.
@@ -18,7 +18,8 @@ import { useNavigate } from 'react-router-dom';
 import {
   Home, MapPin, DollarSign, BedDouble, Bath,
   ChevronRight, ChevronLeft, CreditCard, Zap, Star,
-  CheckCircle, AlertTriangle, Loader2
+  CheckCircle, AlertTriangle, Loader2, UploadCloud, Image as ImageIcon,
+  Trash2, X, Plus
 } from 'lucide-react';
 
 import { useAuth } from '../context/AuthContext';
@@ -72,10 +73,10 @@ const LISTING_FEES: Record<string, Record<ListingTier, number>> = {
 
 /** Input field styling class */
 const INPUT_CLASS = `
-  w-full px-4 py-3 bg-slate-50 dark:bg-slate-800
-  border border-slate-200 dark:border-slate-700
-  rounded-xl text-sm focus:ring-2 focus:ring-emerald-500
-  focus:border-transparent outline-none transition dark:text-white
+  w-full px-4 py-3 bg-white dark:bg-[#262C37]/30
+  border border-slate-200 dark:border-[#2E3543]
+  rounded-xl text-sm focus:ring-2 focus:ring-[#C9A865]
+  focus:border-[#C9A865] outline-none transition text-[#181B22] dark:text-white
 `;
 
 /* ==========================================================================
@@ -122,10 +123,10 @@ function StepBar({ step }: { step: number }) {
                   w-9 h-9 rounded-full flex items-center justify-center
                   font-bold text-sm transition-all
                   ${isComplete
-                    ? 'bg-emerald-600 text-white'
+                    ? 'bg-[#2E7D4F] text-white shadow-md'
                     : isActive
-                      ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30'
-                      : 'bg-slate-200 text-slate-400'
+                      ? 'bg-[#181B22] text-white ring-2 ring-[#C9A865] shadow-lg shadow-[#181B22]/30'
+                      : 'bg-slate-200 dark:bg-slate-700 text-slate-400'
                   }
                 `}
               >
@@ -135,9 +136,9 @@ function StepBar({ step }: { step: number }) {
                 className={`
                   mt-1.5 text-xs font-semibold
                   ${isActive
-                    ? 'text-emerald-600'
+                    ? 'text-[#181B22] dark:text-[#C9A865]'
                     : isComplete
-                      ? 'text-emerald-500'
+                      ? 'text-[#2E7D4F]'
                       : 'text-slate-400'
                   }
                 `}
@@ -151,7 +152,7 @@ function StepBar({ step }: { step: number }) {
               <div
                 className={`
                   h-0.5 w-16 mx-1 mb-5 transition-all
-                  ${isComplete ? 'bg-emerald-500' : 'bg-slate-200'}
+                  ${isComplete ? 'bg-[#2E7D4F]' : 'bg-slate-200 dark:bg-slate-700'}
                 `}
               />
             )}
@@ -218,6 +219,13 @@ const CreateListing: React.FC = () => {
   const [createdPropertyId, setCreatedPropertyId] = useState<string | null>(null);
   const [error, setError] = useState('');
 
+  // Photo Upload States
+  const [photos, setPhotos] = useState<File[]>([]);
+  const [photoPreviews, setPhotoPreviews] = useState<string[]>([]);
+  const [primaryIndex, setPrimaryIndex] = useState<number>(0);
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+  const fileInputRef = React.useRef<HTMLInputElement | null>(null);
+
   /** Safely converts any value to a displayable string */
   const toStr = (val: unknown): string => {
     if (!val) return '';
@@ -256,26 +264,99 @@ const CreateListing: React.FC = () => {
   const fee = calculateFee(form.purpose, tier);
   const isRent = isRentalPurpose(form.purpose);
 
-  /* ----- Event Handlers ----- */
-
   /**
-   * Handle form input changes.
-   * Location fields are prefixed with 'loc_' and mapped to locationData.
+   * Handle generic input changes for form state
    */
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-
     if (name.startsWith('loc_')) {
-      const locationField = name.replace('loc_', '');
+      const locKey = name.replace('loc_', '');
       setForm(prev => ({
         ...prev,
-        locationData: { ...prev.locationData, [locationField]: value }
+        locationData: {
+          ...prev.locationData,
+          [locKey]: value,
+        },
       }));
     } else {
-      setForm(prev => ({ ...prev, [name]: value }));
+      setForm(prev => ({
+        ...prev,
+        [name]: value,
+      }));
     }
+  };
+
+  /**
+   * Handle Photo Selection and Previews
+   */
+  const handlePhotoFiles = (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+
+    const validFiles: File[] = [];
+    const validPreviews: string[] = [];
+
+    const currentTotal = photos.length;
+    const remainingSlots = 10 - currentTotal;
+
+    if (remainingSlots <= 0) {
+      setError('You can upload a maximum of 10 photos.');
+      return;
+    }
+
+    const filesToProcess = Array.from(files).slice(0, remainingSlots);
+
+    for (const file of filesToProcess) {
+      if (!file.type.startsWith('image/')) {
+        setError(`File "${file.name}" is not an image. Please upload JPG, PNG or WebP files.`);
+        continue;
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        setError(`Image "${file.name}" exceeds 10MB limit.`);
+        continue;
+      }
+      validFiles.push(file);
+      validPreviews.push(URL.createObjectURL(file));
+    }
+
+    if (validFiles.length > 0) {
+      setError('');
+      setPhotos(prev => [...prev, ...validFiles]);
+      setPhotoPreviews(prev => [...prev, ...validPreviews]);
+    }
+  };
+
+  const handleRemovePhoto = (indexToRemove: number) => {
+    setPhotos(prev => prev.filter((_, i) => i !== indexToRemove));
+    setPhotoPreviews(prev => {
+      URL.revokeObjectURL(prev[indexToRemove]);
+      return prev.filter((_, i) => i !== indexToRemove);
+    });
+
+    if (primaryIndex === indexToRemove) {
+      setPrimaryIndex(0);
+    } else if (primaryIndex > indexToRemove) {
+      setPrimaryIndex(prev => prev - 1);
+    }
+  };
+
+  const handleSetPrimaryPhoto = (index: number) => {
+    setPrimaryIndex(index);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    handlePhotoFiles(e.dataTransfer.files);
   };
 
   /**
@@ -337,6 +418,31 @@ const CreateListing: React.FC = () => {
 
       console.log('[CREATE LISTING] Property created successfully:', property.id);
       setCreatedPropertyId(property.id);
+
+      // Upload photos if user attached any
+      if (photos.length > 0) {
+        console.log(`[CREATE LISTING] Uploading ${photos.length} photos for property ${property.id}...`);
+        try {
+          // Reorder so primary photo is first
+          const orderedPhotos = [...photos];
+          if (primaryIndex > 0 && primaryIndex < orderedPhotos.length) {
+            const [prim] = orderedPhotos.splice(primaryIndex, 1);
+            orderedPhotos.unshift(prim);
+          }
+
+          const formData = new FormData();
+          orderedPhotos.forEach((file) => {
+            formData.append('photos', file);
+          });
+
+          await propertyService.uploadPropertyPhotos(property.id, formData);
+          console.log('[CREATE LISTING] Photos uploaded successfully');
+        } catch (photoErr) {
+          console.error('[CREATE LISTING] Warning: Failed to upload some photos:', photoErr);
+          // Don't fail the whole flow if photos upload fails; user can edit later in dashboard
+        }
+      }
+
       setStep(2);
     } catch (err: any) {
       console.error('[CREATE LISTING] Error creating property:', err);
@@ -393,37 +499,14 @@ const CreateListing: React.FC = () => {
   };
 
   /**
-   * Step 2: Initialize Chapa payment.
-   * Stores payment context in localStorage and redirects to Chapa checkout.
+   * Step 2: Navigate to Dashboard to complete manual transfer & upload receipt.
    */
-  const handlePayNow = async () => {
-    if (!createdPropertyId) return;
-
-    setError('');
-    setPaymentLoading(true);
-
-    try {
-      const response = await paymentService.initializeListingFee(createdPropertyId, tier);
-
-      if (response?.success && response?.data?.checkout_url) {
-        // Persist payment context for post-redirect verification
-        localStorage.setItem('pendingListingFee', JSON.stringify({
-          property_id: createdPropertyId,
-          tx_ref: response.data.tx_ref,
-          tier: response.data.tier || tier,
-        }));
-
-        // Redirect to Chapa payment page
-        window.location.href = response.data.checkout_url;
-      } else {
-        setError(toStr(response?.message) || 'Could not initialize payment. Please try again.');
-      }
-    } catch (err: any) {
-      const raw = err?.response?.data?.message ?? err?.response?.data?.error ?? err?.message;
-      setError(toStr(raw) || 'Failed to initialize payment.');
-    } finally {
-      setPaymentLoading(false);
+  const handlePayNow = () => {
+    if (!createdPropertyId) {
+      navigate('/dashboard');
+      return;
     }
+    navigate(`/dashboard?payProperty=${createdPropertyId}`);
   };
 
   /** Navigate to previous step */
@@ -436,12 +519,12 @@ const CreateListing: React.FC = () => {
 
   if (user && !isApprovedUser) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-gray-950 flex items-center justify-center p-6">
-        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl max-w-md w-full p-8 text-center">
-          <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <AlertTriangle className="text-amber-600" size={32} />
+      <div className="min-h-screen bg-[#F4F5EF] dark:bg-[#0F1116] flex items-center justify-center p-6">
+        <div className="bg-white dark:bg-[#181B22] border border-gray-200 dark:border-[#2E3543] rounded-2xl shadow-xl max-w-md w-full p-8 text-center">
+          <div className="w-16 h-16 bg-[#C9A865]/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-[#C9A865]/30">
+            <AlertTriangle className="text-[#C9A865]" size={32} />
           </div>
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+          <h2 className="text-xl font-bold text-[#181B22] dark:text-white mb-2">
             Account Not Verified
           </h2>
           <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
@@ -454,7 +537,7 @@ const CreateListing: React.FC = () => {
           </p>
           <button
             onClick={() => navigate('/dashboard')}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-3 rounded-xl transition"
+            className="bg-[#181B22] hover:bg-[#262C37] text-white border border-[#C9A865] font-semibold px-6 py-3 rounded-xl transition shadow-md shadow-[#181B22]/20"
           >
             Go to Dashboard
           </button>
@@ -466,15 +549,15 @@ const CreateListing: React.FC = () => {
   /* ----- Main Render ----- */
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-emerald-950/10 py-12 px-4">
+    <div className="min-h-screen bg-[#F4F5EF] dark:bg-[#0F1116] py-12 px-4">
       <div className="max-w-2xl mx-auto">
 
         {/* Page Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 bg-emerald-600 rounded-2xl mb-4 shadow-lg shadow-emerald-600/20">
-            <Home className="text-white" size={26} />
+          <div className="inline-flex items-center justify-center w-14 h-14 bg-[#181B22] border border-[#C9A865] rounded-2xl mb-4 shadow-lg shadow-[#181B22]/20">
+            <Home className="text-[#C9A865]" size={26} />
           </div>
-          <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white">
+          <h1 className="text-3xl font-extrabold text-[#181B22] dark:text-white">
             List a Property
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
@@ -497,12 +580,12 @@ const CreateListing: React.FC = () => {
             STEP 1: Property Details Form
             ======================================== */}
         {step === 1 && (
-          <form onSubmit={handleStep1Submit} className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800 p-8 space-y-6">
+          <form onSubmit={handleStep1Submit} className="bg-white dark:bg-[#181B22] rounded-2xl shadow-xl border border-slate-100 dark:border-[#2E3543] p-8 space-y-6">
 
             {/* Section Header */}
             <div className="flex items-center gap-2 mb-2">
-              <Home className="text-emerald-600" size={20} />
-              <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+              <Home className="text-[#C9A865]" size={20} />
+              <h2 className="text-lg font-bold text-[#181B22] dark:text-white">
                 Property Details
               </h2>
             </div>
@@ -633,10 +716,10 @@ const CreateListing: React.FC = () => {
             </div>
 
             {/* Location Section */}
-            <div className="border-t border-slate-100 dark:border-slate-800 pt-5 space-y-4">
+            <div className="border-t border-slate-100 dark:border-[#2E3543] pt-5 space-y-4">
               <div className="flex items-center gap-2">
-                <MapPin className="text-emerald-600" size={18} />
-                <span className="font-bold text-gray-800 dark:text-gray-200 text-sm">Location</span>
+                <MapPin className="text-[#C9A865]" size={18} />
+                <span className="font-bold text-[#181B22] dark:text-gray-200 text-sm">Location</span>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -674,11 +757,122 @@ const CreateListing: React.FC = () => {
               </Field>
             </div>
 
+            {/* Property Photos Section */}
+            <div className="border-t border-slate-100 dark:border-[#2E3543] pt-5 space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <ImageIcon className="text-[#C9A865]" size={18} />
+                  <span className="font-bold text-[#181B22] dark:text-gray-200 text-sm">Property Photos</span>
+                </div>
+                <span className="text-xs text-gray-500 dark:text-gray-400">
+                  {photos.length}/10 photos selected
+                </span>
+              </div>
+
+              {/* Drag and Drop Zone */}
+              <div
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                onClick={() => fileInputRef.current?.click()}
+                className={`
+                  border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all
+                  ${isDragging
+                    ? 'border-[#C9A865] bg-[#C9A865]/10 scale-[1.01]'
+                    : 'border-slate-300 dark:border-[#2E3543] hover:border-[#C9A865] hover:bg-[#F4F5EF] dark:hover:bg-[#262C37]/20'
+                  }
+                `}
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  accept="image/jpeg,image/png,image/webp,image/jpg"
+                  onChange={(e) => handlePhotoFiles(e.target.files)}
+                  className="hidden"
+                />
+                <div className="w-12 h-12 mx-auto rounded-full bg-[#181B22]/10 dark:bg-[#262C37]/50 flex items-center justify-center text-[#181B22] dark:text-[#C9A865] mb-3">
+                  <UploadCloud size={24} />
+                </div>
+                <p className="text-sm font-bold text-[#181B22] dark:text-white">
+                  Click to upload or drag & drop property photos
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  High quality JPG, PNG or WebP (up to 10MB each, max 10 photos)
+                </p>
+              </div>
+
+              {/* Photo Previews Gallery */}
+              {photoPreviews.length > 0 && (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2">
+                  {photoPreviews.map((previewUrl, idx) => {
+                    const isPrimary = idx === primaryIndex;
+                    return (
+                      <div
+                        key={idx}
+                        className={`
+                          relative group rounded-xl overflow-hidden border-2 aspect-video bg-slate-900 shadow-sm transition
+                          ${isPrimary ? 'border-[#C9A865] ring-2 ring-[#C9A865]/30' : 'border-slate-200 dark:border-[#2E3543]'}
+                        `}
+                      >
+                        <img
+                          src={previewUrl}
+                          alt={`Upload preview ${idx + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+
+                        {/* Badges / Controls Overlay */}
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 p-2">
+                          {!isPrimary && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleSetPrimaryPhoto(idx);
+                              }}
+                              className="px-2 py-1 bg-[#C9A865] hover:bg-[#B6924D] text-white text-[10px] font-bold rounded-md flex items-center gap-1 shadow"
+                              title="Set as cover photo"
+                            >
+                              <Star size={10} />
+                              Cover
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRemovePhoto(idx);
+                            }}
+                            className="p-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-md shadow"
+                            title="Remove photo"
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
+
+                        {/* Top Banner Tag */}
+                        {isPrimary ? (
+                          <span className="absolute top-1.5 left-1.5 bg-[#C9A865] text-white text-[10px] font-bold px-2 py-0.5 rounded shadow flex items-center gap-1">
+                            <Star size={10} className="fill-white" />
+                            Cover Photo
+                          </span>
+                        ) : (
+                          <span className="absolute top-1.5 left-1.5 bg-black/60 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded backdrop-blur-xs">
+                            #{idx + 1}
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
             {/* Submit Button */}
             <button
               type="submit"
               disabled={submitting}
-              className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 transition shadow-lg shadow-emerald-600/20"
+              className="w-full bg-[#181B22] hover:bg-[#262C37] disabled:opacity-60 text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 transition border border-[#C9A865] shadow-lg shadow-[#181B22]/20"
             >
               {submitting ? (
                 <>
@@ -700,18 +894,18 @@ const CreateListing: React.FC = () => {
             ======================================== */}
         {step === 2 && (
           <div className="space-y-6">
-            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800 p-8">
+            <div className="bg-white dark:bg-[#181B22] rounded-2xl shadow-xl border border-slate-100 dark:border-[#2E3543] p-8">
 
               {/* Section Header */}
               <div className="flex items-center gap-2 mb-6">
-                <Star className="text-emerald-600" size={20} />
-                <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+                <Star className="text-[#C9A865]" size={20} />
+                <h2 className="text-lg font-bold text-[#181B22] dark:text-white">
                   Choose Your Listing Plan
                 </h2>
               </div>
 
               {/* How It Works */}
-              <div className="mb-6 p-4 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900 rounded-xl text-sm text-emerald-800 dark:text-emerald-300">
+              <div className="mb-6 p-4 bg-[#F4F5EF] dark:bg-[#262C37]/30 border border-[#2E3543] rounded-xl text-sm text-[#181B22] dark:text-gray-200">
                 <strong>How it works:</strong> Pay a small one-time listing fee to host your property on UrbanNEST.
                 Buyers and tenants discover you directly, then contact you via phone or WhatsApp for offline
                 negotiation and site visit.
@@ -727,18 +921,18 @@ const CreateListing: React.FC = () => {
                   className={`
                     relative border-2 rounded-2xl p-6 text-left transition-all
                     ${tier === 'standard'
-                      ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-950/20'
-                      : 'border-slate-200 dark:border-slate-700 hover:border-emerald-300'
+                      ? 'border-[#181B22] dark:border-[#C9A865] bg-[#181B22]/5 dark:bg-[#262C37]/30 shadow-md'
+                      : 'border-slate-200 dark:border-[#2E3543] hover:border-[#C9A865]/50'
                     }
                   `}
                 >
                   {tier === 'standard' && (
-                    <div className="absolute top-3 right-3 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
+                    <div className="absolute top-3 right-3 w-5 h-5 bg-[#2E7D4F] rounded-full flex items-center justify-center">
                       <CheckCircle className="text-white" size={14} />
                     </div>
                   )}
 
-                  <div className="text-2xl font-extrabold text-gray-900 dark:text-white mb-1">
+                  <div className="text-2xl font-extrabold text-[#181B22] dark:text-white mb-1">
                     ETB {calculateFee(form.purpose, 'standard')}
                   </div>
                   <div className="font-bold text-gray-700 dark:text-gray-200 mb-3">
@@ -747,19 +941,19 @@ const CreateListing: React.FC = () => {
 
                   <ul className="space-y-1.5 text-xs text-gray-500 dark:text-gray-400">
                     <li className="flex items-center gap-1.5">
-                      <CheckCircle size={12} className="text-emerald-500 shrink-0" />
+                      <CheckCircle size={12} className="text-[#2E7D4F] shrink-0" />
                       Listed for 30 days
                     </li>
                     <li className="flex items-center gap-1.5">
-                      <CheckCircle size={12} className="text-emerald-500 shrink-0" />
+                      <CheckCircle size={12} className="text-[#2E7D4F] shrink-0" />
                       Up to 8 photos
                     </li>
                     <li className="flex items-center gap-1.5">
-                      <CheckCircle size={12} className="text-emerald-500 shrink-0" />
+                      <CheckCircle size={12} className="text-[#2E7D4F] shrink-0" />
                       Standard search visibility
                     </li>
                     <li className="flex items-center gap-1.5">
-                      <CheckCircle size={12} className="text-emerald-500 shrink-0" />
+                      <CheckCircle size={12} className="text-[#2E7D4F] shrink-0" />
                       Phone / WhatsApp contact card
                     </li>
                   </ul>
@@ -776,22 +970,22 @@ const CreateListing: React.FC = () => {
                   className={`
                     relative border-2 rounded-2xl p-6 text-left transition-all
                     ${tier === 'premium'
-                      ? 'border-violet-500 bg-violet-50 dark:bg-violet-950/20'
-                      : 'border-slate-200 dark:border-slate-700 hover:border-violet-300'
+                      ? 'border-[#C9A865] bg-[#C9A865]/10 dark:bg-[#C9A865]/15 shadow-md'
+                      : 'border-slate-200 dark:border-[#2E3543] hover:border-[#C9A865]/50'
                     }
                   `}
                 >
-                  <div className="absolute top-3 left-3 bg-violet-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                  <div className="absolute top-3 left-3 bg-[#C9A865] text-[#181B22] text-[10px] font-extrabold px-2 py-0.5 rounded-full">
                     FEATURED
                   </div>
 
                   {tier === 'premium' && (
-                    <div className="absolute top-3 right-3 w-5 h-5 bg-violet-500 rounded-full flex items-center justify-center">
+                    <div className="absolute top-3 right-3 w-5 h-5 bg-[#C9A865] rounded-full flex items-center justify-center">
                       <CheckCircle className="text-white" size={14} />
                     </div>
                   )}
 
-                  <div className="text-2xl font-extrabold text-gray-900 dark:text-white mb-1 mt-4">
+                  <div className="text-2xl font-extrabold text-[#181B22] dark:text-white mb-1 mt-4">
                     ETB {calculateFee(form.purpose, 'premium')}
                   </div>
                   <div className="font-bold text-gray-700 dark:text-gray-200 mb-3">
@@ -800,23 +994,23 @@ const CreateListing: React.FC = () => {
 
                   <ul className="space-y-1.5 text-xs text-gray-500 dark:text-gray-400">
                     <li className="flex items-center gap-1.5">
-                      <Zap size={12} className="text-violet-500 shrink-0" />
+                      <Zap size={12} className="text-[#C9A865] shrink-0" />
                       Featured badge & top placement
                     </li>
                     <li className="flex items-center gap-1.5">
-                      <Zap size={12} className="text-violet-500 shrink-0" />
+                      <Zap size={12} className="text-[#C9A865] shrink-0" />
                       Listed for 60 days
                     </li>
                     <li className="flex items-center gap-1.5">
-                      <Zap size={12} className="text-violet-500 shrink-0" />
+                      <Zap size={12} className="text-[#C9A865] shrink-0" />
                       Up to 20 photos
                     </li>
                     <li className="flex items-center gap-1.5">
-                      <Zap size={12} className="text-violet-500 shrink-0" />
+                      <Zap size={12} className="text-[#C9A865] shrink-0" />
                       Priority admin review
                     </li>
                     <li className="flex items-center gap-1.5">
-                      <Zap size={12} className="text-violet-500 shrink-0" />
+                      <Zap size={12} className="text-[#C9A865] shrink-0" />
                       WhatsApp quick-connect button
                     </li>
                   </ul>
@@ -843,7 +1037,7 @@ const CreateListing: React.FC = () => {
                   </div>
                   <div className="flex justify-between border-t border-slate-200 dark:border-slate-700 pt-2 mt-2">
                     <span className="font-bold text-gray-800 dark:text-gray-200">Listing Fee</span>
-                    <span className="font-extrabold text-emerald-600">ETB {fee}</span>
+                    <span className="font-extrabold text-[#2E7D4F]">ETB {fee}</span>
                   </div>
                 </div>
               </div>
@@ -857,7 +1051,7 @@ const CreateListing: React.FC = () => {
                   {['Telebirr', 'CBE Birr', 'Bank Transfer', 'Mobile Money'].map(method => (
                     <span
                       key={method}
-                      className="text-xs bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-3 py-1.5 rounded-lg font-medium"
+                      className="text-xs bg-[#F4F5EF] dark:bg-[#262C37]/30 text-[#181B22] dark:text-gray-300 border border-slate-200 dark:border-[#2E3543] px-3 py-1.5 rounded-lg font-medium"
                     >
                       {method}
                     </span>
@@ -879,28 +1073,17 @@ const CreateListing: React.FC = () => {
                 <button
                   type="button"
                   onClick={handlePayNow}
-                  disabled={paymentLoading}
-                  className="flex-1 flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-emerald-600/20"
+                  className="flex-1 flex items-center justify-center gap-2 bg-[#181B22] hover:bg-[#262C37] text-white font-bold py-3 rounded-xl transition border border-[#C9A865] shadow-lg shadow-[#181B22]/20"
                 >
-                  {paymentLoading ? (
-                    <>
-                      <Loader2 className="animate-spin" size={18} />
-                      Redirecting to payment...
-                    </>
-                  ) : (
-                    <>
-                      <CreditCard size={18} />
-                      Pay ETB {fee} & Submit
-                    </>
-                  )}
+                  <CreditCard size={18} />
+                  Proceed to Pay ETB {fee} & Upload Receipt
                 </button>
               </div>
             </div>
 
             {/* Security Notice */}
             <p className="text-xs text-center text-gray-400 dark:text-gray-500">
-              🔒 Payment is processed securely via Chapa. After payment, your listing will be
-              reviewed by our team within 24 hours.
+              🔒 Offline Payment: Transfer via Commercial Bank of Ethiopia (CBE) or Telebirr and upload receipt for admin verification.
             </p>
           </div>
         )}

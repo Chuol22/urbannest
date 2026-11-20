@@ -1,4 +1,4 @@
-// client/src/pages/admin/AdminManagement.tsx
+﻿// client/src/pages/admin/AdminManagement.tsx
 import React, { useState, useEffect } from 'react';
 import { adminService } from '../../services/admin.service';
 import { AdminUser } from '../../types/admin.types';
@@ -213,7 +213,7 @@ export const AdminManagement: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-extrabold text-white tracking-tight flex items-center space-x-2">
-            <ShieldCheck className="w-7 h-7 text-emerald-400" />
+            <ShieldCheck className="w-7 h-7 text-[#C9A865]" />
             <span>Admin Lifecycle Management</span>
           </h1>
           <p className="text-slate-400 text-sm mt-1">
@@ -223,15 +223,15 @@ export const AdminManagement: React.FC = () => {
 
         <button
           onClick={() => setShowCreateModal(true)}
-          className="flex items-center justify-center space-x-2 px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-extrabold rounded-xl shadow-lg shadow-emerald-500/20 transition"
+          className="flex items-center justify-center space-x-2 px-5 py-2.5 bg-[#181B22] hover:bg-[#262C37] text-white font-bold rounded-xl border border-[#C9A865] shadow-lg shadow-[#181B22]/30 transition"
         >
-          <UserPlus className="w-5 h-5" />
+          <UserPlus className="w-5 h-5 text-[#C9A865]" />
           <span>Create New Admin</span>
         </button>
       </div>
 
       {/* Filter & Search Toolbar */}
-      <div className="bg-slate-800/80 p-4 rounded-2xl border border-slate-700/80 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="bg-[#181B22] p-4 rounded-2xl border border-[#2E3543] flex flex-col md:flex-row items-center justify-between gap-4">
         <form onSubmit={handleSearchSubmit} className="flex-1 w-full md:w-auto relative">
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
           <input
@@ -239,7 +239,7 @@ export const AdminManagement: React.FC = () => {
             placeholder="Search admins by name, email, or phone..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-slate-900 border border-slate-700 text-white rounded-xl pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-emerald-500"
+            className="w-full bg-[#0F1116] border border-[#2E3543] text-white rounded-xl pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-[#C9A865]"
           />
         </form>
 
@@ -250,8 +250,8 @@ export const AdminManagement: React.FC = () => {
               onClick={() => setActiveFilter(filter)}
               className={`px-4 py-2 rounded-xl text-xs font-bold capitalize transition ${
                 activeFilter === filter
-                  ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
-                  : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-700'
+                  ? 'bg-[#262C37] text-[#C9A865] border border-[#C9A865]/50'
+                  : 'bg-[#0F1116] text-slate-400 hover:text-white border border-[#2E3543]'
               }`}
             >
               {filter}
@@ -259,7 +259,7 @@ export const AdminManagement: React.FC = () => {
           ))}
           <button
             onClick={fetchAdmins}
-            className="p-2 bg-slate-900 text-slate-400 hover:text-white rounded-xl border border-slate-700"
+            className="p-2 bg-[#0F1116] text-slate-400 hover:text-white rounded-xl border border-[#2E3543]"
             title="Refresh List"
           >
             <RefreshCw className="w-4 h-4" />
@@ -268,10 +268,10 @@ export const AdminManagement: React.FC = () => {
       </div>
 
       {/* Admin Users Table */}
-      <div className="bg-slate-800/90 rounded-2xl border border-slate-700/80 overflow-hidden shadow-xl">
+      <div className="bg-[#181B22] rounded-2xl border border-[#2E3543] overflow-hidden shadow-xl">
         {loading ? (
           <div className="py-12 text-center text-slate-400">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500 mx-auto mb-2"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#C9A865] mx-auto mb-2"></div>
             Loading admin accounts...
           </div>
         ) : admins.length === 0 ? (
@@ -281,7 +281,7 @@ export const AdminManagement: React.FC = () => {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm text-slate-300">
-              <thead className="bg-slate-900/80 text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-700">
+              <thead className="bg-[#262C37]/40 text-xs font-bold text-slate-300 uppercase tracking-wider border-b border-[#2E3543]">
                 <tr>
                   <th className="px-6 py-4">Admin Name</th>
                   <th className="px-6 py-4">Contact Info</th>
@@ -291,19 +291,19 @@ export const AdminManagement: React.FC = () => {
                   <th className="px-6 py-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-700/50">
+              <tbody className="divide-y divide-[#2E3543]/50">
                 {admins.map(admin => {
                   const isSelf = admin.id === currentUser?.id;
                   return (
-                    <tr key={admin.id} className="hover:bg-slate-700/30 transition">
+                    <tr key={admin.id} className="hover:bg-[#262C37]/20 transition">
                       <td className="px-6 py-4 font-semibold text-white">
                         <div className="flex items-center space-x-3">
-                          <div className="w-9 h-9 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center font-bold text-xs">
+                          <div className="w-9 h-9 rounded-full bg-[#C9A865]/15 text-[#C9A865] border border-[#C9A865]/30 flex items-center justify-center font-bold text-xs">
                             {admin.first_name ? admin.first_name[0] : 'A'}
                           </div>
                           <div>
                             <p>{admin.first_name} {admin.last_name}</p>
-                            {isSelf && <span className="text-[10px] text-emerald-400 font-bold">(You)</span>}
+                            {isSelf && <span className="text-[10px] text-[#C9A865] font-bold">(You)</span>}
                           </div>
                         </div>
                       </td>
@@ -313,7 +313,7 @@ export const AdminManagement: React.FC = () => {
                       </td>
                       <td className="px-6 py-4">
                         {admin.is_active ? (
-                          <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                          <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-[#2E7D4F]/15 text-[#2E7D4F] border border-[#2E7D4F]/30">
                             Active
                           </span>
                         ) : (
@@ -347,14 +347,14 @@ export const AdminManagement: React.FC = () => {
                       <td className="px-6 py-4 text-right space-x-2">
                         <button
                           onClick={() => openEdit(admin)}
-                          className="p-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-lg transition"
+                          className="p-1.5 bg-[#262C37]/40 hover:bg-[#262C37] text-slate-200 rounded-lg transition"
                           title="Edit Profile"
                         >
                           <Edit3 className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => openPasswordModal(admin)}
-                          className="p-1.5 bg-slate-700 hover:bg-slate-600 text-amber-400 rounded-lg transition"
+                          className="p-1.5 bg-[#262C37]/40 hover:bg-[#262C37] text-[#C9A865] rounded-lg transition"
                           title="Reset Password"
                         >
                           <KeyRound className="w-4 h-4" />
@@ -367,7 +367,7 @@ export const AdminManagement: React.FC = () => {
                               ? 'bg-slate-800 text-slate-600 cursor-not-allowed'
                               : admin.is_active 
                                 ? 'bg-rose-500/10 hover:bg-rose-500/20 text-rose-400' 
-                                : 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400'
+                                : 'bg-[#2E7D4F]/15 hover:bg-[#2E7D4F]/30 text-[#2E7D4F]'
                           }`}
                           title={admin.is_active ? 'Deactivate Account' : 'Activate Account'}
                         >
@@ -386,10 +386,10 @@ export const AdminManagement: React.FC = () => {
       {/* CREATE ADMIN MODAL */}
       {showCreateModal && (
         <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-800 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-5">
-            <div className="flex items-center justify-between border-b border-slate-700 pb-3">
+          <div className="bg-[#181B22] border border-[#2E3543] rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-5">
+            <div className="flex items-center justify-between border-b border-[#2E3543] pb-3">
               <h3 className="text-lg font-bold text-white flex items-center space-x-2">
-                <UserPlus className="w-5 h-5 text-emerald-400" />
+                <UserPlus className="w-5 h-5 text-[#C9A865]" />
                 <span>Create New Admin Account</span>
               </h3>
               <button onClick={() => setShowCreateModal(false)} className="text-slate-400 hover:text-white">
@@ -406,7 +406,7 @@ export const AdminManagement: React.FC = () => {
                     required
                     value={createForm.first_name}
                     onChange={e => setCreateForm({ ...createForm, first_name: e.target.value })}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:border-emerald-500"
+                    className="w-full bg-[#0F1116] border border-[#2E3543] rounded-xl px-3 py-2 text-white focus:border-[#C9A865] outline-none"
                   />
                 </div>
                 <div>
@@ -416,7 +416,7 @@ export const AdminManagement: React.FC = () => {
                     required
                     value={createForm.last_name}
                     onChange={e => setCreateForm({ ...createForm, last_name: e.target.value })}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:border-emerald-500"
+                    className="w-full bg-[#0F1116] border border-[#2E3543] rounded-xl px-3 py-2 text-white focus:border-[#C9A865] outline-none"
                   />
                 </div>
               </div>
@@ -428,7 +428,7 @@ export const AdminManagement: React.FC = () => {
                   required
                   value={createForm.email}
                   onChange={e => setCreateForm({ ...createForm, email: e.target.value })}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:border-emerald-500"
+                  className="w-full bg-[#0F1116] border border-[#2E3543] rounded-xl px-3 py-2 text-white focus:border-[#C9A865] outline-none"
                 />
               </div>
 
@@ -439,7 +439,7 @@ export const AdminManagement: React.FC = () => {
                   required
                   value={createForm.phone}
                   onChange={e => setCreateForm({ ...createForm, phone: e.target.value })}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:border-emerald-500"
+                  className="w-full bg-[#0F1116] border border-[#2E3543] rounded-xl px-3 py-2 text-white focus:border-[#C9A865] outline-none"
                 />
               </div>
 
@@ -450,7 +450,7 @@ export const AdminManagement: React.FC = () => {
                   required
                   value={createForm.password}
                   onChange={e => setCreateForm({ ...createForm, password: e.target.value })}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:border-emerald-500"
+                  className="w-full bg-[#0F1116] border border-[#2E3543] rounded-xl px-3 py-2 text-white focus:border-[#C9A865] outline-none"
                 />
               </div>
 
@@ -464,7 +464,7 @@ export const AdminManagement: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-xl font-bold transition"
+                  className="flex-1 px-4 py-2.5 bg-[#181B22] hover:bg-[#262C37] text-white border border-[#C9A865] rounded-xl font-bold transition shadow"
                 >
                   Create Admin
                 </button>
@@ -477,8 +477,8 @@ export const AdminManagement: React.FC = () => {
       {/* EDIT ADMIN MODAL */}
       {showEditModal && selectedAdmin && (
         <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-800 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-5">
-            <div className="flex items-center justify-between border-b border-slate-700 pb-3">
+          <div className="bg-[#181B22] border border-[#2E3543] rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-5">
+            <div className="flex items-center justify-between border-b border-[#2E3543] pb-3">
               <h3 className="text-lg font-bold text-white">Update Admin Profile</h3>
               <button onClick={() => setShowEditModal(false)} className="text-slate-400 hover:text-white">
                 <X className="w-5 h-5" />
@@ -494,7 +494,7 @@ export const AdminManagement: React.FC = () => {
                     required
                     value={editForm.first_name}
                     onChange={e => setEditForm({ ...editForm, first_name: e.target.value })}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:border-emerald-500"
+                    className="w-full bg-[#0F1116] border border-[#2E3543] rounded-xl px-3 py-2 text-white focus:border-[#C9A865] outline-none"
                   />
                 </div>
                 <div>
@@ -504,7 +504,7 @@ export const AdminManagement: React.FC = () => {
                     required
                     value={editForm.last_name}
                     onChange={e => setEditForm({ ...editForm, last_name: e.target.value })}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:border-emerald-500"
+                    className="w-full bg-[#0F1116] border border-[#2E3543] rounded-xl px-3 py-2 text-white focus:border-[#C9A865] outline-none"
                   />
                 </div>
               </div>
@@ -516,7 +516,7 @@ export const AdminManagement: React.FC = () => {
                   required
                   value={editForm.email}
                   onChange={e => setEditForm({ ...editForm, email: e.target.value })}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:border-emerald-500"
+                  className="w-full bg-[#0F1116] border border-[#2E3543] rounded-xl px-3 py-2 text-white focus:border-[#C9A865] outline-none"
                 />
               </div>
 
@@ -527,7 +527,7 @@ export const AdminManagement: React.FC = () => {
                   required
                   value={editForm.phone}
                   onChange={e => setEditForm({ ...editForm, phone: e.target.value })}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:border-emerald-500"
+                  className="w-full bg-[#0F1116] border border-[#2E3543] rounded-xl px-3 py-2 text-white focus:border-[#C9A865] outline-none"
                 />
               </div>
 
@@ -541,7 +541,7 @@ export const AdminManagement: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-xl font-bold transition"
+                  className="flex-1 px-4 py-2.5 bg-[#181B22] hover:bg-[#262C37] text-white border border-[#C9A865] rounded-xl font-bold transition shadow"
                 >
                   Save Changes
                 </button>
@@ -613,10 +613,10 @@ export const AdminManagement: React.FC = () => {
       {/* ENABLE 2FA MODAL */}
       {show2FAEnableModal && selectedAdmin && totpSetupData && (
         <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-800 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-5 text-center">
-            <div className="flex items-center justify-between border-b border-slate-700 pb-3">
+          <div className="bg-[#181B22] border border-[#2E3543] rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-5 text-center">
+            <div className="flex items-center justify-between border-b border-[#2E3543] pb-3">
               <h3 className="text-lg font-bold text-white flex items-center space-x-2">
-                <QrCode className="w-5 h-5 text-emerald-400" />
+                <QrCode className="w-5 h-5 text-[#C9A865]" />
                 <span>Set Up Two-Factor Authentication</span>
               </h3>
               <button onClick={() => setShow2FAEnableModal(false)} className="text-slate-400 hover:text-white">
@@ -632,7 +632,7 @@ export const AdminManagement: React.FC = () => {
               <img src={totpSetupData.qrCodeUrl} alt="2FA QR Code" className="w-full h-auto" />
             </div>
 
-            <p className="text-[11px] font-mono text-slate-400 bg-slate-900 p-2 rounded border border-slate-700 select-all">
+            <p className="text-[11px] font-mono text-slate-300 bg-[#0F1116] p-2 rounded border border-[#2E3543] select-all">
               Key: {totpSetupData.secret}
             </p>
 
@@ -646,7 +646,7 @@ export const AdminManagement: React.FC = () => {
                   placeholder="123456"
                   value={totpCodeInput}
                   onChange={e => setTotpCodeInput(e.target.value)}
-                  className="w-full text-center text-lg tracking-widest bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-emerald-400 font-mono focus:border-emerald-500"
+                  className="w-full text-center text-lg tracking-widest bg-[#0F1116] border border-[#2E3543] rounded-xl px-3 py-2 text-[#C9A865] font-mono focus:border-[#C9A865] outline-none"
                 />
               </div>
 
@@ -660,7 +660,7 @@ export const AdminManagement: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-xl font-bold transition text-sm"
+                  className="flex-1 px-4 py-2.5 bg-[#2E7D4F] hover:bg-[#256841] text-white rounded-xl font-bold transition text-sm shadow"
                 >
                   Verify & Enable
                 </button>

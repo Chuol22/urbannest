@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+﻿import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
 import { QueryClient, QueryClientProvider } from 'react-query';
@@ -45,10 +45,10 @@ const AuditLogs = React.lazy(() => import('./pages/admin/AuditLogs'));
 
 // Loading component for lazy-loaded routes
 const LoadingFallback = () => (
-  <div className="min-h-screen flex items-center justify-center bg-slate-900 text-white">
+  <div className="min-h-screen flex items-center justify-center bg-[#181B22] text-white">
     <div className="text-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto"></div>
-      <p className="mt-4 text-slate-400 text-sm">Loading UrbanNEST...</p>
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#C9A865] mx-auto"></div>
+      <p className="mt-4 text-gray-300 text-sm font-medium">Loading UrbanNEST...</p>
     </div>
   </div>
 );

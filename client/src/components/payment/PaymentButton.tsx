@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Payment Button Component
  *
  * A reusable button component for initiating Chapa payments.
@@ -62,11 +62,11 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
       onClick={onPay}
       disabled={disabled || isLoading}
       className={`
-        bg-gradient-to-r from-emerald-600 to-emerald-700
-        hover:from-emerald-700 hover:to-emerald-800
-        text-white font-semibold py-3 px-6 rounded-lg
+        bg-[#181B22] hover:bg-[#262C37]
+        border border-[#C9A865]
+        text-white font-semibold py-3 px-6 rounded-xl
         transition-all duration-200 flex items-center justify-center gap-2
-        shadow-lg hover:shadow-xl
+        shadow-lg shadow-[#181B22]/25 hover:shadow-xl hover:shadow-[#181B22]/40
         disabled:opacity-50 disabled:cursor-not-allowed
         ${className}
       `}

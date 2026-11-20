@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { Alert } from '../components/ui/Alert';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
+import logo from '../assets/images/unlogo.png';
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -102,14 +103,15 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-slate-50 dark:bg-gray-900">
-      {/* Left branding panel */}
-      <div className="md:w-1/2 bg-gradient-to-br from-blue-900 to-slate-900 flex flex-col justify-between p-8 md:p-12 text-white animate-fadeIn">
-        <div className="flex items-center space-x-3">
-          <div className="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center font-bold text-2xl text-white shadow-lg">
-            U
-          </div>
-          <span className="font-extrabold text-2xl tracking-wider">UrbanNEST</span>
+    <div className="min-h-screen flex flex-col md:flex-row bg-[#F4F5EF] dark:bg-[#0F1116]">
+      {/* Left branding panel - Charcoal Slate */}
+      <div className="md:w-1/2 bg-gradient-to-br from-[#181B22] to-[#262C37] flex flex-col justify-between p-8 md:p-12 text-white animate-fadeIn">
+        <div className="flex items-center">
+          <Link to="/" className="inline-block group" aria-label="UrbanNest Home">
+            <div className="bg-white/95 px-3.5 py-2 rounded-2xl shadow-lg border border-[#C9A865]/35 inline-flex items-center justify-center transition-transform duration-200 group-hover:scale-105">
+              <img src={logo} alt="UrbanNest Logo" className="h-10 w-auto object-contain" />
+            </div>
+          </Link>
         </div>
 
         <div className="my-auto space-y-6 max-w-md">
@@ -119,7 +121,7 @@ export default function Register() {
           <p className="text-gray-300 text-lg leading-relaxed">
             Create an account to gain your professional online profile, manage all your listings in one centralized place, and share easily on WhatsApp and social media.
           </p>
-          <div className="border-l-4 border-emerald-500 pl-4 py-2 italic text-gray-300 text-sm">
+          <div className="border-l-4 border-[#C9A865] pl-4 py-2 italic text-gray-300 text-sm">
             "Your platform focuses on discovery and connection. Buyers connect directly with you via phone or WhatsApp."
           </div>
         </div>
@@ -130,15 +132,23 @@ export default function Register() {
       </div>
 
       {/* Right form panel */}
-      <div className="md:w-1/2 flex items-center justify-center p-8 md:p-16">
-        <div className="max-w-md w-full space-y-8 bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700">
+      <div className="md:w-1/2 flex items-center justify-center p-8 md:p-16 bg-[#F4F5EF] dark:bg-[#181B22]/10">
+        <div className="max-w-md w-full space-y-8 bg-white dark:bg-[#181B22] p-8 rounded-2xl shadow-xl border border-gray-100 dark:border-[#2E3543]">
           <div>
-            <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white">
+            {/* Mobile / Form Header Logo */}
+            <div className="md:hidden flex justify-center mb-6">
+              <Link to="/" aria-label="UrbanNest Home">
+                <div className="bg-white/95 px-3.5 py-2 rounded-2xl shadow-sm border border-[#C9A865]/30 inline-flex items-center justify-center">
+                  <img src={logo} alt="UrbanNest Logo" className="h-9 w-auto object-contain" />
+                </div>
+              </Link>
+            </div>
+            <h2 className="text-3xl font-extrabold text-[#181B22] dark:text-white">
               Create Your Account
             </h2>
             <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
               Already have an account?{' '}
-              <Link to="/login" className="font-semibold text-emerald-600 dark:text-emerald-400 hover:underline">
+              <Link to="/login" className="font-semibold text-[#181B22] dark:text-[#C9A865] hover:underline">
                 Sign in
               </Link>
             </p>
@@ -208,14 +218,14 @@ export default function Register() {
             />
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-[#181B22] dark:text-gray-300 mb-1">
                 Register as a *
               </label>
               <select
                 name="role"
                 value={formData.role}
                 onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-[#2E3543] rounded-lg text-[#181B22] dark:text-white bg-white dark:bg-[#262C37]/30 focus:ring-2 focus:ring-[#C9A865] focus:border-[#C9A865] outline-none transition"
                 disabled={loading}
               >
                 <option value="owner">Property Owner / Landlord (Have property to rent/sell)</option>
@@ -263,16 +273,16 @@ export default function Register() {
                   setFormData({ ...formData, acceptTerms: e.target.checked });
                   if (errors.acceptTerms) delete errors.acceptTerms;
                 }}
-                className="h-4 w-4 mt-1 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded cursor-pointer"
+                className="h-4 w-4 mt-1 accent-[#181B22] border-gray-300 rounded cursor-pointer"
                 disabled={loading}
               />
-              <label htmlFor="acceptTerms" className="ml-2 block text-sm text-gray-900 dark:text-gray-300 cursor-pointer">
+              <label htmlFor="acceptTerms" className="ml-2 block text-sm text-[#181B22] dark:text-gray-300 cursor-pointer">
                 I agree to the{' '}
-                <Link to="/terms" className="text-emerald-600 dark:text-emerald-400 hover:underline">
+                <Link to="/terms" className="text-[#C9A865] hover:underline">
                   Terms of Service
                 </Link>{' '}
                 and{' '}
-                <Link to="/privacy" className="text-emerald-600 dark:text-emerald-400 hover:underline">
+                <Link to="/privacy" className="text-[#C9A865] hover:underline">
                   Privacy Policy
                 </Link>
               </label>
@@ -285,7 +295,7 @@ export default function Register() {
               type="submit"
               loading={loading}
               fullWidth
-              className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/20 py-3 font-semibold rounded-xl transition duration-200"
+              className="bg-[#181B22] hover:bg-[#262C37] text-white shadow-lg shadow-[#181B22]/20 py-3 font-semibold rounded-xl border border-[#C9A865] transition duration-200"
             >
               Create Account
             </Button>

@@ -1,24 +1,25 @@
 // client/src/components/admin/AdminLayout.tsx
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  ShieldAlert, 
-  Users, 
-  Building2, 
-  CreditCard, 
-  FileText, 
-  Menu, 
-  X, 
-  LogOut, 
-  UserCheck, 
-  Bell, 
+import {
+  LayoutDashboard,
+  ShieldAlert,
+  Users,
+  Building2,
+  CreditCard,
+  FileText,
+  Menu,
+  X,
+  LogOut,
+  UserCheck,
+  Bell,
   RefreshCw,
   Clock,
   ShieldCheck
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '../../context/AuthContext';
+import logo from '../../assets/images/unlogo.png';
 
 export const AdminLayout: React.FC = () => {
   const { user, logout } = useAuth();
@@ -91,15 +92,15 @@ export const AdminLayout: React.FC = () => {
             </span>
           </div>
           <div className="flex space-x-2">
-            <button 
+            <button
               onClick={extendSession}
               className="px-3 py-1 bg-white text-amber-900 rounded font-semibold text-xs md:text-sm hover:bg-amber-100 transition"
             >
               Extend Session
             </button>
-            <button 
+            <button
               onClick={() => handleLogout()}
-              className="px-3 py-1 bg-amber-800 text-white rounded font-semibold text-xs md:text-sm hover:bg-amber-900 transition"
+              className="px-3 py-1 bg-amber-800 text-white rounded font--medium text-xs md:text-sm hover:bg-amber-900 transition"
             >
               Logout Now
             </button>
@@ -108,16 +109,16 @@ export const AdminLayout: React.FC = () => {
       )}
 
       {/* Mobile Top Navigation */}
-      <div className="md:hidden flex items-center justify-between bg-slate-800 px-4 py-3 border-b border-slate-700">
-        <div className="flex items-center space-x-2">
-          <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center font-bold text-slate-950">
-            UN
+      <div className="md:hidden flex items-center justify-between bg-[#181B22] px-4 py-3 border-b border-[#2E3543]">
+        <div className="flex items-center space-x-2.5">
+          <div className="bg-white/95 px-2 py-1 rounded-lg border border-[#C9A865]/30 shadow-sm flex items-center justify-center">
+            <img src={logo} alt="UrbanNest Logo" className="h-6 w-auto object-contain" />
           </div>
-          <span className="font-bold text-lg text-white">Super Admin</span>
+          <span className="font-semibold text-sm text-white">Super Admin</span>
         </div>
-        <button 
-          onClick={() => setMobileOpen(!mobileOpen)} 
-          className="p-2 text-slate-300 hover:text-white rounded-lg bg-slate-700"
+        <button
+          onClick={() => setMobileOpen(!mobileOpen)}
+          className="p-2 text-slate-300 hover:text-white rounded-lg bg-[#262C37]/50"
         >
           {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
@@ -125,18 +126,20 @@ export const AdminLayout: React.FC = () => {
 
       {/* Sidebar Navigation */}
       <aside className={`
-        fixed md:static inset-y-0 left-0 z-40 w-64 bg-slate-800 border-r border-slate-700/80 flex flex-col justify-between transform transition-transform duration-200 ease-in-out
+        fixed md:static inset-y-0 left-0 z-40 w-64 bg-[#181B22] border-r border-[#2E3543] flex flex-col justify-between transform transition-transform duration-200 ease-in-out
         ${mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
       `}>
         <div>
           {/* Header Branding */}
-          <div className="hidden md:flex items-center space-x-3 px-6 py-6 border-b border-slate-700/80">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center font-black text-slate-950 text-xl shadow-lg shadow-emerald-500/20">
-              UN
-            </div>
-            <div>
-              <h1 className="font-bold text-white tracking-wide text-lg">UrbanNEST</h1>
-              <p className="text-xs text-emerald-400 font-semibold tracking-wider uppercase">Super Admin System</p>
+          <div className="hidden md:flex flex-col px-6 py-6 border-b border-[#2E3543] bg-[#0F1116]/40">
+            <Link to="/" className="inline-block group mb-2.5">
+              <div className="bg-white/95 px-3 py-2 rounded-xl shadow-md border border-[#C9A865]/30 inline-flex items-center justify-center">
+                <img src={logo} alt="UrbanNest Logo" className="h-9 w-auto object-contain transition-transform group-hover:scale-105" />
+              </div>
+            </Link>
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-[#C9A865] animate-pulse"></span>
+              <p className="text-[11px] text-[#C9A865] font-bold tracking-widest uppercase">Super Admin System</p>
             </div>
           </div>
 
@@ -152,12 +155,12 @@ export const AdminLayout: React.FC = () => {
                   onClick={() => setMobileOpen(false)}
                   className={`
                     flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-150
-                    ${isActive 
-                      ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-semibold shadow-inner' 
-                      : 'text-slate-400 hover:text-slate-100 hover:bg-slate-700/50'}
+                    ${isActive
+                      ? 'bg-[#262C37] text-[#C9A865] border border-[#C9A865]/40 font-semibold shadow-inner'
+                      : 'text-slate-300 hover:text-white hover:bg-[#262C37]/40'}
                   `}
                 >
-                  <Icon className={`w-5 h-5 ${isActive ? 'text-emerald-400' : 'text-slate-400'}`} />
+                  <Icon className={`w-5 h-5 ${isActive ? 'text-[#C9A865]' : 'text-slate-400'}`} />
                   <span>{item.label}</span>
                 </Link>
               );
@@ -166,9 +169,9 @@ export const AdminLayout: React.FC = () => {
         </div>
 
         {/* Footer User Info & Logout */}
-        <div className="p-4 border-t border-slate-700/80 bg-slate-800/50">
+        <div className="p-4 border-t border-[#2E3543] bg-[#12151A]">
           <div className="flex items-center space-x-3 mb-3">
-            <div className="w-9 h-9 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center font-bold text-sm">
+            <div className="w-9 h-9 rounded-full bg-[#C9A865]/15 border border-[#C9A865]/30 text-[#C9A865] flex items-center justify-center font-bold text-sm">
               {user?.first_name ? user.first_name[0] : 'A'}
             </div>
             <div className="flex-1 min-w-0">
@@ -181,7 +184,7 @@ export const AdminLayout: React.FC = () => {
 
           <button
             onClick={() => handleLogout()}
-            className="w-full flex items-center justify-center space-x-2 px-3 py-2 text-xs font-semibold text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 rounded-lg transition"
+            className="w-full flex items-center justify-center space-x-2 px-3 py-2 text-xs font-medium text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 rounded-lg transition"
           >
             <LogOut className="w-4 h-4" />
             <span>Sign Out</span>
@@ -190,22 +193,22 @@ export const AdminLayout: React.FC = () => {
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col min-w-0 bg-slate-900 overflow-y-auto">
+      <main className="flex-1 flex flex-col min-w-0 bg-[#0F1116] overflow-y-auto">
         {/* Top Desktop Bar */}
-        <header className="hidden md:flex items-center justify-between px-8 py-4 bg-slate-800/40 border-b border-slate-800 backdrop-blur">
-          <div className="flex items-center space-x-3 text-slate-400 text-sm">
-            <ShieldCheck className="w-5 h-5 text-emerald-400" />
+        <header className="hidden md:flex items-center justify-between px-8 py-4 bg-[#181B22] border-b border-[#2E3543] backdrop-blur">
+          <div className="flex items-center space-x-3 text-slate-300 text-sm font-medium">
+            <ShieldCheck className="w-5 h-5 text-[#2E7D4F]" />
             <span>UrbanNEST Administration Portal</span>
           </div>
 
           <div className="flex items-center space-x-6">
-            <div className="flex items-center space-x-2 text-xs text-slate-400 bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700">
-              <Clock className="w-3.5 h-3.5 text-emerald-400" />
+            <div className="flex items-center space-x-2 text-xs text-slate-300 bg-[#262C37]/40 px-3 py-1.5 rounded-full border border-[#2E3543]">
+              <Clock className="w-3.5 h-3.5 text-[#C9A865]" />
               <span>Session: {formatTime(sessionTimer)}</span>
             </div>
             <button
               onClick={() => window.location.reload()}
-              className="flex items-center space-x-1.5 text-xs text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg border border-slate-700 transition"
+              className="flex items-center space-x-1.5 text-xs text-slate-300 hover:text-white bg-[#262C37]/40 hover:bg-[#262C37]/60 px-3 py-1.5 rounded-lg border border-[#2E3543] transition"
               title="Refresh Page Data"
             >
               <RefreshCw className="w-3.5 h-3.5 text-slate-400" />

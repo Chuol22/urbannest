@@ -1,6 +1,6 @@
 // src/components/auth/AuthGuard.tsx
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth, UserRole } from '../../context/AuthContext';
 import { Loader } from '../ui/Loader';
 import { Alert } from '../ui/Alert';
 
@@ -9,7 +9,7 @@ interface AuthGuardProps {
   requireAuth?: boolean;
   requireGuest?: boolean;
   requireVerification?: boolean;
-  requireRole?: 'user' | 'agent' | 'admin';
+  requireRole?: UserRole;
   fallback?: React.ReactNode;
 }
 

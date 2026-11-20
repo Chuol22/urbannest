@@ -1,4 +1,4 @@
-// client/src/pages/admin/ListingManagement.tsx
+﻿// client/src/pages/admin/ListingManagement.tsx
 import React, { useState, useEffect } from 'react';
 import { adminService } from '../../services/admin.service';
 import { PlatformListing } from '../../types/admin.types';
@@ -182,7 +182,7 @@ export const ListingManagement: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-extrabold text-white tracking-tight flex items-center space-x-2">
-            <Building2 className="w-7 h-7 text-teal-400" />
+            <Building2 className="w-7 h-7 text-[#C9A865]" />
             <span>Listing Moderation & Approvals</span>
           </h1>
           <p className="text-slate-400 text-sm mt-1">
@@ -193,16 +193,16 @@ export const ListingManagement: React.FC = () => {
 
       {/* Bulk Action Bar */}
       {selectedIds.length > 0 && (
-        <div className="bg-teal-500/15 border border-teal-500/40 p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl">
-          <div className="flex items-center space-x-2 text-sm font-bold text-teal-300">
-            <CheckCircle2 className="w-5 h-5 text-teal-400" />
+        <div className="bg-[#181B22] border border-[#2E3543] p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl">
+          <div className="flex items-center space-x-2 text-sm font-bold text-white">
+            <CheckCircle2 className="w-5 h-5 text-[#2E7D4F]" />
             <span>{selectedIds.length} listing(s) selected</span>
           </div>
 
           <div className="flex items-center space-x-2">
             <button
               onClick={handleBulkApprove}
-              className="px-4 py-2 bg-teal-500 hover:bg-teal-400 text-slate-950 font-extrabold rounded-xl text-xs transition shadow-md"
+              className="px-4 py-2 bg-[#2E7D4F] hover:bg-[#256841] text-white font-extrabold rounded-xl text-xs transition shadow-md"
             >
               Bulk Approve Listings
             </button>
@@ -217,14 +217,14 @@ export const ListingManagement: React.FC = () => {
       )}
 
       {/* Status Tabs */}
-      <div className="flex space-x-2 border-b border-slate-700 pb-2">
+      <div className="flex space-x-2 border-b border-[#2E3543] pb-2">
         {['pending', 'available', 'withdrawn', 'rented', 'sold'].map(status => (
           <button
             key={status}
             onClick={() => { setStatusFilter(status); setPage(1); }}
             className={`px-4 py-2 rounded-xl text-xs font-bold capitalize transition ${statusFilter === status
-                ? 'bg-teal-500/20 text-teal-400 border border-teal-500/40 shadow-inner'
-                : 'text-slate-400 hover:text-white bg-slate-800/50'
+                ? 'bg-[#262C37] text-[#C9A865] border border-[#C9A865]/50 shadow-inner'
+                : 'text-slate-400 hover:text-white bg-[#181B22]'
               }`}
           >
             {status} listings
@@ -233,10 +233,10 @@ export const ListingManagement: React.FC = () => {
       </div>
 
       {/* Listings Table */}
-      <div className="bg-slate-800/90 rounded-2xl border border-slate-700/80 overflow-hidden shadow-xl">
+      <div className="bg-[#181B22] rounded-2xl border border-[#2E3543] overflow-hidden shadow-xl">
         {loading ? (
           <div className="py-12 text-center text-slate-400">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500 mx-auto mb-2"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#C9A865] mx-auto mb-2"></div>
             Loading listings...
           </div>
         ) : listings.length === 0 ? (
@@ -246,14 +246,14 @@ export const ListingManagement: React.FC = () => {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm text-slate-300">
-              <thead className="bg-slate-900/80 text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-700">
+              <thead className="bg-[#262C37]/40 text-xs font-bold text-slate-300 uppercase tracking-wider border-b border-[#2E3543]">
                 <tr>
                   <th className="px-4 py-4 w-10 text-center">
                     <input
                       type="checkbox"
                       onChange={handleSelectAll}
                       checked={listings.length > 0 && selectedIds.length === listings.length}
-                      className="rounded bg-slate-900 border-slate-700 text-teal-500 focus:ring-0"
+                      className="rounded bg-[#0F1116] border-[#2E3543] text-[#181B22] focus:ring-0"
                     />
                   </th>
                   <th className="px-6 py-4">Property</th>
@@ -264,23 +264,23 @@ export const ListingManagement: React.FC = () => {
                   <th className="px-6 py-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-700/50">
+              <tbody className="divide-y divide-[#2E3543]/50">
                 {listings.map(listing => {
                   const isChecked = selectedIds.includes(listing.id);
                   const primaryPhoto = listing.photos && listing.photos.length > 0 ? listing.photos[0].url : null;
                   return (
-                    <tr key={listing.id} className={`hover:bg-slate-700/30 transition ${isChecked ? 'bg-teal-500/5' : ''}`}>
+                    <tr key={listing.id} className={`hover:bg-[#262C37]/20 transition ${isChecked ? 'bg-[#262C37]/30' : ''}`}>
                       <td className="px-4 py-4 text-center">
                         <input
                           type="checkbox"
                           checked={isChecked}
                           onChange={() => handleSelectOne(listing.id)}
-                          className="rounded bg-slate-900 border-slate-700 text-teal-500 focus:ring-0"
+                          className="rounded bg-[#0F1116] border-[#2E3543] text-[#181B22] focus:ring-0"
                         />
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center space-x-3">
-                          <div className="w-12 h-12 rounded-xl bg-slate-900 border border-slate-700 overflow-hidden shrink-0">
+                          <div className="w-12 h-12 rounded-xl bg-[#0F1116] border border-[#2E3543] overflow-hidden shrink-0">
                             {primaryPhoto ? (
                               <img src={primaryPhoto} alt={listing.title} className="w-full h-full object-cover" />
                             ) : (
@@ -305,7 +305,7 @@ export const ListingManagement: React.FC = () => {
                       </td>
                       <td className="px-6 py-4">
                         {listing.listing_fee_paid ? (
-                          <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center w-max space-x-1">
+                          <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-[#2E7D4F]/20 text-[#2E7D4F] border border-[#2E7D4F]/30 flex items-center w-max space-x-1">
                             <Check className="w-3.5 h-3.5" />
                             <span>Fee Paid</span>
                           </span>
@@ -317,8 +317,8 @@ export const ListingManagement: React.FC = () => {
                         )}
                       </td>
                       <td className="px-6 py-4">
-                        <span className={`px-2.5 py-1 rounded-full text-xs font-bold capitalize ${listing.status === 'available' ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30' :
-                            listing.status === 'pending' ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30' :
+                        <span className={`px-2.5 py-1 rounded-full text-xs font-bold capitalize ${listing.status === 'available' ? 'bg-[#2E7D4F]/20 text-[#2E7D4F] border border-[#2E7D4F]/30' :
+                            listing.status === 'pending' ? 'bg-[#C9A865]/20 text-[#C9A865] border border-[#C9A865]/30' :
                               'bg-rose-500/15 text-rose-400 border border-rose-500/30'
                           }`}>
                           {listing.status}
@@ -332,7 +332,7 @@ export const ListingManagement: React.FC = () => {
                           <>
                             <button
                               onClick={() => handleApproveSingle(listing)}
-                              className="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-lg text-xs font-bold transition"
+                              className="px-3 py-1.5 bg-[#2E7D4F] hover:bg-[#256841] text-white rounded-lg text-xs font-bold transition shadow"
                             >
                               Approve
                             </button>
@@ -386,11 +386,11 @@ export const ListingManagement: React.FC = () => {
       {/* SINGLE REJECT MODAL */}
       {showRejectModal && selectedListing && (
         <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-800 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-5">
-            <div className="flex items-center justify-between border-b border-slate-700 pb-3">
+          <div className="bg-[#181B22] border border-[#2E3543] rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-5">
+            <div className="flex items-center justify-between border-b border-[#2E3543] pb-3">
               <h3 className="text-lg font-bold text-white flex items-center space-x-2">
                 <Ban className="w-5 h-5 text-rose-400" />
-                <span>Reject Listing</span>
+                <span>Reject Property Listing</span>
               </h3>
               <button onClick={() => setShowRejectModal(false)} className="text-slate-400 hover:text-white">
                 <X className="w-5 h-5" />
@@ -410,7 +410,7 @@ export const ListingManagement: React.FC = () => {
                   placeholder="Explain why this property listing cannot be published..."
                   value={rejectReason}
                   onChange={e => setRejectReason(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white focus:border-rose-500 text-xs"
+                  className="w-full bg-[#0F1116] border border-[#2E3543] rounded-xl p-3 text-white focus:border-rose-500 text-xs"
                 />
               </div>
 
@@ -437,8 +437,8 @@ export const ListingManagement: React.FC = () => {
       {/* BULK REJECT MODAL */}
       {showBulkRejectModal && (
         <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-800 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-5">
-            <div className="flex items-center justify-between border-b border-slate-700 pb-3">
+          <div className="bg-[#181B22] border border-[#2E3543] rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-5">
+            <div className="flex items-center justify-between border-b border-[#2E3543] pb-3">
               <h3 className="text-lg font-bold text-white flex items-center space-x-2">
                 <Ban className="w-5 h-5 text-rose-400" />
                 <span>Bulk Reject Listings ({selectedIds.length})</span>

@@ -183,4 +183,98 @@ export const paymentService = {
       return { success: false, data: [], message: 'Failed to load payment history' };
     }
   },
+
+  /**
+   * Get offline manual transfer accounts (Commercial Bank of Ethiopia & Telebirr details)
+   */
+  async getManualTransferInfo(): Promise<any> {
+    try {
+      const response = await apiClient.get(`${API_BASE_URL}/properties/manual-transfer-info`);
+      return response.data;
+    } catch (error) {
+      console.warn('[paymentService] Fetch failed, using fallback manual transfer details:', error);
+      return {
+        success: true,
+        data: {
+          cbe: {
+            bankName: 'Commercial Bank of Ethiopia (CBE)',
+            accountNumber: '1000284759281',
+            accountName: 'UrbanNEST Real Estate PLC',
+            branch: 'Finfinnee Branch, Addis Ababa',
+            ussd: '*847#',
+            ussdCode: '*847#'
+          },
+          telebirr: {
+            provider: 'Telebirr',
+            phoneNumber: '0911478291',
+            accountName: 'UrbanNEST Real Estate',
+            shortCode: '251911478291',
+            ussd: '*127#',
+            ussdCode: '*127#'
+          },
+          feeSchedule: {
+            standard: { rent: 50, sale: 100 },
+            premium: { rent: 100, sale: 200 }
+          }
+        }
+      };
+    }
+  },
+
+  /**
+   * Submit manual payment proof receipt (image / screenshot)
+   */
+  async submitManualPayment(
+    propertyId: string,
+    fileOrFormData: File | FormData,
+    options?: {
+      paymentMethod?: string;
+      tier?: string;
+      referenceCode?: string;
+      notes?: string;
+    }
+  ): Promise<PaymentResponse> {
+    try {
+      let dataToSend: FormData;
+      if (fileOrFormData instanceof FormData) {
+        dataToSend = fileOrFormData;
+      } else {
+        dataToSend = new FormData();
+        dataToSend.append('receipt', fileOrFormData);
+        if (options?.paymentMethod) dataToSend.append('paymentMethod', options.paymentMethod);
+        if (options?.tier) dataToSend.append('tier', options.tier);
+        if (options?.referenceCode) dataToSend.append('referenceCode', options.referenceCode);
+        if (options?.notes) dataToSend.append('notes', options.notes);
+      }
+
+      const response = await apiClient.post(
+        `${API_BASE_URL}/properties/${propertyId}/manual-payment`,
+        dataToSend,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error submitting manual payment receipt:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Get payment details and receipt verification status for a property
+   */
+  async getPropertyPaymentDetails(propertyId: string): Promise<PaymentResponse> {
+    try {
+      const response = await apiClient.get(
+        `${API_BASE_URL}/properties/${propertyId}/payment-details`
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching property payment details:', error);
+      throw error;
+    }
+  },
 };

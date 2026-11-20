@@ -1,4 +1,4 @@
-// client/src/pages/admin/PaymentManagement.tsx
+﻿// client/src/pages/admin/PaymentManagement.tsx
 import React, { useState, useEffect } from 'react';
 import { adminService } from '../../services/admin.service';
 import { PlatformPayment } from '../../types/admin.types';
@@ -113,7 +113,7 @@ export const PaymentManagement: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-extrabold text-white tracking-tight flex items-center space-x-2">
-            <CreditCard className="w-7 h-7 text-emerald-400" />
+            <CreditCard className="w-7 h-7 text-[#C9A865]" />
             <span>Payment Reconciliation & Revenue</span>
           </h1>
           <p className="text-slate-400 text-sm mt-1">
@@ -123,7 +123,7 @@ export const PaymentManagement: React.FC = () => {
 
         <button
           onClick={handleExportCSV}
-          className="flex items-center justify-center space-x-2 px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-500/30 font-semibold rounded-xl transition text-sm shadow-md"
+          className="flex items-center justify-center space-x-2 px-4 py-2.5 bg-[#181B22] hover:bg-[#262C37] text-[#C9A865] border border-[#C9A865]/30 font-semibold rounded-xl transition text-sm shadow-md"
         >
           <Download className="w-4 h-4" />
           <span>Export Payments CSV</span>
@@ -131,13 +131,13 @@ export const PaymentManagement: React.FC = () => {
       </div>
 
       {/* Filter Panel */}
-      <div className="bg-slate-800/80 p-4 rounded-2xl border border-slate-700/80 grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="bg-[#181B22] p-4 rounded-2xl border border-[#2E3543] grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div>
           <label className="block text-xs font-semibold text-slate-400 mb-1">Payment Status</label>
           <select
             value={statusFilter}
             onChange={e => { setStatusFilter(e.target.value); setPage(1); }}
-            className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white focus:border-emerald-500"
+            className="w-full bg-[#0F1116] border border-[#2E3543] rounded-xl px-3 py-1.5 text-xs text-white focus:border-[#C9A865] outline-none"
           >
             <option value="">All Statuses</option>
             <option value="COMPLETED">COMPLETED</option>
@@ -153,7 +153,7 @@ export const PaymentManagement: React.FC = () => {
             type="date"
             value={fromDate}
             onChange={e => { setFromDate(e.target.value); setPage(1); }}
-            className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white focus:border-emerald-500"
+            className="w-full bg-[#0F1116] border border-[#2E3543] rounded-xl px-3 py-1.5 text-xs text-white focus:border-[#C9A865] outline-none"
           />
         </div>
 
@@ -163,16 +163,16 @@ export const PaymentManagement: React.FC = () => {
             type="date"
             value={toDate}
             onChange={e => { setToDate(e.target.value); setPage(1); }}
-            className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white focus:border-emerald-500"
+            className="w-full bg-[#0F1116] border border-[#2E3543] rounded-xl px-3 py-1.5 text-xs text-white focus:border-[#C9A865] outline-none"
           />
         </div>
       </div>
 
       {/* Payments Table */}
-      <div className="bg-slate-800/90 rounded-2xl border border-slate-700/80 overflow-hidden shadow-xl">
+      <div className="bg-[#181B22] rounded-2xl border border-[#2E3543] overflow-hidden shadow-xl">
         {loading ? (
           <div className="py-12 text-center text-slate-400">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500 mx-auto mb-2"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#C9A865] mx-auto mb-2"></div>
             Loading payments...
           </div>
         ) : payments.length === 0 ? (
@@ -182,7 +182,7 @@ export const PaymentManagement: React.FC = () => {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm text-slate-300">
-              <thead className="bg-slate-900/80 text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-700">
+              <thead className="bg-[#262C37]/40 text-xs font-bold text-slate-300 uppercase tracking-wider border-b border-[#2E3543]">
                 <tr>
                   <th className="px-6 py-4">Transaction Ref</th>
                   <th className="px-6 py-4">User</th>
@@ -193,9 +193,9 @@ export const PaymentManagement: React.FC = () => {
                   <th className="px-6 py-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-700/50">
+              <tbody className="divide-y divide-[#2E3543]/50">
                 {payments.map(payment => (
-                  <tr key={payment.id} className="hover:bg-slate-700/30 transition">
+                  <tr key={payment.id} className="hover:bg-[#262C37]/20 transition">
                     <td className="px-6 py-4 font-mono text-xs text-slate-200">
                       {payment.txRef || payment.id.slice(0, 8)}
                     </td>
@@ -208,13 +208,13 @@ export const PaymentManagement: React.FC = () => {
                     <td className="px-6 py-4 text-xs text-slate-300">
                       {payment.property?.title || 'Listing Fee'}
                     </td>
-                    <td className="px-6 py-4 font-bold text-emerald-400 text-sm">
+                    <td className="px-6 py-4 font-bold text-[#2E7D4F] text-sm">
                       {payment.currency || 'ETB'} {payment.amount.toLocaleString()}
                     </td>
                     <td className="px-6 py-4">
                       <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${
-                        payment.status === 'COMPLETED' ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30' :
-                        payment.status === 'PENDING' ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30' :
+                        payment.status === 'COMPLETED' ? 'bg-[#2E7D4F]/20 text-[#2E7D4F] border border-[#2E7D4F]/30' :
+                        payment.status === 'PENDING' ? 'bg-[#C9A865]/20 text-[#C9A865] border border-[#C9A865]/30' :
                         'bg-rose-500/15 text-rose-400 border border-rose-500/30'
                       }`}>
                         {payment.status}
@@ -226,7 +226,7 @@ export const PaymentManagement: React.FC = () => {
                     <td className="px-6 py-4 text-right space-x-2">
                       <button
                         onClick={() => openDetails(payment)}
-                        className="p-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-lg transition"
+                        className="p-1.5 bg-[#262C37]/40 hover:bg-[#262C37] text-slate-200 rounded-lg transition"
                         title="View Details"
                       >
                         <Eye className="w-4 h-4" />
@@ -235,7 +235,7 @@ export const PaymentManagement: React.FC = () => {
                       {payment.status !== 'COMPLETED' && (
                         <button
                           onClick={() => openCompleteModal(payment)}
-                          className="px-3 py-1.5 bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/30 rounded-lg text-xs font-bold transition"
+                          className="px-3 py-1.5 bg-[#2E7D4F]/20 hover:bg-[#2E7D4F] text-[#2E7D4F] hover:text-white border border-[#2E7D4F]/30 rounded-lg text-xs font-bold transition shadow"
                           title="Manually Complete Payment"
                         >
                           Mark Complete
@@ -282,10 +282,10 @@ export const PaymentManagement: React.FC = () => {
       {/* DETAILS MODAL */}
       {showDetailsModal && selectedPayment && (
         <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-800 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-700 pb-3">
+          <div className="bg-[#181B22] border border-[#2E3543] rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-[#2E3543] pb-3">
               <h3 className="text-lg font-bold text-white flex items-center space-x-2">
-                <CreditCard className="w-5 h-5 text-emerald-400" />
+                <CreditCard className="w-5 h-5 text-[#C9A865]" />
                 <span>Payment Details</span>
               </h3>
               <button onClick={() => setShowDetailsModal(false)} className="text-slate-400 hover:text-white">
@@ -319,10 +319,10 @@ export const PaymentManagement: React.FC = () => {
       {/* MANUAL COMPLETE MODAL */}
       {showCompleteModal && selectedPayment && (
         <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-800 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-5">
-            <div className="flex items-center justify-between border-b border-slate-700 pb-3">
+          <div className="bg-[#181B22] border border-[#2E3543] rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-5">
+            <div className="flex items-center justify-between border-b border-[#2E3543] pb-3">
               <h3 className="text-lg font-bold text-white flex items-center space-x-2">
-                <CheckCheck className="w-5 h-5 text-emerald-400" />
+                <CheckCheck className="w-5 h-5 text-[#2E7D4F]" />
                 <span>Manually Complete Payment</span>
               </h3>
               <button onClick={() => setShowCompleteModal(false)} className="text-slate-400 hover:text-white">
@@ -331,7 +331,7 @@ export const PaymentManagement: React.FC = () => {
             </div>
 
             <p className="text-xs text-slate-300">
-              Manually marking payment of <strong className="text-emerald-400">{selectedPayment.currency} {selectedPayment.amount}</strong> as COMPLETED. Reason required for audit log.
+              Manually marking payment of <strong className="text-[#2E7D4F]">{selectedPayment.currency} {selectedPayment.amount}</strong> as COMPLETED. Reason required for audit log.
             </p>
 
             <form onSubmit={handleCompleteSubmit} className="space-y-4 text-sm">
@@ -343,7 +343,7 @@ export const PaymentManagement: React.FC = () => {
                   placeholder="State transaction confirmation reference or bank receipt number..."
                   value={completeReason}
                   onChange={e => setCompleteReason(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white focus:border-emerald-500 text-xs"
+                  className="w-full bg-[#0F1116] border border-[#2E3543] rounded-xl p-3 text-white focus:border-[#C9A865] text-xs outline-none"
                 />
               </div>
 
@@ -357,7 +357,7 @@ export const PaymentManagement: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-xl font-bold transition text-xs"
+                  className="flex-1 px-4 py-2.5 bg-[#2E7D4F] hover:bg-[#256841] text-white rounded-xl font-bold transition text-xs shadow"
                 >
                   Confirm Completion
                 </button>

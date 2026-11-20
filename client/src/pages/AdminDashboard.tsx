@@ -3,17 +3,17 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { adminService } from '../services/admin.service';
-import { 
-  Users, 
-  CheckCircle, 
-  Clock, 
-  XCircle, 
-  FileText, 
-  DollarSign, 
-  ShieldAlert, 
-  LogOut, 
-  Settings, 
-  TrendingUp, 
+import {
+  Users,
+  CheckCircle,
+  Clock,
+  XCircle,
+  FileText,
+  DollarSign,
+  ShieldAlert,
+  LogOut,
+  Settings,
+  TrendingUp,
   Menu,
   X
 } from 'lucide-react';
@@ -23,6 +23,7 @@ import ListingReviewTable from '../components/admin/ListingReviewTable';
 import PaymentsTable from '../components/admin/PaymentsTable';
 import PaymentConfig from '../components/admin/PaymentConfig';
 import { Alert } from '../components/ui/Alert';
+import logo from '../assets/images/unlogo.png';
 
 interface Stats {
   pendingBrokers: number;
@@ -77,9 +78,9 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-900 text-white">
+      <div className="min-h-screen flex items-center justify-center bg-[#0F1116] text-white">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#C9A865] mx-auto"></div>
           <p className="mt-4 text-gray-400">Loading Super Admin Control Panel...</p>
         </div>
       </div>
@@ -87,14 +88,14 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col md:flex-row font-sans">
+    <div className="min-h-screen bg-[#0F1116] text-slate-100 flex flex-col md:flex-row font-sans">
       {/* Mobile Navbar Header */}
-      <header className="md:hidden bg-slate-900 border-b border-slate-800 p-4 flex items-center justify-between z-20">
+      <header className="md:hidden bg-[#181B22] border-b border-[#2E3543] p-4 flex items-center justify-between z-20">
         <div className="flex items-center space-x-3">
-          <div className="w-9 h-9 bg-emerald-500 rounded-lg flex items-center justify-center font-bold text-white shadow-md">
-            A
+          <div className="bg-white/95 px-2 py-1 rounded-lg border border-[#C9A865]/30 shadow-sm flex items-center justify-center">
+            <img src={logo} alt="UrbanNest Logo" className="h-6 w-auto object-contain" />
           </div>
-          <span className="font-extrabold text-lg tracking-wider text-white">Super Admin</span>
+          <span className="font-semibold text-lg tracking-wider text-white">Super Admin</span>
         </div>
         <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-slate-300 focus:outline-none">
           {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
@@ -102,84 +103,81 @@ export default function AdminDashboard() {
       </header>
 
       {/* Sidebar Navigation Panel */}
-      <aside className={`w-full md:w-64 bg-slate-900 border-r border-slate-800 flex flex-col justify-between p-6 fixed inset-y-0 left-0 transform md:transform-none md:translate-x-0 transition-transform duration-300 ease-in-out z-30 ${
-        sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-      } md:sticky md:h-screen`}>
+      <aside className={`w-full md:w-64 bg-[#181B22] border-r border-[#2E3543] flex flex-col justify-between p-6 fixed inset-y-0 left-0 transform md:transform-none md:translate-x-0 transition-transform duration-300 ease-in-out z-30 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        } md:sticky md:h-screen`}>
         <div>
           {/* Logo Brand Header */}
-          <div className="hidden md:flex items-center space-x-3 mb-8">
-            <div className="w-10 h-10 bg-emerald-500 rounded-lg flex items-center justify-center font-bold text-xl text-white shadow-md">
-              A
+          <div className="hidden md:flex flex-col mb-8">
+            <div className="bg-white/95 px-3 py-2 rounded-xl shadow-md border border-[#C9A865]/30 inline-flex items-center justify-center max-w-[180px] mb-2.5">
+              <img src={logo} alt="UrbanNest Logo" className="h-8 w-auto object-contain" />
             </div>
-            <span className="font-extrabold text-xl tracking-wider text-white">Super Admin</span>
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-[#C9A865] animate-pulse"></span>
+              <span className="font-bold text-xs uppercase tracking-widest text-[#C9A865]">Super Admin Panel</span>
+            </div>
           </div>
 
           {/* Quick Profile Details */}
-          <div className="mb-6 p-4 bg-slate-800/60 rounded-xl border border-slate-750">
+          <div className="mb-6 p-4 bg-[#262C37]/40 rounded-xl border border-[#2E3543]">
             <p className="text-xs text-gray-400 font-medium">Logged in as</p>
             <p className="font-bold text-sm truncate text-white mt-0.5">{user?.first_name} {user?.last_name}</p>
-            <span className="inline-block mt-2 text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 bg-emerald-950 text-emerald-400 rounded-md">System Root</span>
+            <span className="inline-block mt-2 text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 bg-[#2E7D4F]/20 text-[#2E7D4F] border border-[#2E7D4F]/30 rounded-md">System Root</span>
           </div>
 
           {/* Navigation Links */}
           <nav className="space-y-1">
             <button
               onClick={() => { setActiveTab('overview'); setSidebarOpen(false); }}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-semibold transition ${
-                activeTab === 'overview' 
-                  ? 'bg-emerald-600 text-white shadow-lg' 
-                  : 'text-gray-300 hover:bg-slate-800 hover:text-white'
-              }`}
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-semibold transition ${activeTab === 'overview'
+                ? 'bg-[#262C37] text-white border border-[#C9A865] shadow-lg'
+                : 'text-gray-300 hover:bg-[#262C37]/40 hover:text-white'
+                }`}
             >
-              <TrendingUp size={18} />
+              <TrendingUp size={18} className={activeTab === 'overview' ? 'text-[#C9A865]' : ''} />
               <span>Metrics Overview</span>
             </button>
 
             <button
               onClick={() => { setActiveTab('brokers'); setSidebarOpen(false); }}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-semibold transition ${
-                activeTab === 'brokers' 
-                  ? 'bg-emerald-600 text-white shadow-lg' 
-                  : 'text-gray-300 hover:bg-slate-800 hover:text-white'
-              }`}
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition ${activeTab === 'brokers'
+                ? 'bg-[#262C37] text-white border border-[#C9A865] shadow-lg'
+                : 'text-gray-300 hover:bg-[#262C37]/40 hover:text-white'
+                }`}
             >
-              <Users size={18} />
+              <Users size={16} className={activeTab === 'brokers' ? 'text-[#C9A865]' : ''} />
               <span>Broker Verification</span>
             </button>
 
             <button
               onClick={() => { setActiveTab('listings'); setSidebarOpen(false); }}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-semibold transition ${
-                activeTab === 'listings' 
-                  ? 'bg-emerald-600 text-white shadow-lg' 
-                  : 'text-gray-300 hover:bg-slate-800 hover:text-white'
-              }`}
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition ${activeTab === 'listings'
+                ? 'bg-[#262C37] text-white border border-[#C9A865] shadow-lg'
+                : 'text-gray-300 hover:bg-[#262C37]/40 hover:text-white'
+                }`}
             >
-              <FileText size={18} />
+              <FileText size={16} className={activeTab === 'listings' ? 'text-[#C9A865]' : ''} />
               <span>Listing Reviews</span>
             </button>
 
             <button
               onClick={() => { setActiveTab('payments'); setSidebarOpen(false); }}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-semibold transition ${
-                activeTab === 'payments' 
-                  ? 'bg-emerald-600 text-white shadow-lg' 
-                  : 'text-gray-300 hover:bg-slate-800 hover:text-white'
-              }`}
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition ${activeTab === 'payments'
+                ? 'bg-[#262C37] text-white border border-[#C9A865] shadow-lg'
+                : 'text-gray-300 hover:bg-[#262C37]/40 hover:text-white'
+                }`}
             >
-              <DollarSign size={18} />
+              <DollarSign size={16} className={activeTab === 'payments' ? 'text-[#C9A865]' : ''} />
               <span>Payment Operations</span>
             </button>
 
             <button
               onClick={() => { setActiveTab('settings'); setSidebarOpen(false); }}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-semibold transition ${
-                activeTab === 'settings' 
-                  ? 'bg-emerald-600 text-white shadow-lg' 
-                  : 'text-gray-300 hover:bg-slate-800 hover:text-white'
-              }`}
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition ${activeTab === 'settings'
+                ? 'bg-[#262C37] text-white border border-[#C9A865] shadow-lg'
+                : 'text-gray-300 hover:bg-[#262C37]/40 hover:text-white'
+                }`}
             >
-              <Settings size={18} />
+              <Settings size={16} className={activeTab === 'settings' ? 'text-[#C9A865]' : ''} />
               <span>Listing Fees Settings</span>
             </button>
           </nav>
@@ -205,66 +203,66 @@ export default function AdminDashboard() {
         {activeTab === 'overview' && (
           <div className="space-y-8 animate-fadeIn">
             <div>
-              <h1 className="text-3xl font-extrabold text-white">Operational Dashboard</h1>
+              <h1 className="text-xl font-bold text-white">Operational Dashboard</h1>
               <p className="text-sm text-slate-400 mt-1">Summary metrics of property creation flow and verifications.</p>
             </div>
 
             {/* KPI Cards Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex items-center justify-between">
+              <div className="bg-[#181B22] border border-[#2E3543] rounded-2xl p-6 flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-slate-400">Pending Brokers</p>
-                  <h3 className="text-3xl font-extrabold text-amber-500 mt-2">{stats?.pendingBrokers || 0}</h3>
+                  <h3 className="text-2xl font-bold text-[#C9A865] mt-2">{stats?.pendingBrokers || 0}</h3>
                 </div>
-                <div className="w-12 h-12 bg-amber-950/30 rounded-xl flex items-center justify-center text-amber-400 border border-amber-900/30">
-                  <Clock size={22} />
+                <div className="w-12 h-12 bg-[#C9A865]/15 rounded-xl flex items-center justify-center text-[#C9A865] border border-[#C9A865]/30">
+                  <Clock size={18} />
                 </div>
               </div>
 
-              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex items-center justify-between">
+              <div className="bg-[#181B22] border border-[#2E3543] rounded-2xl p-6 flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-slate-400">Pending Review Listings</p>
-                  <h3 className="text-3xl font-extrabold text-blue-500 mt-2">{stats?.pendingListings || 0}</h3>
+                  <h3 className="text-2xl font-bold text-blue-400 mt-2">{stats?.pendingListings || 0}</h3>
                 </div>
-                <div className="w-12 h-12 bg-blue-950/30 rounded-xl flex items-center justify-center text-blue-400 border border-blue-900/30">
-                  <FileText size={22} />
+                <div className="w-12 h-12 bg-[#262C37]/40 rounded-xl flex items-center justify-center text-blue-400 border border-[#2E3543]">
+                  <FileText size={18} />
                 </div>
               </div>
 
-              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex items-center justify-between">
+              <div className="bg-[#181B22] border border-[#2E3543] rounded-2xl p-6 flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-slate-400">Total Approved Listings</p>
-                  <h3 className="text-3xl font-extrabold text-emerald-500 mt-2">{stats?.publishedListings || 0}</h3>
+                  <h3 className="text-3xl font-extrabold text-[#2E7D4F] mt-2">{stats?.publishedListings || 0}</h3>
                 </div>
-                <div className="w-12 h-12 bg-emerald-950/30 rounded-xl flex items-center justify-center text-emerald-400 border border-emerald-900/30">
+                <div className="w-12 h-12 bg-[#2E7D4F]/15 rounded-xl flex items-center justify-center text-[#2E7D4F] border border-[#2E7D4F]/30">
                   <CheckCircle size={22} />
                 </div>
               </div>
 
-              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex items-center justify-between">
+              <div className="bg-[#181B22] border border-[#2E3543] rounded-2xl p-6 flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-slate-400">Cumulative Listing Fees</p>
                   <h3 className="text-3xl font-extrabold text-white mt-2">ETB {(stats?.totalRevenue || 0).toLocaleString()}</h3>
                 </div>
-                <div className="w-12 h-12 bg-slate-950 rounded-xl flex items-center justify-center text-emerald-500 border border-slate-850">
+                <div className="w-12 h-12 bg-[#C9A865]/15 rounded-xl flex items-center justify-center text-[#C9A865] border border-[#C9A865]/30">
                   <DollarSign size={22} />
                 </div>
               </div>
             </div>
 
             {/* Quick action info banner explaining the user registration and listing review flow */}
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+            <div className="bg-[#181B22] border border-[#2E3543] rounded-2xl p-6 space-y-4">
               <h3 className="text-lg font-bold text-white flex items-center">
-                <ShieldAlert className="text-emerald-500 mr-2" size={20} />
+                <ShieldAlert className="text-[#C9A865] mr-2" size={20} />
                 Administrator Flow Guidelines
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-slate-300">
-                <div className="space-y-2 border-l-2 border-emerald-500 pl-4">
-                  <h4 className="font-bold text-white">Broker Identity Verification</h4>
+                <div className="space-y-2 border-l-2 border-[#2E7D4F] pl-4">
+                  <h4 className="font-medium text-white">Broker Identity Verification</h4>
                   <p className="text-xs">Verify corporate licenses and ID certificates. Only approved brokers and landlords can submit property ads. Make sure their files are readable before click approving.</p>
                 </div>
-                <div className="space-y-2 border-l-2 border-blue-500 pl-4">
-                  <h4 className="font-bold text-white">Ad Listing Review and Fees</h4>
+                <div className="space-y-2 border-l-2 border-[#C9A865] pl-4">
+                  <h4 className="font-medium text-white">Ad Listing Review and Fees</h4>
                   <p className="text-xs">Approved brokers generate draft listings. Once listing fee payment is cleared, the status moves to pending review. Verify description, map accuracy, and price before publication.</p>
                 </div>
               </div>
@@ -272,12 +270,12 @@ export default function AdminDashboard() {
 
             {/* Recent Pending Table Section */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-sm">
+              <div className="bg-[#181B22] border border-[#2E3543] rounded-2xl p-6 shadow-sm">
                 <h3 className="text-lg font-bold text-white mb-4">Brokers Awaiting Verification</h3>
                 <BrokerVerificationTable />
               </div>
 
-              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-sm">
+              <div className="bg-[#181B22] border border-[#2E3543] rounded-2xl p-6 shadow-sm">
                 <h3 className="text-lg font-bold text-white mb-4">Properties Awaiting Review</h3>
                 <ListingReviewTable />
               </div>
@@ -289,10 +287,10 @@ export default function AdminDashboard() {
         {activeTab === 'brokers' && (
           <div className="space-y-6 animate-fadeIn">
             <div>
-              <h1 className="text-2xl font-extrabold text-white">Broker Verification Management</h1>
+              <h1 className="text-xl font-extrabold text-white">Broker Verification Management</h1>
               <p className="text-xs text-slate-400">Review pending identity validations to verify brokers and property owners.</p>
             </div>
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+            <div className="bg-[#181B22] border border-[#2E3543] rounded-2xl p-6">
               <BrokerVerificationTable />
             </div>
           </div>
@@ -305,7 +303,7 @@ export default function AdminDashboard() {
               <h1 className="text-2xl font-extrabold text-white">Listing Review Management</h1>
               <p className="text-xs text-slate-400">Publish properties to the home feed or reject listings with notes.</p>
             </div>
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+            <div className="bg-[#181B22] border border-[#2E3543] rounded-2xl p-6">
               <ListingReviewTable />
             </div>
           </div>
@@ -318,7 +316,7 @@ export default function AdminDashboard() {
               <h1 className="text-2xl font-extrabold text-white">Transaction Logs</h1>
               <p className="text-xs text-slate-400">Auditing list of incoming listing fee payment operations.</p>
             </div>
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+            <div className="bg-[#181B22] border border-[#2E3543] rounded-2xl p-6">
               <PaymentsTable />
             </div>
           </div>

@@ -3,7 +3,8 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 import { AnimatePresence, motion } from 'framer-motion';
 
-import { useAuth } from '../../context/AuthContext';
+import { useAuth, UserRole } from '../../context/AuthContext';
+import logo from '../../assets/images/unlogo.png';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -15,7 +16,7 @@ interface NavItem {
   path: string;
   label: string;
   icon: React.ReactNode;
-  roles?: ('tenant' | 'landlord' | 'admin')[];
+  roles?: UserRole[];
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -114,17 +115,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
   };
 
   const sidebarContent = (
-    <div className="flex flex-col h-full bg-white dark:bg-gray-800 shadow-xl transition-colors">
+    <div className="flex flex-col h-full bg-white dark:bg-[#0F1116] shadow-2xl transition-colors border-r border-gray-100 dark:border-[#2E3543]">
       {/* Sidebar Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-        <Link to="/" className="flex items-center space-x-2">
-          <div className="w-8 h-8 bg-amber-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">UN</div>
-          <span className="text-xl font-bold text-amber-600 dark:text-amber-400">UrbanNEST</span>
+      <div className="flex items-center justify-between p-5 border-b border-gray-100 dark:border-[#2E3543]">
+        <Link to="/" className="flex items-center space-x-2.5 group">
+          <div className="bg-white/95 dark:bg-white/95 px-2.5 py-1.5 rounded-xl shadow-sm border border-[#C9A865]/30 flex items-center justify-center">
+            <img src={logo} alt="UrbanNest Logo" className="h-8 w-auto object-contain" />
+          </div>
         </Link>
         {variant === 'temporary' && (
           <button
             onClick={onClose}
-            className="p-2 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className="p-2 rounded-lg text-gray-400 hover:text-[#181B22] dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-[#181B22] transition-colors"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -135,15 +137,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* User Info */}
       {user && (
-        <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
+        <div className="p-4 border-b border-gray-100 dark:border-[#2E3543] bg-[#F4F5EF] dark:bg-[#181B22]/60">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center">
-              <span className="text-amber-600 dark:text-amber-400 font-semibold">
+            <div className="w-10 h-10 bg-[#F0F8F3] dark:bg-[#2E7D4F]/30 border border-[#2E7D4F]/40 rounded-full flex items-center justify-center">
+              <span className="text-[#2E7D4F] dark:text-[#5CAE78] font-bold">
                 {(user.first_name || user.name || 'U').charAt(0).toUpperCase()}
               </span>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+              <p className="text-sm font-bold text-[#181B22] dark:text-white truncate">
                 {user.first_name ? `${user.first_name} ${user.last_name || ''}` : (user.name || 'User')}
               </p>
               <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user.email || user.phone}</p>
@@ -154,38 +156,38 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Navigation Items */}
       <nav className="flex-1 overflow-y-auto py-4">
-        <div className="px-2 space-y-1">
+        <div className="px-3 space-y-1.5">
           {filteredNavItems.map((item) => (
             <button
               key={item.path}
               onClick={() => handleNavigation(item.path)}
               className={`
-                w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors
+                w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl transition-all
                 ${activePath === item.path
-                  ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 font-semibold'
-                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                  ? 'bg-[#F4F5EF] dark:bg-[#181B22] text-[#181B22] dark:text-[#C9A865] font-bold border-l-4 border-[#C9A865] shadow-sm'
+                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#181B22]/50 hover:text-[#181B22] dark:hover:text-white'
                 }
               `}
             >
-              <span className={activePath === item.path ? 'text-amber-600 dark:text-amber-400' : 'text-gray-500 dark:text-gray-400'}>
+              <span className={activePath === item.path ? 'text-[#C9A865]' : 'text-gray-400 dark:text-gray-400'}>
                 {item.icon}
               </span>
-              <span className="text-sm font-medium">{item.label}</span>
+              <span className="text-sm font-semibold">{item.label}</span>
             </button>
           ))}
         </div>
       </nav>
 
       {/* Footer Actions */}
-      <div className="border-t border-gray-200 dark:border-gray-700 p-4 space-y-2">
+      <div className="border-t border-gray-100 dark:border-[#2E3543] p-4 space-y-2">
         <button
           onClick={handleLogout}
-          className="w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors"
+          className="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors font-medium"
         >
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
           </svg>
-          <span className="text-sm font-medium">Logout</span>
+          <span className="text-sm font-semibold">Logout</span>
         </button>
       </div>
     </div>

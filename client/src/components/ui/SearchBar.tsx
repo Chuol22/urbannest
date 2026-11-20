@@ -1,4 +1,4 @@
-// src/components/ui/SearchBar.tsx
+﻿// src/components/ui/SearchBar.tsx
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -240,16 +240,16 @@ const SearchBar = ({ onSearch, initialFilters = {}, useOpenStreetMap = false }: 
           <button
             key={type.value}
             onClick={() => setSearchType(type.value)}
-            className={`pb-3 px-4 text-lg font-medium transition-colors relative
+            className={`pb-3 px-4 text-lg font-semibold transition-colors relative
               ${searchType === type.value
-                ? 'text-amber-600 dark:text-amber-400'
-                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
+                ? 'text-[#181B22] dark:text-[#C9A865]'
+                : 'text-gray-500 dark:text-gray-400 hover:text-[#181B22] dark:hover:text-gray-200'}`}
           >
             {type.label}
             {searchType === type.value && (
               <motion.div
                 layoutId="activeTab"
-                className="absolute bottom-0 left-0 right-0 h-0.5 bg-amber-600 dark:bg-amber-400"
+                className="absolute bottom-0 left-0 right-0 h-1 bg-[#C9A865] rounded-full"
                 transition={{ type: "spring", stiffness: 500, damping: 30 }}
               />
             )}
@@ -261,7 +261,7 @@ const SearchBar = ({ onSearch, initialFilters = {}, useOpenStreetMap = false }: 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {/* Location Input with Autocomplete */}
         <div className="relative md:col-span-1">
-          <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-400 z-10" size={20} />
+          <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#C9A865] z-10" size={20} />
 
           <input
             ref={inputRef}
@@ -277,7 +277,7 @@ const SearchBar = ({ onSearch, initialFilters = {}, useOpenStreetMap = false }: 
                 setShowCitySuggestions(true);
               }
             }}
-            className="w-full pl-10 pr-10 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+            className="w-full pl-10 pr-10 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#0F1116] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#181B22] dark:focus:ring-[#C9A865] focus:border-transparent transition-all"
           />
 
           {location && (
@@ -291,25 +291,25 @@ const SearchBar = ({ onSearch, initialFilters = {}, useOpenStreetMap = false }: 
 
           {osmLoading && (
             <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-              <Loader size={16} className="animate-spin text-gray-400" />
+              <Loader size={16} className="animate-spin text-[#C9A865]" />
             </div>
           )}
 
           {/* OpenStreetMap Suggestions */}
           {useOpenStreetMap && showOsmSuggestions && osmSuggestions.length > 0 && (
-            <div className="absolute z-20 w-full mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 max-h-80 overflow-y-auto">
+            <div className="absolute z-20 w-full mt-2 bg-white dark:bg-[#181B22] rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 max-h-80 overflow-y-auto">
               {osmSuggestions.map((place) => (
                 <button
                   key={place.place_id}
                   onClick={() => handleOsmSelect(place)}
-                  className="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-0"
+                  className="w-full text-left px-4 py-3 hover:bg-[#F4F5EF] dark:hover:bg-[#262C37] transition-colors border-b border-gray-100 dark:border-gray-700 last:border-0"
                 >
                   <div className="flex items-start gap-3">
                     <div className="mt-1">
                       {place.type === 'city' ? (
-                        <Building2 size={16} className="text-amber-600 dark:text-amber-400" />
+                        <Building2 size={16} className="text-[#C9A865]" />
                       ) : (
-                        <MapIcon size={16} className="text-amber-500" />
+                        <MapIcon size={16} className="text-[#C9A865]" />
                       )}
                     </div>
                     <div className="flex-1">
@@ -323,12 +323,12 @@ const SearchBar = ({ onSearch, initialFilters = {}, useOpenStreetMap = false }: 
 
           {/* Local City Suggestions */}
           {!useOpenStreetMap && showCitySuggestions && filteredCities.length > 0 && (
-            <div className="absolute z-20 w-full mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 max-h-80 overflow-y-auto">
+            <div className="absolute z-20 w-full mt-2 bg-white dark:bg-[#181B22] rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 max-h-80 overflow-y-auto">
               {filteredCities.map((city, index) => (
                 <button
                   key={index}
                   onClick={() => handleCitySelect(city)}
-                  className="w-full text-left px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                  className="w-full text-left px-4 py-2 hover:bg-[#F4F5EF] dark:hover:bg-[#262C37] transition-colors"
                 >
                   <div className="font-medium text-gray-900 dark:text-white">{city.name}</div>
                   <div className="text-sm text-gray-500 dark:text-gray-400">{city.region}</div>
@@ -341,11 +341,11 @@ const SearchBar = ({ onSearch, initialFilters = {}, useOpenStreetMap = false }: 
         {/* Neighborhood Select (Only for Addis Ababa) */}
         {showNeighborhoods && selectedCity === 'Addis Ababa' && (
           <div className="relative">
-            <Home className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+            <Home className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#C9A865]" size={20} />
             <select
               value={selectedNeighborhood}
               onChange={(e) => handleNeighborhoodSelect(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent appearance-none cursor-pointer"
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#0F1116] text-gray-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-[#181B22] dark:focus:ring-[#C9A865] focus:border-transparent appearance-none cursor-pointer"
             >
               <option value="">Select Neighborhood</option>
               {ETHIOPIAN_CITIES.find(c => c.name === selectedCity)?.neighborhoods?.map((neighborhood, idx) => (
@@ -357,11 +357,11 @@ const SearchBar = ({ onSearch, initialFilters = {}, useOpenStreetMap = false }: 
 
         {/* Property Type Select */}
         <div className="relative">
-          <Home className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+          <Home className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#C9A865]" size={20} />
           <select
             value={propertyType}
             onChange={(e) => setPropertyType(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent appearance-none cursor-pointer"
+            className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#0F1116] text-gray-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-[#181B22] dark:focus:ring-[#C9A865] focus:border-transparent appearance-none cursor-pointer"
           >
             <option value="">Property Type</option>
             <option value="apartment">Apartment</option>
@@ -376,11 +376,11 @@ const SearchBar = ({ onSearch, initialFilters = {}, useOpenStreetMap = false }: 
 
         {/* Price Range Select - Using text instead of BirrIcon */}
         <div className="relative">
-          <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 font-bold text-lg">ብር</span>
+          <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#C9A865] font-bold text-lg">ብር</span>
           <select
             value={priceRange}
             onChange={(e) => setPriceRange(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent appearance-none cursor-pointer"
+            className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#0F1116] text-gray-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-[#181B22] dark:focus:ring-[#C9A865] focus:border-transparent appearance-none cursor-pointer"
           >
             <option value="">Price Range</option>
             <option value="0-10000">0 - ብር 10,000</option>
@@ -392,12 +392,12 @@ const SearchBar = ({ onSearch, initialFilters = {}, useOpenStreetMap = false }: 
           </select>
         </div>
 
-        {/* Search Button */}
+        {/* Primary Search CTA: Navy button (#181B22) with Gold (#C9A865) accents */}
         <button
           onClick={handleSearch}
-          className="bg-amber-600 hover:bg-amber-700 text-white py-3 rounded-xl transition-colors shadow-md hover:shadow-lg flex items-center justify-center space-x-2"
+          className="bg-[#181B22] hover:bg-[#262C37] text-white py-3 rounded-xl transition-all shadow-lg shadow-[#181B22]/25 hover:shadow-xl hover:ring-2 hover:ring-[#C9A865] flex items-center justify-center space-x-2 font-bold"
         >
-          <Search size={20} />
+          <Search size={20} className="text-[#C9A865]" />
           <span>Find Your Home</span>
         </button>
       </div>
@@ -407,12 +407,12 @@ const SearchBar = ({ onSearch, initialFilters = {}, useOpenStreetMap = false }: 
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mt-4 p-3 bg-amber-50 dark:bg-amber-950/40 rounded-lg border border-amber-200 dark:border-amber-800"
+          className="mt-4 p-3 bg-[#FCFAF5] dark:bg-[#181B22]/80 rounded-lg border border-[#EDE2C6] dark:border-[#C9A865]/40"
         >
           <div className="flex items-center gap-2">
-            <MapPin size={16} className="text-amber-600 dark:text-amber-400" />
-            <p className="text-sm text-gray-700 dark:text-gray-200">
-              <span className="font-semibold">Searching in:</span> {getLocationDisplayName()}
+            <MapPin size={16} className="text-[#C9A865]" />
+            <p className="text-sm text-gray-800 dark:text-gray-200">
+              <span className="font-semibold text-[#181B22] dark:text-[#DFCFA0]">Searching in:</span> {getLocationDisplayName()}
             </p>
           </div>
         </motion.div>
@@ -429,7 +429,7 @@ const SearchBar = ({ onSearch, initialFilters = {}, useOpenStreetMap = false }: 
                 const cityData = ETHIOPIAN_CITIES.find(c => c.name === city);
                 if (cityData) handleCitySelect(cityData);
               }}
-              className="text-sm px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full hover:bg-amber-100 dark:hover:bg-amber-900/40 hover:text-amber-700 dark:hover:text-amber-400 transition-colors"
+              className="text-sm px-3 py-1.5 bg-[#F4F5EF] dark:bg-[#181B22]/60 text-[#181B22] dark:text-gray-300 rounded-full border border-gray-200 dark:border-gray-700 hover:border-[#C9A865] hover:bg-[#FCFAF5] hover:text-[#947337] dark:hover:text-[#DFCFA0] transition-colors font-medium"
             >
               {city}
             </button>
@@ -448,7 +448,7 @@ const SearchBar = ({ onSearch, initialFilters = {}, useOpenStreetMap = false }: 
                   setLocation(`${neighborhood}, Addis Ababa`);
                   setShowNeighborhoods(true);
                 }}
-                className="text-sm px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full hover:bg-amber-100 dark:hover:bg-amber-900/40 hover:text-amber-700 dark:hover:text-amber-400 transition-colors"
+                className="text-sm px-3 py-1.5 bg-[#F4F5EF] dark:bg-[#181B22]/60 text-[#181B22] dark:text-gray-300 rounded-full border border-gray-200 dark:border-gray-700 hover:border-[#C9A865] hover:bg-[#FCFAF5] hover:text-[#947337] dark:hover:text-[#DFCFA0] transition-colors font-medium"
               >
                 {neighborhood}
               </button>

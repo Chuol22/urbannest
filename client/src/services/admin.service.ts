@@ -186,7 +186,16 @@ export const adminService = {
     return res.data?.data || res.data;
   },
 
-  updatePaymentConfig: async (data: { sell_fee: number; rent_fee: number }) => {
+  updatePaymentConfig: async (data: {
+    sell_fee?: number;
+    rent_fee?: number;
+    cbe_account_number?: string;
+    cbe_account_name?: string;
+    cbe_bank_name?: string;
+    cbe_branch?: string;
+    telebirr_phone?: string;
+    telebirr_name?: string;
+  }) => {
     const res = await apiClient.put('/admin/payments/config', data);
     return res.data?.data || res.data;
   },

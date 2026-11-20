@@ -28,30 +28,44 @@
 }
 
 @layer base {
-  /* Light mode variables */
+  /* Light mode variables - 5 Official Colors from Logo */
   :root {
-    --color-primary: #1E3A8A;
-    --color-secondary: #10B981;
-    --color-gray-light: #F3F4F6;
-    --color-gray-dark: #374151;
+    --color-navy: #181B22;
+    --color-gold: #C9A865;
+    --color-green: #2E7D4F;
+    --color-cream: #F4F5EF;
+    --color-white: #FFFFFF;
+    
+    --color-primary: #181B22;
+    --color-secondary: #C9A865;
+    --color-verified: #2E7D4F;
+    --color-gray-light: #F6F7F9;
+    --color-gray-dark: #323A48;
     --bg-primary: 255, 255, 255;
-    --bg-secondary: 249, 250, 251;
-    --text-primary: 17, 24, 39;
-    --text-secondary: 75, 85, 99;
-    --border-color: 229, 231, 235;
+    --bg-secondary: 244, 245, 239;
+    --text-primary: 24, 27, 34;
+    --text-secondary: 85, 94, 112;
+    --border-color: 226, 232, 240;
   }
 
   /* Dark mode variables */
   .dark {
-    --color-primary: #3B82F6;
-    --color-secondary: #34D399;
-    --color-gray-light: #1F2937;
-    --color-gray-dark: #9CA3AF;
-    --bg-primary: 15, 23, 42;
-    --bg-secondary: 30, 41, 59;
+    --color-navy: #181B22;
+    --color-gold: #C9A865;
+    --color-green: #2E7D4F;
+    --color-cream: #181B22;
+    --color-white: #FFFFFF;
+    
+    --color-primary: #DFCFA0;
+    --color-secondary: #C9A865;
+    --color-verified: #5CAE78;
+    --color-gray-light: #1E232B;
+    --color-gray-dark: #D8DCE3;
+    --bg-primary: 15, 17, 22;
+    --bg-secondary: 24, 27, 34;
     --text-primary: 248, 250, 252;
-    --text-secondary: 148, 163, 184;
-    --border-color: 51, 65, 85;
+    --text-secondary: 180, 188, 203;
+    --border-color: 46, 53, 67;
   }
 
   * {
@@ -70,61 +84,145 @@
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Cooper Hewitt', sans-serif;
     font-weight: 700;
+    color: #181B22;
+  }
+
+  .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
+    color: #F8FAFC;
   }
 }
 
 @layer components {
+  /* Primary CTA: #181B22 Charcoal Slate button -> White text with hover #C9A865 Gold accents */
   .btn-primary {
-    background-color: #10B981;
-    color: white;
+    background-color: #181B22;
+    color: #FFFFFF;
     padding: 0.75rem 1.5rem;
     border-radius: 0.75rem;
     font-weight: 600;
     transition: all 0.3s ease;
-    border: none;
+    border: 1px solid transparent;
     cursor: pointer;
+    box-shadow: 0 4px 14px rgba(24, 27, 34, 0.25);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
   
   .btn-primary:hover {
-    background-color: #0E9F6E;
+    background-color: #262C37;
+    border-color: #C9A865;
+    color: #FFFFFF;
     transform: translateY(-2px);
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 20px rgba(201, 168, 101, 0.3);
   }
   
   .dark .btn-primary {
-    background-color: #34D399;
+    background-color: #181B22;
+    border: 1px solid #C9A865;
+    color: #FFFFFF;
   }
   
   .dark .btn-primary:hover {
-    background-color: #10B981;
+    background-color: #262C37;
+    border-color: #DFCFA0;
+    box-shadow: 0 8px 20px rgba(201, 168, 101, 0.4);
   }
 
+  /* Secondary Button: Charcoal or Gold Outline */
   .btn-secondary {
-    border: 2px solid #10B981;
-    color: #10B981;
+    border: 2px solid #181B22;
+    color: #181B22;
     padding: 0.75rem 1.5rem;
     border-radius: 0.75rem;
     font-weight: 600;
     transition: all 0.3s ease;
     background: transparent;
     cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
   
   .btn-secondary:hover {
-    background-color: #10B981;
-    color: white;
+    background-color: #181B22;
+    color: #FFFFFF;
+    border-color: #181B22;
     transform: translateY(-2px);
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 6px 18px rgba(24, 27, 34, 0.15);
   }
   
   .dark .btn-secondary {
-    border-color: #34D399;
-    color: #34D399;
+    border-color: #C9A865;
+    color: #C9A865;
   }
   
   .dark .btn-secondary:hover {
-    background-color: #34D399;
-    color: #1F2937;
+    background-color: #C9A865;
+    color: #0F1116;
+  }
+
+  /* Gold Highlight Button */
+  .btn-gold {
+    background-color: #C9A865;
+    color: #FFFFFF;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.75rem;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(201, 168, 101, 0.3);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn-gold:hover {
+    background-color: #B6924D;
+    color: #FFFFFF;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(201, 168, 101, 0.45);
+  }
+
+  /* Verification Badge - Green #2E7D4F */
+  .badge-verified {
+    background-color: #F0F8F3;
+    color: #2E7D4F;
+    border: 1px solid #BCE1CA;
+    padding: 0.25rem 0.625rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .dark .badge-verified {
+    background-color: rgba(46, 125, 79, 0.18);
+    color: #5CAE78;
+    border-color: rgba(46, 125, 79, 0.4);
+  }
+
+  /* Gold Badge / Highlight */
+  .badge-gold {
+    background-color: #FCFAF5;
+    color: #947337;
+    border: 1px solid #EDE2C6;
+    padding: 0.25rem 0.625rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .dark .badge-gold {
+    background-color: rgba(201, 168, 101, 0.15);
+    color: #DFCFA0;
+    border-color: rgba(201, 168, 101, 0.35);
   }
 
   .card-hover {
@@ -133,7 +231,7 @@
   
   .card-hover:hover {
     transform: translateY(-4px);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 20px 25px -5px rgba(24, 27, 34, 0.08);
   }
 
   .container-custom {

@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 
 interface AlertProps {
   type?: 'info' | 'success' | 'warning' | 'error';
@@ -14,9 +14,9 @@ export const Alert: React.FC<AlertProps> = ({
   onClose 
 }) => {
   const styles = {
-    info: 'bg-blue-50 dark:bg-blue-950/40 border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-300',
-    success: 'bg-green-50 dark:bg-green-950/40 border-green-200 dark:border-green-800 text-green-800 dark:text-green-300',
-    warning: 'bg-yellow-50 dark:bg-yellow-950/40 border-yellow-200 dark:border-yellow-800 text-yellow-800 dark:text-yellow-300',
+    info: 'bg-[#F0F5FC] dark:bg-[#181B22]/40 border-[#B8D3F5] dark:border-[#262C37] text-[#181B22] dark:text-[#B4BCCB]',
+    success: 'bg-[#F0F8F3] dark:bg-[#2E7D4F]/20 border-[#BCE1CA] dark:border-[#2E7D4F]/40 text-[#2E7D4F] dark:text-[#5CAE78]',
+    warning: 'bg-[#FCFAF5] dark:bg-[#C9A865]/20 border-[#EDE2C6] dark:border-[#C9A865]/40 text-[#947337] dark:text-[#DFCFA0]',
     error: 'bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-800 text-red-800 dark:text-red-300',
   };
 

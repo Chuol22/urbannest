@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -30,10 +30,10 @@ export const Input: React.FC<InputProps> = ({
         )}
         <input
           className={`
-            w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg
-            bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-400
-            focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent
-            disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed
+            w-full px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl
+            bg-white dark:bg-[#181B22]/40 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-400
+            focus:outline-none focus:ring-2 focus:ring-[#181B22] focus:border-transparent dark:focus:ring-[#C9A865]
+            disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed transition-all
             ${icon ? 'pl-10' : ''}
             ${error ? 'border-red-500 focus:ring-red-500' : ''}
             ${className}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import { AnimatePresence, type Variants, motion } from 'framer-motion';
@@ -203,7 +203,7 @@ export default function Properties() {
 
   // ── Render ───────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-[#F4F5EF] dark:bg-[#0F1116]">
 
       {/* ═══════════════════════════════════════════════════════════════════
           HERO
@@ -212,7 +212,7 @@ export default function Properties() {
         {/* Background image container */}
         <div className="absolute inset-0">
           {!heroLoaded && (
-            <div className="absolute inset-0 bg-blue-600 animate-pulse" />
+            <div className="absolute inset-0 bg-[#181B22] animate-pulse" />
           )}
           <div
             className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${heroLoaded ? 'opacity-100' : 'opacity-0'
@@ -223,9 +223,8 @@ export default function Properties() {
               backgroundPosition: 'center',
             }}
           >
-            <div className="absolute inset-0 bg-black/60" />
-            <div className="absolute inset-0 bg-gray-900/40" />
-            <div className="absolute inset-0 bg-black/20" />
+            <div className="absolute inset-0 bg-[#181B22]/75" />
+            <div className="absolute inset-0 bg-black/30" />
           </div>
           <div className="absolute inset-0 bg-[url('/images/pattern.svg')] opacity-10" />
         </div>
@@ -385,8 +384,8 @@ export default function Properties() {
           )}
         </AnimatePresence>
 
-        {/* ── Controls bar ─────────────────────────────────────────────── */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 mb-6">
+        {/* ── Controls bar ────────────────────────────────────────────── */}
+        <div className="bg-white dark:bg-[#181B22] rounded-2xl shadow-sm border border-gray-200 dark:border-[#2E3543] p-4 mb-6">
           <div className="flex flex-wrap items-center justify-between gap-3">
 
             {/* Left: filter toggle + sort */}
@@ -396,8 +395,8 @@ export default function Properties() {
                 whileTap={{ scale: 0.97 }}
                 onClick={() => setShowFilters(!showFilters)}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 ${showFilters
-                  ? 'bg-amber-600 text-white shadow-md shadow-amber-500/25'
-                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-amber-50 dark:hover:bg-gray-600 hover:text-amber-700 dark:hover:text-amber-400'
+                  ? 'bg-[#181B22] text-white border border-[#C9A865] shadow-md shadow-[#181B22]/25'
+                  : 'bg-[#F4F5EF] dark:bg-[#262C37]/30 text-[#181B22] dark:text-gray-200 border border-gray-200 dark:border-[#2E3543] hover:text-[#C9A865] dark:hover:text-[#C9A865]'
                   }`}
               >
                 <motion.div
@@ -408,7 +407,7 @@ export default function Properties() {
                 </motion.div>
                 <span>{showFilters ? 'Hide Filters' : 'Filters'}</span>
                 {getFilterCount() > 0 && (
-                  <span className={`w-5 h-5 rounded-full text-xs flex items-center justify-center font-bold ${showFilters ? 'bg-white text-amber-600' : 'bg-amber-600 text-white'}`}>
+                  <span className={`w-5 h-5 rounded-full text-xs flex items-center justify-center font-bold ${showFilters ? 'bg-[#C9A865] text-white' : 'bg-[#181B22] text-white'}`}>
                     {getFilterCount()}
                   </span>
                 )}
@@ -418,7 +417,7 @@ export default function Properties() {
               <div className="relative">
                 <button
                   onClick={() => setShowSortMenu(!showSortMenu)}
-                  className="flex items-center gap-2 px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl text-sm hover:border-green-400 dark:hover:border-green-500 transition-colors bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
+                  className="flex items-center gap-2 px-4 py-2.5 border border-gray-200 dark:border-[#2E3543] rounded-xl text-sm hover:border-[#C9A865] dark:hover:border-[#C9A865] transition-colors bg-white dark:bg-[#262C37]/30 text-[#181B22] dark:text-gray-200"
                 >
                   <FaSortAmountDown size={13} className="text-gray-400" />
                   <span className="font-medium">{sortOptions.find(o => o.value === sortBy)?.label}</span>
@@ -432,15 +431,15 @@ export default function Properties() {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 8, scale: 0.97 }}
                       transition={{ duration: 0.15 }}
-                      className="absolute top-full left-0 mt-2 w-52 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 z-20 overflow-hidden"
+                      className="absolute top-full left-0 mt-2 w-52 bg-white dark:bg-[#181B22] rounded-xl shadow-xl border border-gray-100 dark:border-[#2E3543] z-20 overflow-hidden"
                     >
                       {sortOptions.map((opt) => (
                         <button
                           key={opt.value}
                           onClick={() => handleSortChange(opt.value)}
                           className={`block w-full text-left px-4 py-2.5 text-sm transition-colors ${sortBy === opt.value
-                            ? 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 font-semibold'
-                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                            ? 'bg-[#2E7D4F]/15 dark:bg-[#2E7D4F]/30 text-[#2E7D4F] dark:text-[#4ade80] font-semibold'
+                            : 'text-[#181B22] dark:text-gray-300 hover:bg-[#F4F5EF] dark:hover:bg-[#262C37]/50'
                             }`}
                         >
                           {opt.label}
@@ -461,14 +460,14 @@ export default function Properties() {
                 {' '}results
               </p>
 
-              <div className="flex items-center gap-1 bg-gray-100 dark:bg-gray-700 rounded-xl p-1">
+              <div className="flex items-center gap-1 bg-gray-100 dark:bg-[#262C37]/40 rounded-xl p-1">
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                   onClick={() => setViewMode('grid')}
                   title="Grid view"
                   className={`p-2 rounded-lg transition-all duration-200 ${viewMode === 'grid'
-                    ? 'bg-white dark:bg-gray-600 text-amber-600 dark:text-amber-400 shadow-sm'
+                    ? 'bg-white dark:bg-[#181B22] text-[#C9A865] shadow-sm'
                     : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
                     }`}
                 >
@@ -480,7 +479,7 @@ export default function Properties() {
                   onClick={() => setViewMode('list')}
                   title="List view"
                   className={`p-2 rounded-lg transition-all duration-200 ${viewMode === 'list'
-                    ? 'bg-white dark:bg-gray-600 text-amber-600 dark:text-amber-400 shadow-sm'
+                    ? 'bg-white dark:bg-[#181B22] text-[#C9A865] shadow-sm'
                     : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
                     }`}
                 >
@@ -534,16 +533,16 @@ export default function Properties() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ type: "spring", stiffness: 150, damping: 12 }}
             whileHover={{ y: -4 }}
-            className="text-center py-20 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700"
+            className="text-center py-20 bg-white dark:bg-[#181B22] rounded-2xl shadow-sm border border-gray-200 dark:border-[#2E3543]"
           >
             <motion.div
-              className="w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-5"
+              className="w-20 h-20 bg-[#F4F5EF] dark:bg-[#262C37]/30 rounded-full flex items-center justify-center mx-auto mb-5 border border-gray-200 dark:border-[#2E3543]"
               animate={{ y: [0, -10, 0] }}
               transition={{ repeat: Infinity, duration: 2 }}
             >
-              <FaHome size={36} className="text-amber-600 dark:text-amber-400" />
+              <FaHome size={36} className="text-[#C9A865]" />
             </motion.div>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">No properties found</h3>
+            <h3 className="text-xl font-bold text-[#181B22] dark:text-white mb-2">No properties found</h3>
             <p className="text-gray-500 dark:text-gray-400 mb-7 max-w-sm mx-auto text-sm leading-relaxed">
               We couldn't find anything matching your criteria. Try adjusting your filters or browse all listings.
             </p>
@@ -551,7 +550,7 @@ export default function Properties() {
               whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.97 }}
               onClick={clearFilters}
-              className="inline-flex items-center gap-2 px-7 py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-semibold transition-all duration-300 shadow-md shadow-amber-500/20 hover:shadow-lg hover:shadow-amber-500/30 hover:-translate-y-0.5"
+              className="inline-flex items-center gap-2 px-7 py-3 bg-[#181B22] hover:bg-[#262C37] text-white rounded-xl font-semibold transition-all duration-300 border border-[#C9A865] shadow-md shadow-[#181B22]/20 hover:shadow-lg hover:-translate-y-0.5"
             >
               <FaTimes size={13} />
               Clear all filters
@@ -579,11 +578,11 @@ export default function Properties() {
 
 // ─── Reusable filter badge ────────────────────────────────────────────────────
 const COLOR_MAP: Record<string, string> = {
-  green: 'bg-amber-100  dark:bg-amber-900/40  text-amber-800  dark:text-amber-300  border-amber-200  dark:border-amber-700',
-  purple: 'bg-gray-100 dark:bg-gray-800/40 text-gray-800 dark:text-gray-300 border-gray-200 dark:border-gray-700',
-  blue: 'bg-gray-100   dark:bg-gray-800/40   text-gray-800   dark:text-gray-300   border-gray-200   dark:border-gray-700',
-  orange: 'bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-700',
-  indigo: 'bg-gray-100 dark:bg-gray-800/40 text-gray-800 dark:text-gray-300 border-gray-200 dark:border-gray-700',
+  green: 'bg-[#2E7D4F]/15 dark:bg-[#2E7D4F]/30 text-[#2E7D4F] dark:text-[#4ade80] border-[#2E7D4F]/30',
+  purple: 'bg-[#181B22]/10 dark:bg-[#262C37]/40 text-[#181B22] dark:text-blue-200 border-[#181B22]/20',
+  blue: 'bg-[#181B22]/10 dark:bg-[#262C37]/40 text-[#181B22] dark:text-blue-200 border-[#181B22]/20',
+  orange: 'bg-[#C9A865]/15 dark:bg-[#C9A865]/30 text-[#B87A06] dark:text-[#C9A865] border-[#C9A865]/30',
+  indigo: 'bg-[#181B22]/10 dark:bg-[#262C37]/40 text-[#181B22] dark:text-blue-200 border-[#181B22]/20',
 };
 
 function FilterBadge({

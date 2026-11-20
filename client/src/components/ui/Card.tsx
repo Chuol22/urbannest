@@ -1,4 +1,4 @@
-// src/components/ui/Card.tsx
+﻿// src/components/ui/Card.tsx
 import { Link } from 'react-router-dom';
 import { formatCurrency, formatAddress, formatRelativeTime } from '../../utils/formatters';
 
@@ -32,9 +32,9 @@ export default function Card({
   isFavorite = false
 }: CardProps) {
   const statusColors = {
-    available: 'bg-green-100 text-green-800',
-    rented: 'bg-red-100 text-red-800',
-    pending: 'bg-yellow-100 text-yellow-800'
+    available: 'bg-[#F0F8F3] text-[#2E7D4F] border border-[#BCE1CA] dark:bg-[#2E7D4F]/20 dark:text-[#5CAE78] dark:border-[#2E7D4F]/40',
+    rented: 'bg-red-50 text-red-700 border border-red-200 dark:bg-red-950/30 dark:text-red-400',
+    pending: 'bg-[#FCFAF5] text-[#947337] border border-[#EDE2C6] dark:bg-[#C9A865]/20 dark:text-[#DFCFA0]'
   };
 
   const statusText = {

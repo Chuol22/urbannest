@@ -1,4 +1,4 @@
-// src/components/layout/Layout.tsx
+﻿// src/components/layout/Layout.tsx
 
 import React, { useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
@@ -44,36 +44,36 @@ const Layout: React.FC<LayoutProps> = ({ children, showSidebar = false }) => {
     };
   }, []);
 
-  // Check if we're on the home page to apply different padding
-  const isHomePage = location.pathname === '/';
-  const mainPaddingTop = isHomePage ? '0' : `${headerHeight}px`;
+  // Full-width pages that handle their own hero banners
+  const isFullWidthPage = location.pathname === '/' || location.pathname === '/contact' || location.pathname === '/about';
+  const mainPaddingTop = isFullWidthPage ? '0' : `${headerHeight}px`;
 
   // Dynamic meta tags based on current route
   const getMetaTags = () => {
     switch (location.pathname) {
       case '/':
         return {
-          title: 'UrbanNEST | Find Your Dream Property',
-          description: 'Discover premium properties with UrbanNEST — Your trusted partner in finding the perfect home',
-          keywords: 'real estate, property, homes for rent, apartments, houses for sale'
+          title: 'UrbanNest | Find Your Dream Property',
+          description: 'Discover premium properties with UrbanNEST — Your trusted partner in finding the perfect Place call Home',
+          keywords: 'real estate, property, Homes/House for rent, shop for rent/sale, office for rent/sale, apartments'
         };
       case '/properties':
         return {
-          title: 'Browse Properties | UrbanNEST',
-          description: 'Explore thousands of verified properties. Find your dream home, apartment, or investment property.',
-          keywords: 'properties for sale, homes for rent, real estate listings'
+          title: 'Browse Properties | UrbanNest',
+          description: 'Explore thousands of verified properties. Find your dream home, apartment, or investment property and many more.',
+          keywords: 'properties for rent/sale, homes for rent/sale, real estate listings'
         };
       case '/create-listing':
         return {
-          title: 'List Your Property | UrbanNEST',
-          description: 'List your property on UrbanNEST. Reach thousands of potential tenants and buyers.',
+          title: 'List Your Property | UrbanNest',
+          description: 'List your property on UrbanNest. Reach thousands of potential tenants and buyers.',
           keywords: 'list property, sell home, rent out property'
         };
       default:
         return {
-          title: 'UrbanNEST | Property Rental & Sales Platform',
-          description: 'Find your perfect property with UrbanNEST - The smart way to rent, buy, or sell',
-          keywords: 'real estate, property management, home rental'
+          title: 'UrbanNest | Property Rental & Sales Platform',
+          description: 'Find your perfect property with UrbanNest - The smart way to rent, buy, or sell',
+          keywords: 'real estate, property management, home rental/sales'
         };
     }
   };
@@ -109,7 +109,7 @@ const Layout: React.FC<LayoutProps> = ({ children, showSidebar = false }) => {
         <link rel="canonical" href={window.location.href} />
       </Helmet>
 
-      <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+      <div className="min-h-screen flex flex-col bg-[#F4F5EF] dark:bg-[#0F1116] text-gray-900 dark:text-gray-100 transition-colors duration-300">
         <Navbar />
 
         <main
@@ -120,32 +120,32 @@ const Layout: React.FC<LayoutProps> = ({ children, showSidebar = false }) => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
               <div className="flex flex-col lg:flex-row gap-8">
                 <aside className="lg:w-1/4">
-                  <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:border dark:border-gray-700 p-6 sticky top-24">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Navigation</h3>
+                  <div className="bg-white dark:bg-[#181B22] rounded-xl shadow-md border border-gray-200 dark:border-[#2E3543] p-6 sticky top-24">
+                    <h3 className="text-lg font-bold text-[#181B22] dark:text-white mb-4">Navigation</h3>
                     <nav>
                       <ul className="space-y-2">
                         <li>
-                          <a href="/dashboard" className="text-gray-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors duration-200">
+                          <a href="/dashboard" className="text-gray-600 dark:text-gray-300 hover:text-[#C9A865] dark:hover:text-[#C9A865] transition-colors duration-200">
                             Dashboard
                           </a>
                         </li>
                         <li>
-                          <a href="/properties" className="text-gray-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors duration-200">
+                          <a href="/properties" className="text-gray-600 dark:text-gray-300 hover:text-[#C9A865] dark:hover:text-[#C9A865] transition-colors duration-200">
                             My Properties
                           </a>
                         </li>
                         <li>
-                          <a href="/favorites" className="text-gray-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors duration-200">
+                          <a href="/favorites" className="text-gray-600 dark:text-gray-300 hover:text-[#C9A865] dark:hover:text-[#C9A865] transition-colors duration-200">
                             Favorites
                           </a>
                         </li>
                         <li>
-                          <a href="/profile" className="text-gray-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors duration-200">
+                          <a href="/profile" className="text-gray-600 dark:text-gray-300 hover:text-[#C9A865] dark:hover:text-[#C9A865] transition-colors duration-200">
                             Profile
                           </a>
                         </li>
                         <li>
-                          <a href="/messages" className="text-gray-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors duration-200">
+                          <a href="/messages" className="text-gray-600 dark:text-gray-300 hover:text-[#C9A865] dark:hover:text-[#C9A865] transition-colors duration-200">
                             Messages
                           </a>
                         </li>
@@ -155,14 +155,14 @@ const Layout: React.FC<LayoutProps> = ({ children, showSidebar = false }) => {
                 </aside>
 
                 <div className="lg:w-3/4">
-                  <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:border dark:border-gray-700 p-6">
+                  <div className="bg-white dark:bg-[#181B22] rounded-xl shadow-md border border-gray-200 dark:border-[#2E3543] p-6">
                     {children || <Outlet />}
                   </div>
                 </div>
               </div>
             </div>
           ) : (
-            <div className={isHomePage ? '' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'}>
+            <div className={isFullWidthPage ? '' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'}>
               {children || <Outlet />}
             </div>
           )}
