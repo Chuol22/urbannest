@@ -250,6 +250,9 @@ model Property {
   listing_tier      String?            @default("standard") // standard | premium - null if unpaid
   listing_expires_at DateTime?         // When the listing expires (30 days standard, 60 days premium)
   listing_rejection_reason String?
+  listing_payment_status   String?            @default("unpaid") // unpaid | pending_verification | paid | rejected
+  listing_receipt_url      String?
+  listing_payment_method   String?
   deleted_at        DateTime?
 
   // REMOVED: searchVector (Unsupported type no longer available)
@@ -285,9 +288,17 @@ model ListingFeePayment {
   amount               Float
   currency             Currency  @default(ETB)
   tier                 String    @default("standard") // standard | premium
+  paymentMethod        String?   @map("payment_method") // CBE | TELEBIRR
+  accountNumber        String?   @map("account_number")
+  receiptUrl           String?   @map("receipt_url")
+  receiptPublicId      String?   @map("receipt_public_id")
+  referenceCode        String?   @map("reference_code")
+  adminNotes           String?   @map("admin_notes")
+  reviewedBy           String?   @map("reviewed_by") @db.Uuid
+  reviewedAt           DateTime? @map("reviewed_at")
   chapaTransactionRef  String?   @unique @map("chapa_transaction_ref")
   chapaCheckoutUrl     String?   @map("chapa_checkout_url")
-  status               String    @default("PENDING") // PENDING | COMPLETED | FAILED
+  status               String    @default("PENDING") // PENDING | PENDING_VERIFICATION | COMPLETED | REJECTED | FAILED
   paidAt               DateTime? @map("paid_at")
   createdAt            DateTime  @default(now()) @map("created_at")
   updatedAt            DateTime  @updatedAt @map("updated_at")

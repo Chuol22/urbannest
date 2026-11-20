@@ -232,6 +232,9 @@ const connectDB = async () => {
       `ALTER TABLE properties ADD COLUMN IF NOT EXISTS listing_tier VARCHAR(50) DEFAULT 'standard';`,
       `ALTER TABLE properties ADD COLUMN IF NOT EXISTS listing_expires_at TIMESTAMP;`,
       `ALTER TABLE properties ADD COLUMN IF NOT EXISTS listing_rejection_reason TEXT;`,
+      `ALTER TABLE properties ADD COLUMN IF NOT EXISTS listing_payment_status VARCHAR(50) DEFAULT 'unpaid';`,
+      `ALTER TABLE properties ADD COLUMN IF NOT EXISTS listing_receipt_url TEXT;`,
+      `ALTER TABLE properties ADD COLUMN IF NOT EXISTS listing_payment_method VARCHAR(50);`,
       `ALTER TABLE properties ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP;`,
 
       `ALTER TABLE users ADD COLUMN IF NOT EXISTS verification_status VARCHAR(50) DEFAULT 'pending_review';`,
@@ -253,7 +256,15 @@ const connectDB = async () => {
         paid_at TIMESTAMP,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );`
+      );`,
+      `ALTER TABLE listing_fee_payments ADD COLUMN IF NOT EXISTS payment_method VARCHAR(50);`,
+      `ALTER TABLE listing_fee_payments ADD COLUMN IF NOT EXISTS account_number VARCHAR(100);`,
+      `ALTER TABLE listing_fee_payments ADD COLUMN IF NOT EXISTS receipt_url TEXT;`,
+      `ALTER TABLE listing_fee_payments ADD COLUMN IF NOT EXISTS receipt_public_id VARCHAR(255);`,
+      `ALTER TABLE listing_fee_payments ADD COLUMN IF NOT EXISTS reference_code VARCHAR(100);`,
+      `ALTER TABLE listing_fee_payments ADD COLUMN IF NOT EXISTS admin_notes TEXT;`,
+      `ALTER TABLE listing_fee_payments ADD COLUMN IF NOT EXISTS reviewed_by UUID;`,
+      `ALTER TABLE listing_fee_payments ADD COLUMN IF NOT EXISTS reviewed_at TIMESTAMP;`
     ];
 
     for (const sql of migrationStatements) {

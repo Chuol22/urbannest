@@ -31,6 +31,9 @@ router.get('/user/me',
   propertyController.getUserProperties.bind(propertyController)
 );
 
+// Get manual transfer information (CBE & Telebirr details)
+router.get('/manual-transfer-info', propertyController.getManualTransferDetails.bind(propertyController));
+
 // Get property by ID
 router.get('/:id', validate(propertyIdParamSchema), propertyController.getPropertyById.bind(propertyController));
 
@@ -67,9 +70,22 @@ router.get('/:id/photos', propertyController.getPropertyPhotos.bind(propertyCont
 router.delete('/:propertyId/photos/:photoId', authMiddleware.verifyToken, propertyController.deletePropertyPhoto.bind(propertyController));
 router.put('/:propertyId/photos/:photoId/primary', authMiddleware.verifyToken, propertyController.setPrimaryPhoto.bind(propertyController));
 
-// ==================== Listing Fee (Chapa Payment) ====================
+// ==================== Listing Fee & Manual Payment ====================
 
-// Initialize Chapa payment for listing fee
+// Submit offline manual payment receipt (CBE or Telebirr)
+router.post('/:id/manual-payment',
+  authMiddleware.verifyToken,
+  upload.single('receipt'),
+  propertyController.submitManualPayment.bind(propertyController)
+);
+
+// Get property payment & receipt details
+router.get('/:id/payment-details',
+  authMiddleware.verifyToken,
+  propertyController.getPropertyPaymentDetails.bind(propertyController)
+);
+
+// Initialize Chapa payment for listing fee (optional gateway fallback)
 router.post('/:id/listing-fee',
   authMiddleware.verifyToken,
   propertyController.initializeListingFeePayment.bind(propertyController)

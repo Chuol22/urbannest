@@ -6,6 +6,7 @@ import totpService from '../services/totp.service.js';
 import exportService from '../services/export.service.js';
 import { validateAndSanitizeEmail, validateAndSanitizePhone, sanitizeInput } from '../utils/validators.js';
 import { extractIPAddress, extractUserAgent } from '../utils/requestContext.js';
+import emailService from '../utils/emailService.js';
 
 class AdminController {
 
@@ -134,7 +135,17 @@ class AdminController {
         prisma.property.count({ where: { deleted_at: null } }),
         prisma.property.groupBy({ by: ['status'], where: { deleted_at: null }, _count: { id: true } }),
         prisma.property.groupBy({ by: ['property_type'], where: { deleted_at: null }, _count: { id: true } }),
-        prisma.property.count({ where: { status: 'pending', listing_fee_paid: true, deleted_at: null } })
+        prisma.property.count({
+          where: {
+            status: 'pending',
+            deleted_at: null,
+            OR: [
+              { listing_fee_paid: true },
+              { listing_payment_status: 'pending_verification' },
+              { listing_receipt_url: { not: null } }
+            ]
+          }
+        })
       ]);
 
       res.json({
@@ -759,8 +770,12 @@ class AdminController {
       const listings = await prisma.property.findMany({
         where: {
           status: 'pending',
-          listing_fee_paid: true,
-          deleted_at: null
+          deleted_at: null,
+          OR: [
+            { listing_fee_paid: true },
+            { listing_payment_status: 'pending_verification' },
+            { listing_receipt_url: { not: null } }
+          ]
         },
         orderBy: { created_at: 'asc' },
         include: {
@@ -768,7 +783,6 @@ class AdminController {
           location: true,
           photos: { where: { isPrimary: true }, take: 1 },
           listing_fee_payments: {
-            where: { status: 'COMPLETED' },
             orderBy: { createdAt: 'desc' },
             take: 1
           }
@@ -870,25 +884,57 @@ class AdminController {
   /**
    * POST /api/admin/listings/:id/approve
    */
+  /**
+   * POST /api/admin/listings/:id/approve
+   * Approves verified listing and manual payment, publishes property live, and emails owner
+   */
   async approveListing(req, res) {
     try {
       const { id } = req.params;
 
-      const property = await prisma.property.findUnique({ where: { id } });
+      const property = await prisma.property.findUnique({
+        where: { id },
+        include: {
+          user: true,
+          listing_fee_payments: { orderBy: { createdAt: 'desc' }, take: 1 }
+        }
+      });
+
       if (!property) {
         return res.status(404).json({ success: false, message: 'Listing not found' });
       }
-      if (!property.listing_fee_paid) {
-        return res.status(400).json({ success: false, message: 'Listing fee has not been paid' });
-      }
 
-      const updated = await prisma.property.update({
-        where: { id },
-        data: {
-          status: 'available',
-          listing_rejection_reason: null
-        }
-      });
+      const latestPayment = property.listing_fee_payments?.[0];
+      const tier = property.listing_tier || latestPayment?.tier || 'standard';
+      const listingDays = tier === 'premium' ? 60 : 30;
+      const listingExpiresAt = new Date();
+      listingExpiresAt.setDate(listingExpiresAt.getDate() + listingDays);
+
+      const [updatedProperty] = await prisma.$transaction([
+        prisma.property.update({
+          where: { id },
+          data: {
+            status: 'available',
+            listing_fee_paid: true,
+            listing_payment_status: 'paid',
+            listing_tier: tier,
+            listing_expires_at: listingExpiresAt,
+            is_featured: tier === 'premium',
+            listing_rejection_reason: null
+          }
+        }),
+        ...(latestPayment ? [
+          prisma.listingFeePayment.update({
+            where: { id: latestPayment.id },
+            data: {
+              status: 'COMPLETED',
+              paidAt: new Date(),
+              reviewedBy: req.user?.id,
+              reviewedAt: new Date()
+            }
+          })
+        ] : [])
+      ]);
 
       await auditLogService.log({
         adminId: req.user.id,
@@ -896,10 +942,29 @@ class AdminController {
         targetResource: 'PROPERTY',
         targetId: id,
         ipAddress: extractIPAddress(req),
-        userAgent: extractUserAgent(req)
+        userAgent: extractUserAgent(req),
+        metadata: {
+          payment_method: property.listing_payment_method || latestPayment?.paymentMethod || 'MANUAL',
+          amount: latestPayment?.amount || 0,
+          tier
+        }
       });
 
-      res.json({ success: true, message: 'Listing approved and published', data: updated });
+      // Automatically notify user by email that listing is approved and published
+      if (property.user?.email) {
+        emailService.sendListingApprovedEmail(
+          property.user.email,
+          `${property.user.first_name} ${property.user.last_name}`,
+          property.title,
+          id
+        ).catch(err => console.error('[Email Notification] Error sending listing approved email:', err));
+      }
+
+      res.json({
+        success: true,
+        message: 'Listing approved and published successfully. Funds confirmed.',
+        data: updatedProperty
+      });
     } catch (error) {
       console.error('Approve listing error:', error);
       res.status(500).json({ success: false, message: 'Failed to approve listing' });
@@ -908,28 +973,52 @@ class AdminController {
 
   /**
    * POST /api/admin/listings/:id/reject
+   * Rejects listing / manual payment receipt and notifies owner with reason
    */
   async rejectListing(req, res) {
     try {
       const { id } = req.params;
       const { reason } = req.body;
 
-      if (!reason || reason.trim().length < 10) {
-        return res.status(400).json({ success: false, message: 'Rejection reason must be at least 10 characters' });
+      if (!reason || reason.trim().length < 5) {
+        return res.status(400).json({ success: false, message: 'Rejection reason must be at least 5 characters' });
       }
 
-      const property = await prisma.property.findUnique({ where: { id } });
+      const property = await prisma.property.findUnique({
+        where: { id },
+        include: {
+          user: true,
+          listing_fee_payments: { orderBy: { createdAt: 'desc' }, take: 1 }
+        }
+      });
+
       if (!property) {
         return res.status(404).json({ success: false, message: 'Listing not found' });
       }
 
-      const updated = await prisma.property.update({
-        where: { id },
-        data: {
-          status: 'withdrawn',
-          listing_rejection_reason: reason.trim()
-        }
-      });
+      const latestPayment = property.listing_fee_payments?.[0];
+
+      const [updatedProperty] = await prisma.$transaction([
+        prisma.property.update({
+          where: { id },
+          data: {
+            status: 'withdrawn',
+            listing_payment_status: 'rejected',
+            listing_rejection_reason: reason.trim()
+          }
+        }),
+        ...(latestPayment ? [
+          prisma.listingFeePayment.update({
+            where: { id: latestPayment.id },
+            data: {
+              status: 'REJECTED',
+              adminNotes: reason.trim(),
+              reviewedBy: req.user?.id,
+              reviewedAt: new Date()
+            }
+          })
+        ] : [])
+      ]);
 
       await auditLogService.log({
         adminId: req.user.id,
@@ -941,7 +1030,22 @@ class AdminController {
         metadata: { reason: reason.trim() }
       });
 
-      res.json({ success: true, message: 'Listing rejected', data: updated });
+      // Automatically notify user by email about rejection and how to fix
+      if (property.user?.email) {
+        emailService.sendListingPaymentRejectedEmail(
+          property.user.email,
+          `${property.user.first_name} ${property.user.last_name}`,
+          property.title,
+          reason.trim(),
+          id
+        ).catch(err => console.error('[Email Notification] Error sending rejection email:', err));
+      }
+
+      res.json({
+        success: true,
+        message: 'Listing rejected and owner notified with reason.',
+        data: updatedProperty
+      });
     } catch (error) {
       console.error('Reject listing error:', error);
       res.status(500).json({ success: false, message: 'Failed to reject listing' });
@@ -1142,10 +1246,22 @@ class AdminController {
   /**
    * GET /api/admin/payments/config
    */
+  /**
+   * GET /api/admin/payments/config
+   */
   async getPaymentConfig(req, res) {
     try {
       if (!this.paymentConfig) {
-        this.paymentConfig = { sell_fee: 500, rent_fee: 300 };
+        this.paymentConfig = {
+          sell_fee: 500,
+          rent_fee: 300,
+          cbe_account_number: '1000284759281',
+          cbe_account_name: 'UrbanNEST Real Estate PLC',
+          cbe_bank_name: 'Commercial Bank of Ethiopia (CBE)',
+          cbe_branch: 'Finfinnee Branch, Addis Ababa',
+          telebirr_phone: '0911478291',
+          telebirr_name: 'UrbanNEST Real Estate'
+        };
       }
       res.json({
         success: true,
@@ -1162,16 +1278,42 @@ class AdminController {
    */
   async updatePaymentConfig(req, res) {
     try {
-      const { sell_fee, rent_fee } = req.body;
+      const {
+        sell_fee,
+        rent_fee,
+        cbe_account_number,
+        cbe_account_name,
+        cbe_bank_name,
+        cbe_branch,
+        telebirr_phone,
+        telebirr_name
+      } = req.body;
+
       if (!this.paymentConfig) {
-        this.paymentConfig = { sell_fee: 500, rent_fee: 300 };
+        this.paymentConfig = {
+          sell_fee: 500,
+          rent_fee: 300,
+          cbe_account_number: '1000284759281',
+          cbe_account_name: 'UrbanNEST Real Estate PLC',
+          cbe_bank_name: 'Commercial Bank of Ethiopia (CBE)',
+          cbe_branch: 'Finfinnee Branch, Addis Ababa',
+          telebirr_phone: '0911478291',
+          telebirr_name: 'UrbanNEST Real Estate'
+        };
       }
+
       if (sell_fee !== undefined) this.paymentConfig.sell_fee = Number(sell_fee);
       if (rent_fee !== undefined) this.paymentConfig.rent_fee = Number(rent_fee);
+      if (cbe_account_number !== undefined) this.paymentConfig.cbe_account_number = String(cbe_account_number).trim();
+      if (cbe_account_name !== undefined) this.paymentConfig.cbe_account_name = String(cbe_account_name).trim();
+      if (cbe_bank_name !== undefined) this.paymentConfig.cbe_bank_name = String(cbe_bank_name).trim();
+      if (cbe_branch !== undefined) this.paymentConfig.cbe_branch = String(cbe_branch).trim();
+      if (telebirr_phone !== undefined) this.paymentConfig.telebirr_phone = String(telebirr_phone).trim();
+      if (telebirr_name !== undefined) this.paymentConfig.telebirr_name = String(telebirr_name).trim();
 
       res.json({
         success: true,
-        message: 'Payment configuration updated successfully',
+        message: 'Payment and transfer configuration updated successfully',
         data: this.paymentConfig
       });
     } catch (error) {
@@ -1224,14 +1366,22 @@ class AdminController {
 
       const updatedPayment = await prisma.listingFeePayment.update({
         where: { id },
-        data: { status: 'COMPLETED' }
+        data: {
+          status: 'COMPLETED',
+          paidAt: new Date(),
+          reviewedBy: req.user?.id,
+          reviewedAt: new Date()
+        }
       });
 
       // Update associated property listing fee status
       if (payment.propertyId) {
         await prisma.property.update({
           where: { id: payment.propertyId },
-          data: { listing_fee_paid: true }
+          data: {
+            listing_fee_paid: true,
+            listing_payment_status: 'paid'
+          }
         });
       }
 

@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { env } from '../config/env.js';
 import cloudinary from '../config/cloudinary.js';
-import { uploadMultipleToCloudinary } from '../middleware/upload.cloudinary.js';
+import { uploadToCloudinary, uploadMultipleToCloudinary } from '../middleware/upload.cloudinary.js';
 import axios from 'axios';
 
 const prisma = new PrismaClient();
@@ -1213,15 +1213,202 @@ class PropertyController {
   }
 
   /**
-   * Update property
+   * Get manual bank & Telebirr transfer details and fees
+   * @route GET /api/properties/manual-transfer-info
    */
-  async updateProperty(req, res) {
+  async getManualTransferDetails(req, res) {
     try {
-      const { id } = req.params;
-      const { id: userId, role } = req.user;
-      const updateData = req.body;
+      res.json({
+        success: true,
+        data: {
+          cbe: {
+            bankName: 'Commercial Bank of Ethiopia (CBE)',
+            accountNumber: '1000284759281',
+            accountName: 'UrbanNEST Real Estate PLC',
+            branch: 'Finfinnee Branch, Addis Ababa',
+            ussdCode: '*847#'
+          },
+          telebirr: {
+            provider: 'Telebirr',
+            phoneNumber: '0911478291',
+            accountName: 'UrbanNEST Real Estate',
+            shortCode: '251911478291',
+            ussdCode: '*127#'
+          },
+          feeSchedule: {
+            standard: {
+              rent: 50,
+              sale: 100,
+              description: 'Standard 30-day active listing on UrbanNEST'
+            },
+            premium: {
+              rent: 100,
+              sale: 200,
+              description: 'Premium 60-day listing with Featured Golden Badge & top search ranking'
+            }
+          },
+          instructions: [
+            'Select Commercial Bank of Ethiopia (CBE) or Telebirr above.',
+            'Copy the official account or phone number.',
+            'Open your mobile banking app or use USSD code to transfer the exact listing fee.',
+            'Take a clear screenshot of the completed transfer receipt or SMS confirmation.',
+            'Upload the receipt image below to submit your listing for admin approval.'
+          ]
+        }
+      });
+    } catch (error) {
+      console.error('Get manual transfer details error:', error);
+      res.status(500).json({ success: false, message: 'Failed to get transfer details' });
+    }
+  }
 
-      const property = await prisma.property.findUnique({ where: { id } });
+  /**
+   * Submit manual payment receipt for admin verification
+   * @route POST /api/properties/:id/manual-payment
+   */
+  async submitManualPayment(req, res) {
+    try {
+      const { id: propertyId } = req.params;
+      const { id: userId, role } = req.user;
+      const {
+        payment_method = 'CBE',
+        tier = 'standard',
+        account_number,
+        reference_code,
+        notes
+      } = req.body;
+
+      const property = await prisma.property.findUnique({
+        where: { id: propertyId }
+      });
+
+      if (!property) {
+        return res.status(404).json({ success: false, message: 'Property not found' });
+      }
+
+      if (property.user_id !== userId && role !== 'admin') {
+        return res.status(403).json({ success: false, message: 'You do not own this property' });
+      }
+
+      if (property.listing_fee_paid && property.status === 'available') {
+        return res.status(400).json({ success: false, message: 'Listing fee is already paid and property is published.' });
+      }
+
+      // Check receipt file
+      if (!req.file) {
+        return res.status(400).json({
+          success: false,
+          message: 'Please upload an image or screenshot of your payment receipt'
+        });
+      }
+
+      // Determine fee
+      const isRent = ['rent', 'short_term_rental', 'long_term_rental'].includes(property.purpose);
+      const fees = {
+        standard: isRent ? 50 : 100,
+        premium: isRent ? 100 : 200
+      };
+      const amount = fees[tier] || (isRent ? 50 : 100);
+
+      // Upload receipt
+      let receiptUrl = req.file.path || req.file.location;
+      let receiptPublicId = null;
+
+      if (req.file.buffer) {
+        try {
+          const uploadRes = await uploadToCloudinary(req.file.buffer, 'receipts', 'auto');
+          receiptUrl = uploadRes.secure_url;
+          receiptPublicId = uploadRes.public_id;
+        } catch (uploadErr) {
+          console.warn('[Manual Payment] Cloudinary upload fallback:', uploadErr.message);
+          const mime = req.file.mimetype || 'image/jpeg';
+          receiptUrl = `data:${mime};base64,${req.file.buffer.toString('base64')}`;
+        }
+      }
+
+      if (!receiptUrl) {
+        return res.status(500).json({
+          success: false,
+          message: 'Failed to process receipt image. Please try again.'
+        });
+      }
+
+      const generatedRef = reference_code?.trim() || `UN-TX-${Date.now().toString(36).toUpperCase()}`;
+
+      // Create or update ListingFeePayment record
+      const paymentRecord = await prisma.listingFeePayment.create({
+        data: {
+          propertyId,
+          userId,
+          amount,
+          currency: 'ETB',
+          tier: ['standard', 'premium'].includes(tier) ? tier : 'standard',
+          paymentMethod: payment_method.toUpperCase(),
+          accountNumber: account_number?.trim() || (payment_method.toUpperCase() === 'TELEBIRR' ? '0911478291' : '1000284759281'),
+          receiptUrl,
+          receiptPublicId,
+          referenceCode: generatedRef,
+          status: 'PENDING_VERIFICATION',
+          adminNotes: notes?.trim() || null
+        }
+      });
+
+      // Update Property status to pending verification
+      const updatedProperty = await prisma.property.update({
+        where: { id: propertyId },
+        data: {
+          listing_payment_status: 'pending_verification',
+          listing_receipt_url: receiptUrl,
+          listing_payment_method: payment_method.toUpperCase(),
+          listing_tier: tier,
+          status: 'pending',
+          listing_rejection_reason: null
+        }
+      });
+
+      res.status(201).json({
+        success: true,
+        message: 'Payment proof uploaded successfully! Your listing is now Pending Verification by our admin team.',
+        data: {
+          property_id: propertyId,
+          payment_id: paymentRecord.id,
+          reference_code: generatedRef,
+          payment_method: payment_method.toUpperCase(),
+          amount,
+          receipt_url: receiptUrl,
+          payment_status: 'pending_verification',
+          property_status: updatedProperty.status
+        }
+      });
+
+    } catch (error) {
+      console.error('Submit manual payment error:', error);
+      res.status(500).json({
+        success: false,
+        message: error.message || 'Failed to submit payment receipt'
+      });
+    }
+  }
+
+  /**
+   * Get payment & receipt status for a specific property
+   * @route GET /api/properties/:id/payment-details
+   */
+  async getPropertyPaymentDetails(req, res) {
+    try {
+      const { id: propertyId } = req.params;
+      const { id: userId, role } = req.user;
+
+      const property = await prisma.property.findUnique({
+        where: { id: propertyId },
+        include: {
+          listing_fee_payments: {
+            orderBy: { createdAt: 'desc' },
+            take: 1
+          }
+        }
+      });
+
       if (!property) {
         return res.status(404).json({ success: false, message: 'Property not found' });
       }
@@ -1230,13 +1417,106 @@ class PropertyController {
         return res.status(403).json({ success: false, message: 'Unauthorized' });
       }
 
+      const latestPayment = property.listing_fee_payments?.[0];
+
+      res.json({
+        success: true,
+        data: {
+          property_id: property.id,
+          title: property.title,
+          listing_fee_paid: property.listing_fee_paid,
+          listing_payment_status: property.listing_payment_status || (property.listing_fee_paid ? 'paid' : 'unpaid'),
+          listing_receipt_url: property.listing_receipt_url || latestPayment?.receiptUrl || null,
+          listing_payment_method: property.listing_payment_method || latestPayment?.paymentMethod || null,
+          rejection_reason: property.listing_rejection_reason || latestPayment?.adminNotes || null,
+          latest_payment: latestPayment || null
+        }
+      });
+    } catch (error) {
+      console.error('Get property payment details error:', error);
+      res.status(500).json({ success: false, message: 'Failed to fetch payment details' });
+    }
+  }
+
+  /**
+   * Update property
+   */
+  async updateProperty(req, res) {
+    try {
+      const { id } = req.params;
+      const { id: userId, role } = req.user;
+      const updateData = { ...req.body };
+
+      const property = await prisma.property.findUnique({
+        where: { id },
+        include: { location: true, photos: true }
+      });
+
+      if (!property) {
+        return res.status(404).json({ success: false, message: 'Property not found' });
+      }
+
+      if (property.user_id !== userId && role !== 'admin') {
+        return res.status(403).json({ success: false, message: 'Unauthorized' });
+      }
+
+      // Handle location update if present
+      let locationId = property.locationId;
+      if (updateData.location && typeof updateData.location === 'object') {
+        const loc = updateData.location;
+        if (locationId) {
+          await prisma.location.update({
+            where: { id: locationId },
+            data: {
+              country: loc.country || undefined,
+              city: loc.city || undefined,
+              subCity: loc.subCity || undefined,
+              address: loc.address || undefined,
+              region: loc.region || undefined,
+              latitude: loc.latitude ? parseFloat(loc.latitude) : undefined,
+              longitude: loc.longitude ? parseFloat(loc.longitude) : undefined,
+            }
+          });
+        } else if (loc.city || loc.address) {
+          const newLoc = await prisma.location.create({
+            data: {
+              country: loc.country || 'Ethiopia',
+              city: loc.city || 'Addis Ababa',
+              subCity: loc.subCity || null,
+              address: loc.address || 'Addis Ababa',
+              latitude: loc.latitude ? parseFloat(loc.latitude) : 9.0054,
+              longitude: loc.longitude ? parseFloat(loc.longitude) : 38.7636,
+            }
+          });
+          locationId = newLoc.id;
+        }
+        delete updateData.location;
+      }
+
+      // Clean up fields not part of Prisma property model directly
+      delete updateData.id;
+      delete updateData.user_id;
+      delete updateData.created_at;
+      delete updateData.photos;
+      delete updateData.user;
+      delete updateData.amenities;
+      delete updateData.transactions;
+      delete updateData.conversations;
+      delete updateData.bookings;
+      delete updateData.favorited_by;
+      delete updateData.reviews;
+      delete updateData.reviewSummaries;
+
       const updatedProperty = await prisma.property.update({
         where: { id },
         data: {
           ...updateData,
-          price: updateData.price ? parseFloat(updateData.price) : undefined,
-          bedrooms: updateData.bedrooms ? parseInt(updateData.bedrooms) : undefined,
-          bathrooms: updateData.bathrooms ? parseFloat(updateData.bathrooms) : undefined,
+          locationId: locationId || undefined,
+          price: updateData.price !== undefined ? parseFloat(updateData.price) : undefined,
+          bedrooms: updateData.bedrooms !== undefined ? parseInt(updateData.bedrooms) : undefined,
+          bathrooms: updateData.bathrooms !== undefined ? parseFloat(updateData.bathrooms) : undefined,
+          sitting_area: updateData.sitting_area !== undefined ? parseInt(updateData.sitting_area) : undefined,
+          kitchen: updateData.kitchen !== undefined ? (updateData.kitchen === true || updateData.kitchen === 'true') : undefined,
           updated_at: new Date()
         },
         include: { location: true, photos: true }
@@ -1246,12 +1526,12 @@ class PropertyController {
 
     } catch (error) {
       console.error('Update property error:', error);
-      res.status(500).json({ success: false, message: 'An error occurred updating property' });
+      res.status(500).json({ success: false, message: 'An error occurred updating property', error: error.message });
     }
   }
 
   /**
-   * Delete property (soft delete)
+   * Delete property (permanently from platform)
    */
   async deleteProperty(req, res) {
     try {
@@ -1267,16 +1547,24 @@ class PropertyController {
         return res.status(403).json({ success: false, message: 'Unauthorized' });
       }
 
-      await prisma.property.update({
-        where: { id },
-        data: { status: 'off_market', deleted_at: new Date() }
-      });
+      try {
+        // Delete property and cascading child relations
+        await prisma.property.delete({
+          where: { id }
+        });
+      } catch (delError) {
+        console.warn('Direct delete failed, falling back to soft removal:', delError.message);
+        await prisma.property.update({
+          where: { id },
+          data: { status: 'off_market', deleted_at: new Date() }
+        });
+      }
 
-      res.json({ success: true, message: 'Property deleted successfully' });
+      res.json({ success: true, message: 'Property deleted permanently from the platform' });
 
     } catch (error) {
       console.error('Delete property error:', error);
-      res.status(500).json({ success: false, message: 'An error occurred deleting property' });
+      res.status(500).json({ success: false, message: 'An error occurred deleting property', error: error.message });
     }
   }
 }
